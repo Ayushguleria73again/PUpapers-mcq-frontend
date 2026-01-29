@@ -1,0 +1,314 @@
+.hero {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    padding-top: 70px;
+    position: relative;
+    overflow: hidden;
+}
+
+.heroContent {
+    flex: 1;
+    z-index: 10;
+}
+
+.heroWrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--primary);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 107, 0, 0.2);
+}
+
+.title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    color: var(--foreground);
+}
+
+.title span {
+    color: var(--primary);
+    position: relative;
+}
+
+.description {
+    font-size: 1.125rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.ctaGroup {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.secondaryBtn {
+    padding: 0.8rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--foreground);
+    transition: all 0.2s ease;
+}
+
+.secondaryBtn:hover {
+    background: var(--border);
+}
+
+.heroImage {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--primary) 0%, #FF8533 100%);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    animation: morph 8s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+@keyframes morph {
+    0% {
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    }
+
+    50% {
+        border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%;
+    }
+
+    100% {
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    }
+}
+
+.floatingCard {
+    position: absolute;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 20;
+}
+
+.card1 {
+    top: 10%;
+    left: -20px;
+    background: white;
+}
+
+.card2 {
+    bottom: 10%;
+    right: 20px;
+    background: var(--secondary);
+    color: white;
+}
+
+/* Tablet and below */
+@media (max-width: 992px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding-top: 100px;
+        padding-bottom: 50px;
+        min-height: auto;
+    }
+
+    .heroWrapper {
+        flex-direction: column;
+    }
+
+    .heroContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .title {
+        font-size: clamp(2rem, 6vw, 3rem);
+    }
+
+    .description {
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1rem;
+    }
+
+    .ctaGroup {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .heroImage {
+        margin-top: 3rem;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .imageContainer {
+        max-width: 400px;
+    }
+
+    .floatingCard {
+        padding: 1rem;
+    }
+
+    .card1 {
+        top: 5%;
+        left: -10px;
+    }
+
+    .card2 {
+        bottom: 5%;
+        right: -10px;
+    }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 768px) {
+    .hero {
+        padding-top: 80px;
+        padding-bottom: 40px;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .title {
+        font-size: clamp(1.75rem, 7vw, 2.5rem);
+        margin-bottom: 1rem;
+    }
+
+    .description {
+        font-size: 0.9375rem;
+        margin-bottom: 2rem;
+        padding: 0 1rem;
+    }
+
+    .ctaGroup {
+        gap: 0.75rem;
+    }
+
+    .secondaryBtn {
+        padding: 0.7rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    .heroImage {
+        margin-top: 2.5rem;
+    }
+
+    .imageContainer {
+        max-width: 320px;
+    }
+
+    .floatingCard {
+        padding: 0.875rem;
+        font-size: 0.875rem;
+    }
+
+    .card1 {
+        top: 0;
+        left: 0;
+    }
+
+    .card2 {
+        bottom: 0;
+        right: 0;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 576px) {
+    .hero {
+        padding-top: 60px;
+        padding-bottom: 30px;
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.35rem 0.7rem;
+    }
+
+    .title {
+        font-size: clamp(1.5rem, 8vw, 2rem);
+        margin-bottom: 0.875rem;
+    }
+
+    .description {
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .ctaGroup {
+        flex-direction: column;
+        gap: 0.625rem;
+        width: 100%;
+        padding: 0 1rem;
+    }
+
+    .ctaGroup>* {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .secondaryBtn {
+        padding: 0.65rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .heroImage {
+        margin-top: 2rem;
+    }
+
+    .imageContainer {
+        max-width: 280px;
+    }
+
+    .floatingCard {
+        padding: 0.75rem;
+        font-size: 0.8125rem;
+        border-radius: 12px;
+    }
+
+    .card1,
+    .card2 {
+        position: relative;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        margin: 0.5rem auto;
+        max-width: 200px;
+    }
+}

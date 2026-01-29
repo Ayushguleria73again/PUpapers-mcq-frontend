@@ -1,0 +1,270 @@
+.container {
+    background-color: #F8F9FB;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.heroSection {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    color: white;
+    padding: 8rem 1rem 6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.heroContent {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.highlight {
+    color: #FF6B00;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: #ccc;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.decorativeCircle1 {
+    position: absolute;
+    top: 10%;
+    left: 5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 107, 0, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 50%;
+}
+
+.decorativeCircle2 {
+    position: absolute;
+    bottom: -10%;
+    right: 10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 107, 0, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 50%;
+}
+
+.contentWrapper {
+    max-width: 1100px;
+    margin: -3rem auto 4rem;
+    padding: 0 1rem;
+    flex: 1;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.formCard {
+    background: white;
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.formTitle {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.input,
+.textarea {
+    padding: 0.9rem;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    outline: none;
+    background: #F8F9FB;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    width: 100%;
+    font-family: inherit;
+}
+
+.input:focus,
+.textarea:focus {
+    border-color: #FF6B00;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+}
+
+.textarea {
+    resize: none;
+}
+
+.submitBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    font-size: 1rem;
+    background: #FF6B00;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submitBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+}
+
+.infoCardsGrid {
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+}
+
+.infoCard {
+    background: white;
+    padding: 2rem;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: start;
+    gap: 1.5rem;
+}
+
+.iconWrapper {
+    background: #FFF5EB;
+    padding: 1rem;
+    border-radius: 16px;
+    color: #FF6B00;
+    flex-shrink: 0;
+}
+
+.infoTitle {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+}
+
+.infoText {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.promoCard {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8534 100%);
+    padding: 2rem;
+    border-radius: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(255, 107, 0, 0.3);
+}
+
+.promoBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: white;
+    color: #FF6B00;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: transform 0.2s;
+}
+
+.promoBtn:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .heroSection {
+        padding: 6rem 1rem 4rem;
+    }
+
+    .title {
+        font-size: 2.5rem;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+    }
+
+    .contentWrapper {
+        margin-top: -2rem;
+    }
+
+    .formCard {
+        padding: 2rem;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .gridContainer {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 2rem;
+    }
+
+    .formCard {
+        padding: 1.5rem;
+    }
+
+    .infoCard {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+}

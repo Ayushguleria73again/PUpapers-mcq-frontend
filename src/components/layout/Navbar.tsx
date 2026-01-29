@@ -1,0 +1,209 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { GraduationCap, Menu, X, ChevronDown } from 'lucide-react';
+import styles from './Navbar.module.css';
+
+const Navbar = () => {
+  const pathname = usePathname();
+  const [user, setUser] = React.useState<any>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    // Don't fetch on auth pages
+    if (pathname === '/login' || pathname === '/signup') return;
+
+    const checkUser = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          credentials: 'include'
+        });
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData);
+        }
+      } catch (err) {
+        console.error('Failed to check auth status');
+      }
+    };
+
+    checkUser();
+  }, [pathname]);
+
+  // Close mobile menu when route changes
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Logout failed');
+    }
+  };
+
+  // Hide navbar on login, signup, active quiz pages, and admin panel
+  if (
+    pathname === '/login' || 
+    pathname === '/signup' || 
+    (pathname.startsWith('/mock-tests/') && pathname !== '/mock-tests') ||
+    pathname.startsWith('/admin')
+  ) {
+    return null;
+  }
+
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Dashboard', path: '/dashboard' },
+  ];
+
+  const exploreLinks = [
+    { name: 'Mock Tests', path: '/mock-tests' },
+    { name: 'Previous Papers', path: '/previous-papers' },
+    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'About', path: '/about' },
+  ];
+
+  return (
+    <>
+      <nav className={`${styles.navbar} glass`}>
+        <div className={`${styles.navContainer} container`}>
+          <Link href="/" className={styles.logo}>
+            <GraduationCap size={28} className={styles.logoIcon} />
+            <p>pu<span>papers</span>.com</p>
+          </Link>
+
+          <ul className={styles.navLinks}>
+            {navLinks.map((link) => (
+              <li key={link.path}>
+                <Link 
+                  href={link.path} 
+                  className={`${styles.navLink} ${pathname === link.path ? styles.activeNavLink : ''}`}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+            
+            {/* Dropdown for Explore */}
+            <li className={styles.dropdown}>
+                <div className={styles.dropdownTrigger}>
+                    Explore <ChevronDown size={16} />
+                </div>
+                <div className={styles.dropdownContent}>
+                    {exploreLinks.map((link) => (
+                        <Link 
+                            key={link.path} 
+                            href={link.path}
+                            className={styles.dropdownItem}
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                </div>
+            </li>
+          </ul>
+
+          <div className={styles.navActions}>
+            {user ? (
+              <div className={styles.userInfo}>
+                <span className={styles.userName}>Hi, {user.fullName.split(' ')[0]}</span>
+                <button onClick={handleLogout} className="btn-primary" style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link href="/login" className="btn-primary">
+                Get Started
+              </Link>
+            )}
+            <button 
+              className={styles.mobileMenuBtn}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            className={styles.mobileMenu}
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+          >
+            <div className={styles.mobileMenuContent}>
+              <ul className={styles.mobileNavLinks}>
+                {navLinks.map((link, index) => (
+                  <motion.li
+                    key={link.path}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Link 
+                      href={link.path} 
+                      className={`${styles.mobileNavLink} ${pathname === link.path ? styles.activeMobileNavLink : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  </motion.li>
+                ))}
+                
+                <div style={{ padding: '0.5rem 0', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px' }}>Explore</div>
+                {exploreLinks.map((link, index) => (
+                    <motion.li
+                        key={link.path}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (index + 2) * 0.1 }}
+                    >
+                        <Link 
+                            href={link.path}
+                            className={`${styles.mobileNavLink} ${pathname === link.path ? styles.activeMobileNavLink : ''}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            {link.name}
+                        </Link>
+                    </motion.li>
+                ))}
+              </ul>
+
+              <div className={styles.mobileMenuActions}>
+                {user ? (
+                  <>
+                    <p className={styles.mobileUserName}>Hi, {user.fullName}!</p>
+                    <button onClick={handleLogout} className="btn-primary" style={{ width: '100%' }}>
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" className="btn-primary" style={{ width: '100%', textAlign: 'center' }}>
+                    Get Started
+                  </Link>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default Navbar;
