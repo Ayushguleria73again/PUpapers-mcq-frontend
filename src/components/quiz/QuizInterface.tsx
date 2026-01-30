@@ -216,7 +216,7 @@ const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
         <div className={styles.quizCard}>
           <div className={styles.results}>
             <div style={{ marginBottom: '2rem' }}>
-                <Trophy size={40} color="#0f172a" style={{ margin: '0 auto 1.5rem' }} />
+                <Trophy size={48} color="var(--primary)" style={{ margin: '0 auto 1.5rem' }} />
                 <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>Practice Results</h1>
                 <p style={{ color: '#64748b', fontWeight: 500 }}>Summary for {questions[0]?.subject.name}</p>
             </div>
@@ -279,7 +279,7 @@ const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
                             </div>
 
                             {q.explanation && (
-                                <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
                                         <BrainCircuit size={14} /> Explanation
                                     </div>
@@ -334,7 +334,7 @@ const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
                 {questions[currentQuestion].options.map((option, index) => (
                   <button key={index} className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} tiptap-content`} onClick={() => setSelectedOption(index)}>
                     <span style={{ 
-                        width: '24px', height: '24px', background: selectedOption === index ? 'rgba(255,255,255,0.2)' : '#f1f5f9', 
+                        width: '24px', height: '24px', border: `1px solid ${selectedOption === index ? 'rgba(255,255,255,0.3)' : 'var(--border)'}`, 
                         borderRadius: '6px', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>{optionLetters[index]}</span>
                     <div style={{ flex: 1 }}>
