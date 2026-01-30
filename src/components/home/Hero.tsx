@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { ArrowRight, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import styles from './Hero.module.css';
 
@@ -24,13 +25,15 @@ const Hero = () => {
               The ultimate platform for Panjab University Chandigarh Common Entrance Test (CET) preparation. Access thousands of MCQs, previous year papers, and real-time mock tests.
             </p>
             <div className={styles.ctaGroup}>
-              <motion.button 
-                className="btn-primary"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Start Free Mock Test <ArrowRight size={20} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
-              </motion.button>
+              <Link href="/pucet-mock">
+                <motion.button 
+                  className="btn-primary"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Take Full Mock Test <ArrowRight size={20} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
+                </motion.button>
+              </Link>
               <button className={styles.secondaryBtn}>
                 View Previous Papers
               </button>

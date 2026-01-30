@@ -36,9 +36,10 @@ interface QuizInterfaceProps {
   subjectSlug?: string;
   chapterId?: string | null;
   difficulty?: string;
+  stream?: string; // PCB or PCM
 }
 
-const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInterfaceProps) => {
+const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: QuizInterfaceProps) => {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +54,9 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
   const [togglingBookmark, setTogglingBookmark] = useState(false);
   const [aiExplanations, setAiExplanations] = useState<Record<string, { content: string; loading: boolean }>>({});
 
-  const storageKey = `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}${difficulty !== 'all' ? `_${difficulty}` : ''}`;
+  const storageKey = stream 
+    ? `quiz_state_pucet_${stream}`
+    : `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}${difficulty !== 'all' ? `_${difficulty}` : ''}`;
 
   // REMOVED individual useEffect for restoration - moved into unified initialization below
 
@@ -66,7 +69,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
   }, [currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, storageKey, loading, questions]);
 
   useEffect(() => {
-    if (!subjectSlug) {
+    if (!subjectSlug && !stream) {
         setQuestions([]); 
         setLoading(false);
         return;
@@ -107,12 +110,17 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
 
       // 2. Fallback to API Fetch
       try {
-        let url = `${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`;
-        if (chapterId) {
-            url += `&chapterId=${chapterId}`;
-        }
-        if (difficulty && difficulty !== 'all') {
-            url += `&difficulty=${difficulty}`;
+        let url;
+        if (stream) {
+          url = `${process.env.NEXT_PUBLIC_API_URL}/content/pucet-exam?stream=${stream}`;
+        } else {
+          url = `${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`;
+          if (chapterId) {
+              url += `&chapterId=${chapterId}`;
+          }
+          if (difficulty && difficulty !== 'all') {
+              url += `&difficulty=${difficulty}`;
+          }
         }
 
         const res = await fetch(url, {
@@ -121,6 +129,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
         if (res.ok) {
           const data = await res.json();
           // SHUFFLE ONLY ONCE (First time fetch)
+          // For pucet-exam, it's already shuffled on backend, but extra shuffle doesn't hurt
           const shuffled = [...data];
           for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -133,14 +142,14 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
           setUserAnswers([]);
           setScore(0);
           setShowResult(false);
-          setTimeLeft(180);
+          setTimeLeft(stream ? 3600 : 180); // 60 mins for full exam, 3 mins for quick quiz
         }
       } catch (err) { console.error(err); } 
       finally { setLoading(false); }
     };
 
       initializeQuiz();
-  }, [subjectSlug, storageKey]);
+  }, [subjectSlug, storageKey, stream]);
 
   useEffect(() => {
     if (timeLeft > 0 && !showResult && questions.length > 0) {
@@ -180,7 +189,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({
-                subjectId: questions[0].subject._id,
+                subjectId: questions[0]?.subject._id,
                 score: finalScore,
                 totalQuestions: questions.length
             })
@@ -296,8 +305,12 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
           <div className={styles.results}>
             <div style={{ marginBottom: '2rem' }}>
                 <Trophy size={48} color="var(--primary)" style={{ margin: '0 auto 1.5rem' }} />
-                <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>Practice Results</h1>
-                <p style={{ color: '#64748b', fontWeight: 500 }}>Summary for {questions[0]?.subject.name}</p>
+                <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>
+                    {stream ? `PUCET ${stream} Mock` : 'Practice Results'}
+                </h1>
+                <p style={{ color: '#64748b', fontWeight: 500 }}>
+                    {stream ? 'Comprehensive Entrance Simulation' : `Summary for ${questions[0]?.subject.name}`}
+                </p>
             </div>
 
             <div className={styles.metricsGrid}>
