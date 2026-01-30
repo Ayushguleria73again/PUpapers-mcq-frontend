@@ -187,7 +187,96 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                 </div>
             </div>
 
-            {/* ... (rest of the form fields) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Subject</label>
+                    <select 
+                        value={subjectId}
+                        onChange={(e) => {
+                            setSubjectId(e.target.value);
+                            onSubjectChange(e.target.value);
+                        }}
+                        required
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                    >
+                        {subjects.map(sub => (
+                            <option key={sub._id} value={sub._id}>{sub.name}</option>
+                        ))}
+                    </select>
+                </div>
+                
+                <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Chapter</label>
+                    <select 
+                        value={chapterId}
+                        onChange={(e) => setChapterId(e.target.value)}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                    >
+                        <option value="">-- No Chapter --</option>
+                        {chapters.map(chap => (
+                            <option key={chap._id} value={chap._id}>{chap.name}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            <TiptapEditor 
+                label="Question Text"
+                value={text}
+                onChange={setText}
+                placeholder="Enter your question here..."
+            />
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600, color: '#2c3e50' }}>Multiple Choice Options</label>
+                <div style={{ display: 'grid', gap: '1.2rem' }}>
+                    {options.map((opt, idx) => (
+                        <div key={idx} style={{ background: '#f9fafb', padding: '1rem', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#666' }}>OPTION {String.fromCharCode(65 + idx)}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <label style={{ fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <input 
+                                            type="radio" 
+                                            name="correctOption"
+                                            checked={correctOption === idx}
+                                            onChange={() => setCorrectOption(idx)}
+                                            style={{ width: '16px', height: '16px', accentColor: '#2ecc71' }}
+                                        />
+                                        Correct Answer
+                                    </label>
+                                </div>
+                            </div>
+                            <TiptapEditor 
+                                label="" 
+                                value={opt} 
+                                onChange={(val) => handleOptionChange(idx, val)} 
+                                placeholder={`Enter option ${String.fromCharCode(65 + idx)}...`}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <TiptapEditor 
+                label="Explanation"
+                value={explanation}
+                onChange={setExplanation}
+                placeholder="Explain why the correct answer is right..."
+            />
+
+            <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Difficulty</label>
+                <select 
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
+                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
 
             <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }} disabled={loading}>
                 {loading ? 'Saving...' : (editItem ? 'Update Question' : 'Add Question')}
