@@ -357,18 +357,6 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
                                 })}
                             </div>
 
-                            {q.explanation && (
-                                <div style={{ background: '#ffffff', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-                                        <BrainCircuit size={14} /> Explanation
-                                    </div>
-                                    <div className="tiptap-content" style={{ fontSize: '0.95rem' }}>
-                                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
-                                            {cleanMarkdownForRendering(q.explanation)}
-                                        </ReactMarkdown>
-                                    </div>
-                                </div>
-                            )}
 
                             <div className={styles.aiExplanationSection}>
                                 {!aiExplanations[q._id] ? (
@@ -376,7 +364,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
                                         className={styles.aiBtn}
                                         onClick={() => getAIExplanation(q._id, userAnswers[index])}
                                     >
-                                        <Sparkles size={16} /> Explain with AI (GPT-4o)
+                                        <Sparkles size={16} /> Explain with AI
                                     </button>
                                 ) : (
                                     <div className={styles.aiResponseBox}>
