@@ -2,10 +2,11 @@
 
 import React, { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { KeyRound, Lock, ArrowRight, CheckCircle } from 'lucide-react';
+import { KeyRound, Lock, ArrowRight, CheckCircle, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Navbar from '@/components/layout/Navbar';
+import styles from '@/components/auth/Auth.module.css';
 
 const ResetPasswordContent = () => {
     const searchParams = useSearchParams();
@@ -54,109 +55,126 @@ const ResetPasswordContent = () => {
         }
     };
 
-    return (
-        <div className="max-w-md mx-auto">
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-xl overflow-hidden p-8"
-            >
-                <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-slate-900 mb-2">Set New Password</h1>
-                    <p className="text-slate-600">Enter the verification code sent to your email and choose a new password.</p>
+    if (status === 'success') {
+        return (
+             <div className="text-center py-8">
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle className="text-green-600" size={32} />
                 </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-2">Password Reset!</h3>
+                <p className={styles.subtitle} style={{ marginBottom: '2rem' }}>Your password has been successfully updated.</p>
+                
+                <Link href="/login">
+                    <motion.button 
+                        whileHover={{ scale: 1.02 }} 
+                        className={`btn-primary ${styles.submitBtn}`}
+                    >
+                        Go to Login
+                    </motion.button>
+                </Link>
+            </div>
+        );
+    }
 
-                {status === 'success' ? (
-                    <div className="text-center py-8">
-                         <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                            <CheckCircle className="text-green-600" size={32} />
-                        </div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Password Reset!</h3>
-                        <p className="text-slate-600 text-sm">Your password has been successfully updated.</p>
-                        <Link href="/login">
-                            <button className="mt-6 w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all">
-                                Go to Login
-                            </button>
-                        </Link>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                            <input 
-                                type="email" 
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 focus:outline-none"
-                                readOnly
-                            />
-                        </div>
+    return (
+         <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+                <label className={styles.label}>Email</label>
+                <div className={styles.inputWrapper}>
+                     {/* Using key={formData.email} ensures it re-renders if email changes, though typically static here */}
+                    <input 
+                        type="email" 
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={styles.input}
+                        style={{ background: '#f8f9fa', color: '#666' }}
+                        readOnly
+                    />
+                </div>
+            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Verification Code (OTP)</label>
-                            <div className="relative">
-                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                                <input 
-                                    type="text" 
-                                    name="otp"
-                                    value={formData.otp}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all tracking-widest font-mono"
-                                    placeholder="123456"
-                                    required
-                                    maxLength={6}
-                                />
-                            </div>
-                        </div>
+            <div className={styles.inputGroup}>
+                <label className={styles.label}>Verification Code (OTP)</label>
+                <div className={styles.inputWrapper}>
+                    <KeyRound className={styles.inputIcon} size={18} />
+                    <input 
+                        type="text" 
+                        name="otp"
+                        value={formData.otp}
+                        onChange={handleChange}
+                        className={styles.input}
+                        placeholder="123456"
+                        required
+                        maxLength={6}
+                        style={{ letterSpacing: '2px', fontFamily: 'monospace' }}
+                    />
+                </div>
+            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">New Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                                <input 
-                                    type="password" 
-                                    name="newPassword"
-                                    value={formData.newPassword}
-                                    onChange={handleChange}
-                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
-                                    placeholder="••••••••"
-                                    required
-                                    minLength={6}
-                                />
-                            </div>
-                        </div>
+            <div className={styles.inputGroup}>
+                <label className={styles.label}>New Password</label>
+                <div className={styles.inputWrapper}>
+                    <Lock className={styles.inputIcon} size={18} />
+                    <input 
+                        type="password" 
+                        name="newPassword"
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        className={styles.input}
+                        placeholder="••••••••"
+                        required
+                        minLength={6}
+                    />
+                </div>
+            </div>
 
-                        {status === 'error' && (
-                            <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center font-medium">
-                                {errorMsg}
-                            </div>
-                        )}
+            {status === 'error' && (
+                <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center font-medium border border-red-100">
+                    {errorMsg}
+                </div>
+            )}
 
-                        <button 
-                            type="submit" 
-                            disabled={status === 'loading'}
-                            className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-                        >
-                            {status === 'loading' ? 'Resetting...' : 'Reset Password'} 
-                            {!status.startsWith('load') && <ArrowRight size={18} />}
-                        </button>
-                    </form>
-                )}
-            </motion.div>
-        </div>
+            <motion.button 
+                whileHover={{ scale: 1.02 }}
+                type="submit" 
+                disabled={status === 'loading'}
+                className={`btn-primary ${styles.submitBtn}`}
+            >
+                {status === 'loading' ? 'Resetting...' : 'Reset Password'} 
+                {!status.startsWith('load') && <ArrowRight size={18} />}
+            </motion.button>
+        </form>
     );
 };
 
 export default function ResetPasswordPage() {
     return (
-        <div className="min-h-screen bg-slate-50">
-            <Navbar />
-            <div className="pt-32 pb-20 px-4">
-                <Suspense fallback={<div>Loading...</div>}>
-                    <ResetPasswordContent />
-                </Suspense>
+        <main className={styles.authPage}>
+            <div className={styles.brandingSide}>
+                <Image src="/auth-bg.png" alt="Branding" fill className={styles.bgImage} priority sizes="(max-width: 768px) 100vw, 50vw" />
+                <motion.div className={styles.brandingContent} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
+                    <h2 className={styles.brandingTitle}>Secure Account.</h2>
+                    <p className={styles.brandingSubtitle}>Create a strong password to protect your progress.</p>
+                </motion.div>
             </div>
-        </div>
+
+            <div className={styles.formSide}>
+                <motion.div className={styles.authCard} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                    <div className={styles.authHeader}>
+                        <Link href="/" className={styles.logo}>
+                            <GraduationCap size={28} color="#FF6B00" />
+                            <p>pu<span>papers</span>.com</p>
+                        </Link>
+                        <h1 className={styles.title}>Set New Password</h1>
+                        <p className={styles.subtitle}>Enter the verification code sent to your email.</p>
+                    </div>
+
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <ResetPasswordContent />
+                    </Suspense>
+                </motion.div>
+            </div>
+        </main>
     );
 }
