@@ -30,6 +30,14 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+    // Cleanup object URL to avoid memory leaks
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -62,6 +70,11 @@ export default function ProfilePage() {
         if (!file || !user) return;
 
         setUploading(true);
+        
+        // Instant local preview
+        const localUrl = URL.createObjectURL(file);
+        setPreviewUrl(localUrl);
+
         const formData = new FormData();
         formData.append('image', file);
 
@@ -75,9 +88,15 @@ export default function ProfilePage() {
             if (res.ok) {
                 const data = await res.json();
                 setUser({ ...user, profileImage: data.url });
+                // Note: We keep previewUrl until next mount/change to avoid flicker
+            } else {
+                alert('Failed to upload image. Please try again.');
+                setPreviewUrl(null);
             }
         } catch (err) {
             console.error('Image upload failed', err);
+            alert('An error occurred during upload.');
+            setPreviewUrl(null);
         } finally {
             setUploading(false);
         }
@@ -146,8 +165,12 @@ export default function ProfilePage() {
                     <form onSubmit={handleSubmit} className={styles.profileSection}>
                         <div className={styles.imageUploadSection}>
                             <div className={styles.imagePreviewWrapper}>
-                                {user.profileImage ? (
-                                    <img src={user.profileImage} alt="Profile" className={styles.previewImage} />
+                                {previewUrl || user.profileImage ? (
+                                    <img 
+                                        src={previewUrl || user.profileImage} 
+                                        alt="Profile" 
+                                        className={styles.previewImage} 
+                                    />
                                 ) : (
                                     <div className={styles.avatarFallback}>
                                         {user.fullName.charAt(0)}
