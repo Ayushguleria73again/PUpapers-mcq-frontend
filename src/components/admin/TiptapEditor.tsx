@@ -146,25 +146,29 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
     }, [value, editor]);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file || !editor) return;
+        const files = event.target.files;
+        if (!files || files.length === 0 || !editor) return;
 
         setIsCleaning(true); // Reuse cleaning state as upload indicator
-        const formData = new FormData();
-        formData.append('image', file);
-
+        
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/upload`, {
-                method: 'POST',
-                body: formData,
-                credentials: 'include',
-            });
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const formData = new FormData();
+                formData.append('image', file);
 
-            if (res.ok) {
-                const data = await res.json();
-                editor.chain().focus().setImage({ src: data.url }).run();
-            } else {
-                console.error('Upload failed');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/upload`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include',
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    editor.chain().focus().setImage({ src: data.url }).run();
+                } else {
+                    console.error(`Upload failed for file: ${file.name}`);
+                }
             }
         } catch (err) {
             console.error('Upload error:', err);
@@ -230,6 +234,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                             ref={fileInputRef} 
                             onChange={handleFileChange} 
                             accept="image/*" 
+                            multiple
                             style={{ display: 'none' }} 
                         />
                         <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())}><Undo size={16} /></button>
