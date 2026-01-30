@@ -7,6 +7,7 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactCompiler: true,
+  turbopack: {}, // Silence Turbopack/Webpack conflict error
   async rewrites() {
     return [
       {
@@ -15,7 +16,7 @@ const nextConfig = {
       },
       {
         source: '/auth/:path*',
-        destination: `${process.env.SERVER_URL }/auth/:path*`,
+        destination: `${process.env.SERVER_URL}/auth/:path*`,
       }
     ];
   },

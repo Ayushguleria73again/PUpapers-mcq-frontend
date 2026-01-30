@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Clock, CheckCircle2, ChevronRight, XCircle, 
   Trophy, BookOpen, BrainCircuit, Target, Check, X, BarChart2,
-  Bookmark
+  Bookmark, Sparkles
 } from 'lucide-react';
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
@@ -51,6 +51,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
   const [timeLeft, setTimeLeft] = useState(180); 
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [togglingBookmark, setTogglingBookmark] = useState(false);
+  const [aiExplanations, setAiExplanations] = useState<Record<string, { content: string; loading: boolean }>>({});
 
   const storageKey = `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}${difficulty !== 'all' ? `_${difficulty}` : ''}`;
 
@@ -236,6 +237,40 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
     }
   };
 
+  const getAIExplanation = async (id: string, userChoice?: number) => {
+    if (aiExplanations[id]?.loading) return;
+
+    setAiExplanations(prev => ({
+        ...prev,
+        [id]: { content: '', loading: true }
+    }));
+
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/explain`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questionId: id, userChoice: userChoice }),
+            credentials: 'include'
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            setAiExplanations(prev => ({
+                ...prev,
+                [id]: { content: data.explanation, loading: false }
+            }));
+        } else {
+            throw new Error("Failed to fetch");
+        }
+    } catch (err) {
+        console.error("AI Explanation failed:", err);
+        setAiExplanations(prev => ({
+            ...prev,
+            [id]: { content: "Failed to generate AI explanation. Please check your API configuration.", loading: false }
+        }));
+    }
+  };
+
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff' }}>
         <p style={{ fontWeight: 700, color: '#0f172a' }}>Loading Assessment...</p>
@@ -329,6 +364,35 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
                                     </div>
                                 </div>
                             )}
+
+                            <div className={styles.aiExplanationSection}>
+                                {!aiExplanations[q._id] ? (
+                                    <button 
+                                        className={styles.aiBtn}
+                                        onClick={() => getAIExplanation(q._id, userAnswers[index])}
+                                    >
+                                        <Sparkles size={16} /> Explain with AI (GPT-4o)
+                                    </button>
+                                ) : (
+                                    <div className={styles.aiResponseBox}>
+                                        <div className={styles.aiBadge}>
+                                            <Sparkles size={12} /> AI TUTORING SESSION
+                                        </div>
+                                        {aiExplanations[q._id].loading ? (
+                                            <div className={styles.aiLoading}>
+                                                <div className={styles.sparkleLoader}></div>
+                                                <p>Reasoning through the solution...</p>
+                                            </div>
+                                        ) : (
+                                            <div className="tiptap-content" style={{ fontSize: '0.95rem', color: '#334155' }}>
+                                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
+                                                    {aiExplanations[q._id].content}
+                                                </ReactMarkdown>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     );
                 })}
