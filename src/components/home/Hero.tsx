@@ -32,7 +32,7 @@ const Hero = () => {
                   whileTap={{ scale: 0.95 }}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  Take Full Mock Test <ArrowRight size={20} />
+                  Take Free Mock Test <ArrowRight size={20} />
                 </motion.button>
               </Link>
               <button className={styles.secondaryBtn} onClick={() => console.log("Hero CTA Rendering Check")}>
