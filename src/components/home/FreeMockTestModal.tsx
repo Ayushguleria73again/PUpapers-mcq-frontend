@@ -14,7 +14,7 @@ interface FreeMockTestModalProps {
 const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [selectedStream, setSelectedStream] = useState<'PCB' | 'PCM' | null>(null);
+    const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -109,33 +109,34 @@ const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
                                     <span style={{ fontWeight: 700, fontSize: '1.25rem' }}>{remainingTests}/5</span>
                                 </div>
 
-                                <div>
-                                    <label style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>Select Your Stream:</label>
-                                    <div className={styles.streamGrid}>
+                            <div>
+                                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '1rem' }}>Select Subject for Free Mock Test:</label>
+                                <div className={styles.streamGrid} style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                                    {[
+                                        { id: 'physics', label: 'Physics', sub: 'Class 11 & 12', slug: 'physics-11th-12th', color: '#3b82f6' },
+                                        { id: 'chemistry', label: 'Chemistry', sub: 'Complete Syllabus', slug: 'chemistry', color: '#10b981' },
+                                        { id: 'maths', label: 'Mathematics', sub: 'PUCET Standard', slug: 'mathematics', color: '#f59e0b' },
+                                        { id: 'biology', label: 'Biology', sub: 'Zoology & Botany', slug: 'biology', color: '#ec4899' },
+                                    ].map((sub) => (
                                         <button 
-                                            onClick={() => setSelectedStream('PCB')}
-                                            className={`${styles.streamBtn} ${selectedStream === 'PCB' ? styles.active : ''}`}
+                                            key={sub.id}
+                                            onClick={() => setSelectedSubject(sub.slug)}
+                                            className={`${styles.streamBtn} ${selectedSubject === sub.slug ? styles.active : ''}`}
+                                            style={selectedSubject === sub.slug ? { borderColor: sub.color, backgroundColor: `${sub.color}10` } : {}}
                                         >
-                                            <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>PCB</span>
-                                            <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Phy, Chem, Bio</span>
+                                            <span style={{ fontWeight: 700, fontSize: '1rem', color: selectedSubject === sub.slug ? sub.color : 'inherit' }}>{sub.label}</span>
+                                            <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{sub.sub}</span>
                                         </button>
-                                        <button 
-                                            onClick={() => setSelectedStream('PCM')}
-                                            className={`${styles.streamBtn} ${selectedStream === 'PCM' ? styles.active : ''}`}
-                                        >
-                                            <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>PCM</span>
-                                            <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>Phy, Chem, Math</span>
-                                        </button>
-                                    </div>
+                                    ))}
                                 </div>
 
                                 <Link 
-                                    href={selectedStream ? `/pucet-mock?stream=${selectedStream}` : '#'}
-                                    style={{ display: 'block', pointerEvents: !selectedStream ? 'none' : 'auto' }}
+                                    href={selectedSubject ? `/pucet-mock?subject=${selectedSubject}` : '#'}
+                                    style={{ display: 'block', pointerEvents: !selectedSubject ? 'none' : 'auto' }}
                                 >
                                     <button 
-                                        disabled={!selectedStream}
-                                        className={`${styles.startBtn} ${selectedStream ? styles.primary : ''}`}
+                                        disabled={!selectedSubject}
+                                        className={`${styles.startBtn} ${selectedSubject ? styles.primary : ''}`}
                                     >
                                         Start Mock Test <ArrowRight size={20} />
                                     </button>
