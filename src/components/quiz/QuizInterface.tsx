@@ -54,6 +54,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
     if (saved && subjectSlug) {
       try {
         const parsed = JSON.parse(saved);
+        if (parsed.questions) setQuestions(parsed.questions);
         setCurrentQuestion(parsed.currentQuestion || 0);
         setSelectedOption(parsed.selectedOption);
         setUserAnswers(parsed.userAnswers || []);
@@ -67,14 +68,14 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   useEffect(() => {
     if (!loading && questions.length > 0) {
       localStorage.setItem(storageKey, JSON.stringify({
-        currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft
+        questions, currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft
       }));
     }
   }, [currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, storageKey, loading, questions]);
 
   useEffect(() => {
-    if (!subjectSlug) {
-        setQuestions([]); 
+    if (!subjectSlug || questions.length > 0) {
+        if (!subjectSlug) setQuestions([]); 
         setLoading(false);
         return;
     }
@@ -111,9 +112,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const finishQuiz = () => {
-      let finalAnswers = [...userAnswers];
-      if (selectedOption !== null && currentQuestion === finalAnswers.length) finalAnswers.push(selectedOption);
+  const finishQuiz = (finalAnswersArg?: number[]) => {
+      let finalAnswers = finalAnswersArg || [...userAnswers];
+      if (selectedOption !== null && currentQuestion === finalAnswers.length) {
+          finalAnswers = [...finalAnswers, selectedOption];
+      }
       while (finalAnswers.length < questions.length) finalAnswers.push(-1);
       setUserAnswers(finalAnswers);
       let finalScore = 0;
@@ -143,12 +146,13 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   const handleNext = () => {
     const newAnswers = [...userAnswers];
     newAnswers.push(selectedOption !== null ? selectedOption : -1);
-    setUserAnswers(newAnswers);
+    
     if (currentQuestion < questions.length - 1) {
+      setUserAnswers(newAnswers);
       setCurrentQuestion(currentQuestion + 1);
       setSelectedOption(null);
     } else {
-        finishQuiz();
+        finishQuiz(newAnswers);
     }
   };
 
