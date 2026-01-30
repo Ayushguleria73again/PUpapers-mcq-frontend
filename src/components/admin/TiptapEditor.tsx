@@ -26,57 +26,48 @@ const normalizePhysicsContent = (content: string) => {
     if (!content) return content;
     let cleaned = content;
 
-    // 1. VERTICAL CHARACTER RECONSTRUCTION (The "Vertical Stack" Fix)
-    const charsToJoin = /[MLTPQ0-9\-\^−]/;
+    // 1. AGGRESSIVE VERTICAL RECONSTRUCTION (Words + Math)
     const lines = cleaned.split('\n');
     const reconstructed: string[] = [];
-    let mathBuffer = '';
-
+    let buffer = '';
+    
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (line.length > 0 && line.length <= 2 && charsToJoin.test(line)) {
-            mathBuffer += line;
+        if (line.length > 0 && line.length <= 2) {
+            buffer += line;
         } else {
-            if (mathBuffer) {
-                if (line.startsWith('=') || line.startsWith('+') || line.startsWith('-')) {
-                    mathBuffer += ' ' + line;
-                } else {
-                    reconstructed.push(`$$ ${mathBuffer} $$`);
-                    mathBuffer = '';
-                    if (line) reconstructed.push(line);
-                }
-            } else {
-                if (line) reconstructed.push(line);
+            if (buffer) {
+                const isMath = /[\d\+\-\=\^×\\$\(\)]/.test(buffer) || /[MLTPQ]/.test(buffer);
+                if (isMath) reconstructed.push(`$$ ${buffer} $$`);
+                else reconstructed.push(buffer);
+                buffer = '';
             }
+            if (line) reconstructed.push(line);
         }
     }
-    if (mathBuffer) reconstructed.push(`$$ ${mathBuffer} $$`);
+    if (buffer) reconstructed.push(buffer);
     cleaned = reconstructed.join('\n');
 
-    // 2. CHARACTER CONSOLIDATION: Prevents splitting of M L T by remaining spaces
-    cleaned = cleaned.replace(/([MLTPQ])\s+([MLTPQ])/g, '$1$2');
+    // 2. SHADOW CONTENT DEDUPLICATION (Fixes "powermower")
+    cleaned = cleaned.split('\n').map(line => {
+        const mid = Math.floor(line.length / 2);
+        const firstHalf = line.substring(0, mid).trim();
+        const secondHalf = line.substring(mid).trim();
+        if (firstHalf === secondHalf && line.length > 4) return firstHalf;
+        return line;
+    }).join('\n');
 
     // 3. DEDUPLICATION: Detect "Sandwich" patterns
     const sandwichPattern = /([\[(][A-Z][\])])\s*=\s*([A-Z0-9\-\^\s]+)\s*\1\s*=\s*(\\[a-z]+\{[^}]+\})\s*\1\s*=\s*\2/gi;
     cleaned = cleaned.replace(sandwichPattern, (match, varName, plain, latex) => `${varName} = ${latex}`);
 
-    // 3. EQUATION CONSOLIDATION: Merge [P] = ML2 into a single cohesive line if split
-    cleaned = cleaned.replace(/\\\[(.+?)\\\]\s*=\s*([A-Z0-9\-\s]+)/g, (match, latex, plain) => {
-        return `$$ ${latex.trim()} = ${plain.trim()} $$`;
-    });
+    // 4. DIMENSIONAL ANALYSIS NORMALIZATION: ML2 -> M^{2}
+    cleaned = cleaned.replace(/([MLTPQ])(\-?\d+)/g, '$1^{$2}');
 
-    // 4. LATEX CLEANUP: Remove non-functional decorators
-    cleaned = cleaned.replace(/\\mathbf\{([^}]*)\}/g, '$1');
-    cleaned = cleaned.replace(/\\text\{([^}]*)\}/g, '$1');
-
-    // 5. DIMENSIONAL ANALYSIS NORMALIZATION: ML2 -> M^{2}
-    cleaned = cleaned.replace(/([MLTPQ])(\-?\d+)/g, (match, variable, value) => {
-        return `${variable}^{${value}}`;
-    });
-
-    // 6. SYMBOL NORMALIZATION
+    // 5. SYMBOL NORMALIZATION
     cleaned = cleaned.replace(/−/g, '-');
     cleaned = cleaned.replace(/×/g, '\\times');
+    cleaned = cleaned.replace(/([MLTPQ])\s+([MLTPQ])/g, '$1$2');
 
     return cleaned.trim();
 };
