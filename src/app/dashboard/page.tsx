@@ -193,7 +193,7 @@ const DashboardPage = () => {
               </div>
             </div>
 
-            <div style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '20px' }}>
+            <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                 <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Overall Accuracy</span>
                 <span style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.9rem' }}>{progress?.avgPercentage || 0}%</span>

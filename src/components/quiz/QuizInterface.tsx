@@ -53,7 +53,7 @@ const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
   // REMOVED individual useEffect for restoration - moved into unified initialization below
 
   useEffect(() => {
-    if (!loading && questions.length > 0) {
+    if (!loading && questions.length > 0 && !showResult) {
       localStorage.setItem(storageKey, JSON.stringify({
         questions, currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft
       }));
@@ -369,9 +369,9 @@ const EditorStyles = () => (
     .tiptap-content .katex-display { 
         margin: 1.5rem 0; 
         padding: 1.5rem; 
-        background: #f8fafc; 
-        border-radius: 12px; 
-        border: 1px solid #e2e8f0;
+        background: #ffffff; 
+        border-radius: 16px; 
+        border: 1px solid var(--border);
         overflow-x: auto;
     }
     .tiptap-content .katex { font-size: 1.15em; color: var(--foreground); }

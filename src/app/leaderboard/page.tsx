@@ -61,7 +61,7 @@ const LeaderboardPage = () => {
     };
 
     return (
-        <div style={{ background: '#f8f9fa', minHeight: '100vh' }}>
+        <div style={{ background: '#ffffff', minHeight: '100vh' }}>
             <Navbar />
             
             <div className="container" style={{ padding: '6rem 1rem 2rem' }}>

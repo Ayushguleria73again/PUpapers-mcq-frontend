@@ -15,6 +15,8 @@ interface Chapter {
 interface Subject {
     _id: string;
     name: string;
+    slug: string;
+    image?: string;
 }
 
 interface ChapterSelectorProps {
@@ -37,7 +39,7 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                 });
                 if (subRes.ok) {
                     const subjects = await subRes.json();
-                    const currentSub = subjects.find((s: any) => s.slug === subjectSlug);
+                    const currentSub = subjects.find((s: Subject) => s.slug === subjectSlug);
                     if (currentSub) {
                         setSubject(currentSub);
                         
@@ -132,7 +134,7 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                 ))}
 
                 {chapters.length === 0 && (
-                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', background: '#f8fafc', borderRadius: '16px', color: '#64748b' }}>
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '4rem', background: '#ffffff', border: '1px solid var(--border)', borderRadius: '20px', color: 'var(--text-muted)' }}>
                         <BrainCircuit size={40} style={{ margin: '0 auto 1.5rem', opacity: 0.2 }} />
                         <p>No chapters found for this subject yet.</p>
                         <button 

@@ -37,9 +37,9 @@ const ContentManager = ({ subjects, chapters, questions, onEdit, onDelete, onFet
                         style={{
                             padding: '0.5rem 1rem',
                             borderRadius: '20px',
-                            background: manageType === type ? '#2c3e50' : '#f1f1f1',
-                            color: manageType === type ? 'white' : '#333',
-                            border: 'none',
+                            background: manageType === type ? 'var(--secondary)' : 'transparent',
+                            color: manageType === type ? 'white' : 'var(--text-muted)',
+                            border: '1px solid ' + (manageType === type ? 'var(--secondary)' : 'var(--border)'),
                             cursor: 'pointer',
                             textTransform: 'capitalize'
                         }}
