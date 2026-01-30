@@ -139,6 +139,35 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         }
     }, [value, editor]);
 
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !editor) return;
+
+        setIsCleaning(true); // Reuse cleaning state as upload indicator
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/upload`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                editor.chain().focus().setImage({ src: data.url }).run();
+            } else {
+                console.error('Upload failed');
+            }
+        } catch (err) {
+            console.error('Upload error:', err);
+        } finally {
+            setIsCleaning(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
     const handleDeepClean = () => {
         if (!editor) return;
         setIsCleaning(true);
@@ -187,7 +216,16 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                     <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 8px' }} />
 
                     <div style={{ display: 'flex', gap: '4px' }}>
-                        <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)}><ImageIcon size={16} /></button>
+                        <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, isCleaning)} disabled={isCleaning}>
+                            <ImageIcon size={16} />
+                        </button>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                        />
                         <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())}><Undo size={16} /></button>
                         <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolbarButtonStyle(false, !editor.can().redo())}><Redo size={16} /></button>
                     </div>
