@@ -42,10 +42,6 @@ const AdminPage = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        checkAdmin();
-    }, []);
-
     const checkAdmin = async () => {
         try {
             console.log('Checking authentication...');
@@ -74,6 +70,10 @@ const AdminPage = () => {
             router.push('/login');
         }
     };
+
+    useEffect(() => {
+        checkAdmin();
+    }, []);
 
     // Fetch chapters when qSubjectId changes
     useEffect(() => {
