@@ -13,8 +13,6 @@ import {
     ArrowRight 
 } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '../../components/layout/Navbar';
-import Footer from '../../components/layout/Footer';
 import styles from './About.module.css';
 
 const AboutPage = () => {
@@ -56,7 +54,6 @@ const AboutPage = () => {
 
     return (
         <div className={styles.aboutPage}>
-            <Navbar />
             
             <header className={styles.hero}>
                 <div className={styles.container}>
@@ -172,7 +169,7 @@ const AboutPage = () => {
                 </div>
             </section>
 
-            <Footer />
+
         </div>
     );
 };
