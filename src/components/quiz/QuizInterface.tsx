@@ -33,9 +33,10 @@ interface Question {
 
 interface QuizInterfaceProps {
   subjectSlug?: string;
+  chapterId?: string | null;
 }
 
-const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
+const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   const [savingResult, setSavingResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState(180); 
 
-  const storageKey = `quiz_state_${subjectSlug}`;
+  const storageKey = `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}`;
 
   // REMOVED individual useEffect for restoration - moved into unified initialization below
 
@@ -90,7 +91,12 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
       // 2. Fallback to API Fetch
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`, {
+        let url = `${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`;
+        if (chapterId) {
+            url += `&chapterId=${chapterId}`;
+        }
+
+        const res = await fetch(url, {
             credentials: 'include'
         });
         if (res.ok) {
