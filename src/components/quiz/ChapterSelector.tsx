@@ -83,9 +83,18 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
             </button>
 
             <div className={styles.header}>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    <h1>{subject?.name}</h1>
-                    <p>Choose a specific chapter to practice or take the full subject challenge.</p>
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className={styles.headerWrapper}
+                >
+                    <span className={styles.badge}>Targeted Practice</span>
+                    <h1 className={styles.title}>
+                        {subject?.name} <span>Chapters</span>
+                    </h1>
+                    <p className={styles.description}>
+                        Choose a specific chapter to practice with surgical precision or take the full subject mastery challenge.
+                    </p>
                 </motion.div>
             </div>
 
