@@ -15,7 +15,7 @@ import {
     Bold, Italic, List, ListOrdered, Quote, 
     Underline as UnderlineIcon, ImageIcon, 
     Undo, Redo, Heading1, Heading2,
-    Zap, Info, Sparkles, Wand2
+    Info, Settings
 } from 'lucide-react';
 
 /**
@@ -134,26 +134,10 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
 
     return (
         <div className="math-editor-container" style={{ marginBottom: '2.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 4px', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ padding: '4px', background: '#fff7ed', borderRadius: '6px' }}>
-                            <Zap size={14} color="#FF6B00" />
-                        </div>
-                        <label style={{ fontSize: '11px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                            {label}
-                        </label>
-                    </div>
-                </div>
-                
-                <AnimatePresence>
-                    {isCleaning && (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                            style={{ fontSize: '10px', background: '#0f172a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Sparkles size={12} /> CLEANING MATH...
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                    {label}
+                </label>
             </div>
 
             <div style={{
@@ -162,45 +146,25 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 boxShadow: isFocused ? '0 10px 25px -5px rgba(255, 107, 0, 0.1)' : 'none',
                 transition: 'all 0.3s ease'
             }}>
-                <div style={{ background: '#f8fafc', padding: '8px 12px', borderBottom: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px' }}>
-                    <div className="toolbar-segment" style={{ display: 'flex', gap: '2px', background: 'white', padding: '2px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                <div style={{ background: '#f8fafc', padding: '8px 12px', borderBottom: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '4px' }}>
                         <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editor.isActive('bold'), false)}><Bold size={16} /></button>
                         <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editor.isActive('italic'), false)}><Italic size={16} /></button>
-                    </div>
-
-                    <div className="toolbar-segment" style={{ display: 'flex', gap: '2px', background: 'white', padding: '2px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
                         <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 1 }), false)}><Heading1 size={16} /></button>
                         <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editor.isActive('bulletList'), false)}><List size={16} /></button>
                     </div>
 
-                    <div className="toolbar-segment" style={{ display: 'flex', gap: '2px', background: 'white', padding: '2px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
-                        <button type="button" onClick={handleDeepClean} style={{ ...toolbarButtonStyle(false, false), color: '#FF6B00' }} title="Smart Fix Math"><Wand2 size={16} /></button>
+                    <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 8px' }} />
+
+                    <div style={{ display: 'flex', gap: '4px' }}>
                         <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)}><ImageIcon size={16} /></button>
-                    </div>
-
-                    <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                             // Mock upload or handle as needed
-                        }
-                    }} />
-
-                    <div style={{ flexGrow: 1 }} />
-                    
-                    <div className="toolbar-segment" style={{ display: 'flex', gap: '2px', background: 'white', padding: '2px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
                         <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())}><Undo size={16} /></button>
                         <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolbarButtonStyle(false, !editor.can().redo())}><Redo size={16} /></button>
                     </div>
                 </div>
 
-                <div style={{ padding: '1.5rem', minHeight: '200px' }}>
+                <div style={{ padding: '1rem', minHeight: '150px' }}>
                     <EditorContent editor={editor} />
-                </div>
-                
-                <div style={{ padding: '8px 16px', borderTop: '1px solid #f8fafc', background: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>
-                        <Info size={12} /> Auto-sanitization active
-                    </div>
                 </div>
             </div>
 
