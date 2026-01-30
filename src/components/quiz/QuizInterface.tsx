@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle2, ChevronRight, RefreshCcw, XCircle } from 'lucide-react';
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
-import DOMPurify from 'dompurify';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 interface Question {
   _id: string;
@@ -218,11 +220,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
                     return (
                         <div key={q._id} style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
-                            <div 
-                                style={{ fontWeight: 600, marginBottom: '0.8rem' }} 
-                                className="tiptap-content"
-                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(`${index + 1}. ${q.text}`) }}
-                            />
+                            <div style={{ fontWeight: 600, marginBottom: '0.8rem' }} className="tiptap-content">
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                    {`${index + 1}. ${q.text}`}
+                                </ReactMarkdown>
+                            </div>
                             <div style={{ display: 'grid', gap: '0.5rem' }}>
                                 {q.options.map((opt, optIdx) => {
                                     let optionStyle: React.CSSProperties = { padding: '8px 12px', borderRadius: '4px', fontSize: '0.9rem', border: '1px solid #ddd' };
@@ -235,12 +237,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                     }
 
                                     return (
-                                        <div 
-                                            key={optIdx} 
-                                            style={optionStyle} 
-                                            className="tiptap-content"
-                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(opt) }}
-                                        />
+                                        <div key={optIdx} style={optionStyle} className="tiptap-content">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                                {opt}
+                                            </ReactMarkdown>
+                                        </div>
                                     );
                                 })}
                             </div>
@@ -252,7 +253,9 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                 {q.explanation && (
                                     <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#e3f2fd', borderRadius: '6px', borderLeft: '3px solid #3498db', color: '#1565c0', fontSize: '0.9rem' }} className="tiptap-content">
                                         <strong>Explanation:</strong> 
-                                        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(q.explanation || '') }} />
+                                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                            {q.explanation || ''}
+                                        </ReactMarkdown>
                                     </div>
                                 )}
                             </div>
@@ -312,10 +315,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div 
-                className={`${styles.question} tiptap-content`}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(questions[currentQuestion].text) }}
-              />
+              <div className={`${styles.question} tiptap-content`}>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                  {questions[currentQuestion].text}
+                </ReactMarkdown>
+              </div>
               <div className={styles.optionsGrid}>
                 {questions[currentQuestion].options.map((option, index) => (
                   <button
@@ -323,8 +327,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                     className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} tiptap-content`}
                     onClick={() => handleOptionSelect(index)}
                     style={{ textAlign: 'left' }}
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(option) }}
-                  />
+                  >
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                      {option}
+                    </ReactMarkdown>
+                  </button>
                 ))}
               </div>
             </motion.div>
