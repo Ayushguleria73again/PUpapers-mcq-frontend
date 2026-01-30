@@ -297,4 +297,25 @@
     .masteryText h3 {
         font-size: 1.25rem;
     }
+
+    .difficultyPicker {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        background: transparent;
+        padding: 0;
+    }
+
+    .diffBtn {
+        background: #f1f5f9;
+        font-size: 0.85rem;
+        padding: 0.8rem;
+        justify-content: center;
+    }
+
+    .activeDiff {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.2);
+    }
 }
