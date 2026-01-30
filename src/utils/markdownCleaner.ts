@@ -1,87 +1,87 @@
 /**
- * SUPREME MARKDOWN CLEANER (EDTECH GRADE)
- * Solves:
- * 1. Vertical Fragmentation (M\nL\nT -> MLT)
- * 2. Mixed Math Markers ($P$ = ML2 -> $$ P = ML^2 $$)
- * 3. Double Escaping (\\times -> \times)
- * 4. Exponent Shorthand (ML2 -> ML^{2})
+ * SUPREME MARKDOWN CLEANER (ACADEMIC GRADE - V4)
+ * Handles extremely messy, fragmented, and duplicated mathematical content.
  */
 export const cleanMarkdownForRendering = (content: string) => {
     if (!content) return '';
     let cleaned = content;
 
-    // 1. UNESCAPE PASS
-    // Fixes double-escaping from JSON/DB storage
+    // 1. UNESCAPE & WRAPPER NORMALIZATION
     cleaned = cleaned.replace(/\\\\([a-z]+)/g, '\\$1');
     cleaned = cleaned.replace(/\\\[/g, ' $$ ');
     cleaned = cleaned.replace(/\\\]/g, ' $$ ');
 
-    // 2. VERTICAL CHARACTER RECONSTRUCTION (The "Vertical Stack" Fix)
-    // Aggressively pulls lone dimensional symbols and signs from newlines
-    // This solves the: M \n L \n T \n - \n 2 problem
-    const charsToJoin = /[MLTPQ0-9\-\^−]/;
+    // 2. AGGRESSIVE VERTICAL RECONSTRUCTION
+    // Scraped data often splits EVERYTHING (words + math) into 1 char per line
     const lines = cleaned.split('\n');
     const reconstructed: string[] = [];
-    let mathBuffer = '';
+    let buffer = '';
 
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        // If it's a very short line (1-2 chars) and matches math symbols
-        if (line.length > 0 && line.length <= 2 && charsToJoin.test(line)) {
-            mathBuffer += line;
+        // If the line is 1 character or a symbol, it's likely part of a fragmented word/equation
+        if (line.length > 0 && line.length <= 2) {
+            buffer += line;
         } else {
-            if (mathBuffer) {
-                // If the next line is also a continuation of an equation but slightly longer
-                if (line.startsWith('=') || line.startsWith('+') || line.startsWith('-')) {
-                    mathBuffer += ' ' + line;
-                } else {
-                    reconstructed.push(`$$ ${mathBuffer} $$`);
-                    mathBuffer = '';
-                    if (line) reconstructed.push(line);
-                }
-            } else {
-                if (line) reconstructed.push(line);
+            if (buffer) {
+                // Determine if the completed buffer looks like math or text
+                const isMath = /[\d\+\-\=\^×\\$\(\)]/.test(buffer) || /[MLTPQ]/.test(buffer);
+                if (isMath) reconstructed.push(`$$ ${buffer} $$`);
+                else reconstructed.push(buffer);
+                buffer = '';
             }
+            if (line) reconstructed.push(line);
         }
     }
-    if (mathBuffer) reconstructed.push(`$$ ${mathBuffer} $$`);
+    if (buffer) reconstructed.push(buffer);
     cleaned = reconstructed.join('\n');
 
-    // 3. MIXED MARKER CONSOLIDATION (The "$P$ = ML2" Fix)
-    // If a line contains $ but is mostly an equation, wrap the whole thing in $$
+    // 3. SHADOW CONTENT DEDUPLICATION
+    // Study sites often render: Text LaTeX Text
+    // Example: muscle×speed=powermuscle×speed=power
+    cleaned = cleaned.split('\n').map(line => {
+        const mid = Math.floor(line.length / 2);
+        const firstHalf = line.substring(0, mid).trim();
+        const secondHalf = line.substring(mid).trim();
+        if (firstHalf === secondHalf && line.length > 4) return firstHalf;
+        return line;
+    }).join('\n');
+
+    // 4. EQUATION UNIFICATION ($P$ = ML2 -> $$ P = ML^2 $$)
     cleaned = cleaned.split('\n').map(line => {
         const trimmed = line.trim();
-        if ((trimmed.includes('$') || trimmed.includes('\\')) && !trimmed.startsWith('$$')) {
-            // Remove existing markers and consolidate
+        if ((trimmed.includes('$') || trimmed.includes('\\') || trimmed.includes('=')) && !trimmed.startsWith('$$')) {
             let eq = trimmed.replace(/\$\$?/g, '').trim();
-            // Don't wrap if it's just plain text with a single random symbol
-            if (eq.length > 1 && (eq.includes('=') || eq.includes('\\') || /[MLTPQ]\d+/.test(eq))) {
+            // Wrap if it contains dimensional symbols or assignments
+            if (eq.length > 1 && (/[MLTPQ]\w*/.test(eq) || eq.includes('='))) {
                 return `$$ ${eq} $$`;
             }
         }
         return line;
     }).join('\n');
 
-    // 4. EXPONENT NORMALIZATION (ML2 -> ML^{2})
+    // 5. DIMENSIONAL NORMALIZATION (ML2 -> ML^{2})
     cleaned = cleaned.replace(/([MLTPQ])(\-?\d+)/g, '$1^{$2}');
 
-    // 5. MATH SYMBOL STANDARDIZATION
+    // 6. SYMBOL CORRECTION
     cleaned = cleaned.replace(/−/g, '-');
     cleaned = cleaned.replace(/×/g, '\\times');
-    cleaned = cleaned.replace(/([MLTPQ])\s+([MLTPQ])/g, '$1$2'); // ML T -> MLT
+    // Remove space between dimensional units (M L T -> MLT)
+    cleaned = cleaned.replace(/([MLTPQ])\s+([MLTPQ])/g, '$1$2');
 
-    // 6. FINAL CLEANUP (Remove empty blocks and redundant markers)
-    cleaned = cleaned.replace(/\$\$\s+\$\$/g, '');
+    // 7. REMOVE REDUNDANT HEADERS & NOISE
+    cleaned = cleaned.replace(/Explanation\s*Explanation/gi, 'Explanation');
+    cleaned = cleaned.replace(/###\s*Step\s*\d+:\s*###/gi, (match) => match.replace(/###/g, '').trim());
 
-    // Deduplicate lines that might have been doubled during reconstruction
+    // 8. FINAL DEDUPLICATION
     const finalLines = cleaned.split('\n');
     const unique: string[] = [];
-    let prev = '';
+    let last = '';
     for (const l of finalLines) {
         const t = l.trim();
-        if (t === prev && t.length > 0) continue;
+        if (t === last && t.length > 0) continue;
         unique.push(l);
-        prev = t;
+        last = t;
     }
 
     return unique.join('\n').trim();
