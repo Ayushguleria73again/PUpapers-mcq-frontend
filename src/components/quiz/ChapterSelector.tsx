@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, ChevronRight, BrainCircuit, Target, Star } from 'lucide-react';
+import { BookOpen, ChevronRight, BrainCircuit, Target, Star, ArrowLeft } from 'lucide-react';
 import styles from './ChapterSelector.module.css';
 
 interface Chapter {
@@ -20,9 +20,10 @@ interface Subject {
 interface ChapterSelectorProps {
     subjectSlug: string;
     onSelect: (chapterId: string | null) => void;
+    onBack: () => void;
 }
 
-const ChapterSelector = ({ subjectSlug, onSelect }: ChapterSelectorProps) => {
+const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps) => {
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [subject, setSubject] = useState<Subject | null>(null);
     const [loading, setLoading] = useState(true);
@@ -75,6 +76,10 @@ const ChapterSelector = ({ subjectSlug, onSelect }: ChapterSelectorProps) => {
 
     return (
         <div className={styles.selectorContainer}>
+            <button className={styles.backButton} onClick={onBack}>
+                <ArrowLeft size={18} /> Back to Subjects
+            </button>
+
             <div className={styles.header}>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                     <h1>{subject?.name}</h1>
@@ -93,10 +98,15 @@ const ChapterSelector = ({ subjectSlug, onSelect }: ChapterSelectorProps) => {
                     animate={{ opacity: 1, y: 0 }}
                 >
                     <div className={styles.masteryContent}>
-                        <Star size={24} color="white" fill="white" style={{ marginBottom: '0.75rem' }} />
-                        <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Full Subject Quiz</h3>
-                        <p style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '4px' }}>Complete exam covering all available chapters.</p>
+                        <div className={styles.masteryIcon}>
+                            <Star size={24} />
+                        </div>
+                        <div className={styles.masteryText}>
+                            <h3>Full Subject Quiz</h3>
+                            <p>Test your knowledge across all chapters</p>
+                        </div>
                     </div>
+                    <ChevronRight size={20} className={styles.masteryArrow} />
                 </motion.button>
 
                 {/* Chapter Options */}

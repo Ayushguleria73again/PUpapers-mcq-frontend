@@ -1,10 +1,33 @@
 .selectorContainer {
     min-height: 100vh;
-    padding: 100px 0;
+    padding: 100px 20px;
     background: var(--background);
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.backButton {
+    position: absolute;
+    top: 40px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.backButton:hover {
+    color: var(--primary);
+    background: rgba(255, 107, 0, 0.05);
 }
 
 .header {
@@ -36,32 +59,67 @@
 
 .masteryCard {
     grid-column: 1 / -1;
-    background: var(--primary);
+    background: #ffffff;
+    border: 2px solid var(--primary);
     border-radius: 20px;
-    padding: 3rem;
-    color: white;
+    padding: 2rem 2.5rem;
+    color: var(--foreground);
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    border: none;
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: left;
+    margin-bottom: 1.5rem;
     position: relative;
     overflow: hidden;
 }
 
 .masteryCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(255, 107, 0, 0.25);
-    background: var(--primary-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(255, 107, 0, 0.1);
+    background: rgba(255, 107, 0, 0.02);
 }
 
 .masteryContent {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    gap: 1.5rem;
+}
+
+.masteryIcon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.masteryText h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--foreground);
+    margin: 0;
+}
+
+.masteryText p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 4px 0 0 0;
+}
+
+.masteryArrow {
+    color: var(--primary);
+    opacity: 0.5;
+    transition: transform 0.2s ease;
+}
+
+.masteryCard:hover .masteryArrow {
+    transform: translateX(4px);
+    opacity: 1;
 }
 
 .chapterCard {

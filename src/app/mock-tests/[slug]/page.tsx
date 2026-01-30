@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import QuizInterface from "@/components/quiz/QuizInterface";
 import ChapterSelector from "@/components/quiz/ChapterSelector";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function SubjectQuizPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const [selectedChapter, setSelectedChapter] = useState<string | null | undefined>(undefined);
 
@@ -15,7 +16,13 @@ export default function SubjectQuizPage() {
   // string: Chapter ID chosen
 
   if (selectedChapter === undefined) {
-    return <ChapterSelector subjectSlug={slug} onSelect={setSelectedChapter} />;
+    return (
+      <ChapterSelector 
+        subjectSlug={slug} 
+        onSelect={setSelectedChapter} 
+        onBack={() => router.push('/mock-tests')} 
+      />
+    );
   }
 
   return (
