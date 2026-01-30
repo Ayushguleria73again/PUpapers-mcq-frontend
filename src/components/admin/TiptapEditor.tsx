@@ -14,7 +14,7 @@ import {
     Bold, Italic, List, ListOrdered, Quote, 
     Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight,
     ImageIcon, Link as LinkIcon, Undo, Redo, Heading1, Heading2,
-    Type, Sparkles, Wand2, Minus
+    Type, Sparkles, Wand2, Minus, Eraser
 } from 'lucide-react';
 
 interface TiptapEditorProps {
@@ -33,9 +33,10 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         extensions: [
             StarterKit.configure({
                 heading: { levels: [1, 2] },
+                code: { HTMLAttributes: { class: 'math-code' } },
             }),
             Markdown.configure({
-                html: true, // Allow HTML tags within Markdown for compatibility
+                html: true,
                 tightLists: true,
                 bulletListMarker: '-',
             }),
@@ -46,23 +47,20 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             Underline,
             Link.configure({
                 openOnClick: false,
-                HTMLAttributes: {
-                    class: 'editor-link',
-                },
+                HTMLAttributes: { class: 'editor-link' },
             }),
             Image.configure({
-                HTMLAttributes: {
-                    class: 'editor-image',
-                },
+                HTMLAttributes: { class: 'editor-image' },
             }),
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
             }),
         ],
-        content: value, // Tiptap naturally handles HTML or Markdown if configured
+        content: value,
         onUpdate: ({ editor }) => {
-            const markdown = (editor.storage as any).markdown.getMarkdown();
-            onChange(markdown);
+            // Using HTML as the intermediate format to prevent Markdown-based duplication issues with math
+            const html = editor.getHTML();
+            onChange(html);
         },
         onFocus: () => setIsFocused(true),
         onBlur: () => setIsFocused(false),
@@ -70,7 +68,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
 
     // Sync content when value changes externally
     useEffect(() => {
-        if (editor && value !== (editor.storage as any).markdown.getMarkdown()) {
+        if (editor && value !== editor.getHTML()) {
             editor.commands.setContent(value);
         }
     }, [value, editor]);
@@ -121,38 +119,38 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
     if (!editor) return null;
 
     const toolbarButtonStyle = (isActive: boolean, disabled: boolean): React.CSSProperties => ({
-        width: '40px',
-        height: '40px',
-        borderRadius: '12px',
+        width: '36px',
+        height: '36px',
+        borderRadius: '10px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         border: 'none',
-        transition: 'all 0.2s ease',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        background: isActive ? 'linear-gradient(135deg, #FF6B00 0%, #FF8E3C 100%)' : 'transparent',
+        background: isActive ? '#FF6B00' : 'transparent',
         color: isActive ? 'white' : '#64748b',
-        boxShadow: isActive ? '0 4px 12px rgba(255, 107, 0, 0.25)' : 'none',
+        boxShadow: isActive ? '0 4px 12px rgba(255, 107, 0, 0.3)' : 'none',
         opacity: disabled ? 0.3 : 1,
     });
 
     return (
-        <div style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 0.5rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '11px', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 0.25rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <label style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Wand2 size={12} color="#FF6B00" />
-                        {label.toUpperCase()} CONTENT
+                        {label.toUpperCase()} EDITOR
                     </label>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>Rich Text Editor</h3>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>Professional Physics Suite</h3>
                 </div>
                 <AnimatePresence>
                     {uploading && (
                         <motion.span 
-                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                            style={{ fontSize: '11px', background: '#fff7ed', color: '#ea580c', padding: '6px 12px', borderRadius: '100px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid #ffedd5' }}
+                            initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                            style={{ fontSize: '10px', background: '#FF6B00', color: 'white', padding: '4px 12px', borderRadius: '100px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 10px rgba(255,107,0,0.2)' }}
                         >
-                            <Sparkles size={12} className="animate-pulse" />
+                            <Sparkles size={10} />
                             UPLOADING...
                         </motion.span>
                     )}
@@ -160,89 +158,90 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             </div>
 
             <div style={{
-                border: `2px solid ${isFocused ? '#FF6B00' : '#f1f5f9'}`,
-                borderRadius: '24px',
+                border: `1.5px solid ${isFocused ? '#FF6B00' : '#e2e8f0'}`,
+                borderRadius: '20px',
                 background: 'white',
                 overflow: 'hidden',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: isFocused ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' : '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
-                transform: isFocused ? 'scale(1.005)' : 'scale(1)',
+                transition: 'all 0.3s ease',
+                boxShadow: isFocused ? '0 25px 50px -12px rgba(0, 0, 0, 0.15)' : '0 10px 15px -3px rgba(0, 0, 0, 0.04)',
             }}>
-                {/* Fixed Toolbar with CSS Layout */}
+                {/* Advanced Toolbar */}
                 <div style={{
-                    background: '#f8fafc',
-                    padding: '12px',
-                    borderBottom: '2px solid #f1f5f9',
+                    background: '#fcfcfe',
+                    padding: '8px 12px',
+                    borderBottom: '1.5px solid #f1f5f9',
                     display: 'flex',
                     flexWrap: 'wrap',
                     alignItems: 'center',
-                    gap: '12px'
+                    gap: '8px'
                 }}>
-                    <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
-                        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editor.isActive('bold'), false)} title="Bold"><Bold size={18} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editor.isActive('italic'), false)} title="Italic"><Italic size={18} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editor.isActive('underline'), false)} title="Underline"><UnderlineIcon size={18} /></button>
+                    <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editor.isActive('bold'), false)} title="Bold"><Bold size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editor.isActive('italic'), false)} title="Italic"><Italic size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editor.isActive('underline'), false)} title="Underline"><UnderlineIcon size={16} /></button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
-                        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 1 }), false)} title="H1"><Heading1 size={18} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 2 }), false)} title="H2"><Heading2 size={18} /></button>
+                    <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
+                        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 1 }), false)} title="Step Heading"><Heading1 size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 2 }), false)} title="Sub-heading"><Heading2 size={16} /></button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
-                        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editor.isActive('bulletList'), false)} title="List"><List size={18} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} style={toolbarButtonStyle(editor.isActive('blockquote'), false)} title="Quote"><Quote size={18} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} style={toolbarButtonStyle(false, false)} title="Divider"><Minus size={18} /></button>
+                    <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editor.isActive('bulletList'), false)} title="List"><List size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} style={toolbarButtonStyle(false, false)} title="Divider (Step Separator)"><Minus size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} style={toolbarButtonStyle(editor.isActive('blockquote'), false)} title="Quote"><Quote size={16} /></button>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
-                        <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} style={toolbarButtonStyle(editor.isActive({ textAlign: 'center' }), false)} title="Center"><AlignCenter size={18} /></button>
-                        <button type="button" onClick={addLink} style={toolbarButtonStyle(editor.isActive('link'), false)} title="Link"><LinkIcon size={18} /></button>
-                        <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)} title="Image"><ImageIcon size={18} /></button>
+                    <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
+                        <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} style={toolbarButtonStyle(editor.isActive({ textAlign: 'center' }), false)} title="Center Formulas"><AlignCenter size={16} /></button>
+                        <button type="button" onClick={addLink} style={toolbarButtonStyle(editor.isActive('link'), false)} title="Link"><LinkIcon size={16} /></button>
+                        <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)} title="Image"><ImageIcon size={16} /></button>
+                        <button type="button" onClick={() => {
+                            if (window.confirm('Clear all formatting? This can help if text is duplicated.')) {
+                                editor.chain().focus().clearContent().insertContent(editor.getText()).run();
+                            }
+                        }} style={toolbarButtonStyle(false, false)} title="Clear Format & Duplicate Fix"><Eraser size={16} /></button>
                         <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
                     </div>
 
                     <div style={{ flexGrow: 1 }} />
 
-                    <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
-                        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())} title="Undo"><Undo size={18} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolbarButtonStyle(false, !editor.can().redo())} title="Redo"><Redo size={18} /></button>
+                    <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
+                        <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())} title="Undo"><Undo size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolbarButtonStyle(false, !editor.can().redo())} title="Redo"><Redo size={16} /></button>
                     </div>
                 </div>
 
-                <div style={{ position: 'relative', padding: '2rem' }}>
+                <div style={{ position: 'relative', padding: '1.5rem 2rem' }}>
                     <EditorContent editor={editor} />
                 </div>
             </div>
 
+            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', padding: '0 8px' }}>
+                Tip: Use **$$...$$** for centered formulas. Use **$...$** for inline math.
+            </p>
+
             <style jsx global>{`
                 .ProseMirror {
                     outline: none !important;
-                    min-height: 250px;
-                    font-family: 'Inter', -apple-system, sans-serif;
-                    line-height: 1.6;
+                    min-height: 300px;
+                    font-family: 'Inter', system-ui, sans-serif;
+                    line-height: 1.8;
                     color: #334155;
+                    font-size: 1.05rem;
                 }
-                .ProseMirror p { margin-bottom: 1.25rem; }
-                .ProseMirror h1 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; color: #0f172a; }
-                .ProseMirror h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem; color: #1e293b; }
+                .ProseMirror p { margin-bottom: 1.5rem; }
+                .ProseMirror h1 { font-size: 1.75rem; font-weight: 800; margin: 2rem 0 1rem; color: #0f172a; letter-spacing: -0.02em; }
+                .ProseMirror h2 { font-size: 1.4rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #1e293b; }
                 .ProseMirror blockquote {
                     border-left: 4px solid #FF6B00;
-                    background: #fffaf0;
+                    background: #fffaf5;
                     margin: 1.5rem 0;
                     padding: 1rem 1.5rem;
                     border-radius: 0 12px 12px 0;
                     font-style: italic;
                 }
-                .ProseMirror ul, .ProseMirror ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
-                .ProseMirror img {
-                    max-width: 100%;
-                    height: auto;
-                    border-radius: 16px;
-                    display: block;
-                    margin: 2rem auto;
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                }
+                .ProseMirror hr { border: none; border-top: 2px solid #f1f5f9; margin: 2.5rem 0; }
                 .ProseMirror .is-editor-empty:first-child::before {
                     content: attr(data-placeholder);
                     float: left;
@@ -251,6 +250,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                     height: 0;
                 }
                 .editor-link { color: #FF6B00; text-decoration: underline; }
+                .math-code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; color: #64748b; font-family: monospace; }
             `}</style>
         </div>
     );

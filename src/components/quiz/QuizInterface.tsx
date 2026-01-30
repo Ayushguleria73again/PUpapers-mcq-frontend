@@ -362,22 +362,62 @@ export default QuizInterface;
 // Adding styles for rich text rendering
 const EditorStyles = () => (
   <style dangerouslySetInnerHTML={{ __html: `
-    .tiptap-content { font-family: 'Inter', system-ui, sans-serif; line-height: 1.7; color: #334155; }
-    .tiptap-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem 0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-    .tiptap-content ul, .tiptap-content ol { padding-left: 1.5rem; margin: 1.5rem 0; }
-    .tiptap-content p { margin: 1rem 0; font-size: 1.05rem; }
-    .tiptap-content h1, .tiptap-content h2, .tiptap-content h3 { color: #0f172a; margin: 2.5rem 0 1.25rem; font-weight: 800; line-height: 1.3; }
-    .tiptap-content h1 { font-size: 2.25rem; }
-    .tiptap-content h2 { font-size: 1.75rem; border-bottom: none; }
-    .tiptap-content blockquote { border-left: 4px solid #FF6B00; background: #fffaf0; padding: 1.25rem 2rem; font-style: italic; color: #4b5563; border-radius: 0 12px 12px 0; margin: 2rem 0; }
-    .tiptap-content hr { border: none; border-top: 1px solid #e2e8f0; margin: 3rem 0; }
-    .tiptap-content .katex-display { margin: 2rem 0; padding: 1rem; overflow-x: auto; overflow-y: hidden; background: #f8fafc; border-radius: 8px; }
-    .tiptap-content .katex { font-size: 1.15em; }
+    .tiptap-content { 
+      font-family: 'Inter', -apple-system, sans-serif; 
+      line-height: 1.85; 
+      color: #374151; 
+      font-size: 1.125rem;
+    }
+    .tiptap-content p { margin: 1.75rem 0; }
     
-    /* Dark mode adjustments if detected in parent */
-    [data-theme='dark'] .tiptap-content { color: #f1f5f9; }
-    [data-theme='dark'] .tiptap-content h1, [data-theme='dark'] .tiptap-content h2 { color: white; }
-    [data-theme='dark'] .tiptap-content hr { border-top-color: #334155; }
-    [data-theme='dark'] .tiptap-content .katex-display { background: #1e293b; color: white; }
+    /* Step Headings - Professional Look */
+    .tiptap-content h1, .tiptap-content h2 { 
+      font-size: 1.8rem; 
+      font-weight: 850; 
+      color: #111827; 
+      margin: 3.5rem 0 1.5rem; 
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+    
+    /* Math Display (centered cards) */
+    .tiptap-content .katex-display { 
+      margin: 3rem 0; 
+      padding: 2rem 1rem; 
+      background: #fcfdfe; 
+      border-radius: 20px; 
+      border: 1.5px solid #f1f5f9;
+      box-shadow: 0 4px 20px -5px rgba(0,0,0,0.03), inset 0 2px 4px 0 rgba(0,0,0,0.01);
+      overflow-x: auto;
+      text-align: center;
+    }
+    .tiptap-content .katex { font-size: 1.25em; }
+    
+    /* Final Answer Styling - Detecting text content */
+    .tiptap-content h2 {
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    /* Horizontal Rule (Step Separators) */
+    .tiptap-content hr { 
+      border: none; 
+      border-top: 2px solid #f1f5f9; 
+      margin: 4.5rem 0; 
+      position: relative;
+    }
+    
+    /* Bold physics variables */
+    .tiptap-content strong { color: #000; font-weight: 800; }
+    
+    /* Dark mode - Pro theme */
+    [data-theme='dark'] .tiptap-content { color: #d1d5db; }
+    [data-theme='dark'] .tiptap-content h1, [data-theme='dark'] .tiptap-content h2 { color: #f9fafb; }
+    [data-theme='dark'] .tiptap-content .katex-display { 
+        background: #111827; 
+        border-color: #1f2937; 
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+    }
+    [data-theme='dark'] .tiptap-content hr { border-top-color: #1f2937; }
   ` }} />
 );
