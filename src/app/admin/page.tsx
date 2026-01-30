@@ -48,24 +48,41 @@ const AdminPage = () => {
 
     const checkAdmin = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-                credentials: 'include'
+            console.log('Checking admin status...');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me?t=${new Date().getTime()}`, {
+                credentials: 'include',
+                cache: 'no-store'
             });
+            
             if (res.ok) {
                 const user = await res.json();
+                console.log('User data received:', user);
                 if (user.role !== 'admin') {
+                    console.log('User is not admin, role is:', user.role);
                     router.push('/dashboard');
                 } else {
+                    console.log('Admin verified, fetching subjects...');
                     setIsAdmin(true);
                     fetchSubjects();
                 }
             } else {
+                console.log('Auth check failed, status:', res.status);
                 router.push('/login');
             }
         } catch (err) {
+            console.error('CheckAdmin Error:', err);
             router.push('/login');
         }
     };
+
+    // Fetch chapters when qSubjectId changes
+    useEffect(() => {
+        if (qSubjectId) {
+            fetchChapters(qSubjectId);
+        } else {
+            setChapters([]);
+        }
+    }, [qSubjectId]);
 
     if (!isAdmin) {
         return (
@@ -77,15 +94,6 @@ const AdminPage = () => {
             </div>
         );
     }
-
-    // Fetch chapters when qSubjectId changes
-    useEffect(() => {
-        if (qSubjectId) {
-            fetchChapters(qSubjectId);
-        } else {
-            setChapters([]);
-        }
-    }, [qSubjectId]);
 
     const fetchSubjects = async () => {
         try {
