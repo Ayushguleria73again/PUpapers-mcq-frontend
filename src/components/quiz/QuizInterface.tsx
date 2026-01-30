@@ -191,7 +191,8 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
             body: JSON.stringify({
                 subjectId: questions[0]?.subject._id,
                 score: finalScore,
-                totalQuestions: questions.length
+                totalQuestions: questions.length,
+                questions: questions.map(q => q._id)
             })
         });
     } catch (err) { console.error(err); } finally { setSavingResult(false); }

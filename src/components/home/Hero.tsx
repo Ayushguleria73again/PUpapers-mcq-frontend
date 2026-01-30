@@ -24,17 +24,18 @@ const Hero = () => {
             <p className={styles.description}>
               The ultimate platform for Panjab University Chandigarh Common Entrance Test (CET) preparation. Access thousands of MCQs, previous year papers, and real-time mock tests.
             </p>
-            <div className={styles.ctaGroup}>
-              <Link href="/pucet-mock">
+            <div className={styles.ctaGroup} style={{ position: 'relative', zIndex: 100 }}>
+              <Link href="/pucet-mock" style={{ display: 'block' }}>
                 <motion.button 
                   className="btn-primary"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
-                  Take Full Mock Test <ArrowRight size={20} style={{ marginLeft: '8px', verticalAlign: 'middle' }} />
+                  Take Full Mock Test <ArrowRight size={20} />
                 </motion.button>
               </Link>
-              <button className={styles.secondaryBtn}>
+              <button className={styles.secondaryBtn} onClick={() => console.log("Hero CTA Rendering Check")}>
                 View Previous Papers
               </button>
             </div>
