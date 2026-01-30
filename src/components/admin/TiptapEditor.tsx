@@ -99,18 +99,20 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 heading: { levels: [1, 2] },
                 bulletList: { keepAttributes: true, keepMarks: true },
             }),
+            Markdown.configure({
+                html: true,
+                tightLists: true,
+                bulletListMarker: '-',
+            }),
             Typography,
-            Underline,
-            Markdown,
             Placeholder.configure({
                 placeholder: placeholder || 'Paste physics explanation here...',
                 emptyEditorClass: 'is-editor-empty',
             }),
-            Link.configure({ openOnClick: false }),
-            Image.configure({ HTMLAttributes: { class: 'editor-image' } }),
-            TextAlign.configure({ types: ['heading', 'paragraph'] }),
+            Image,
         ],
         content: value,
+        immediatelyRender: false,
         onUpdate: ({ editor }) => {
             const markdown = (editor.storage as any).markdown.getMarkdown();
             onChange(markdown);
