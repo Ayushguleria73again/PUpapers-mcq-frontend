@@ -92,16 +92,11 @@ const ChapterSelector = ({ subjectSlug, onSelect }: ChapterSelectorProps) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <div style={{ background: 'rgba(255,255,255,0.1)', padding: '12px', borderRadius: '12px' }}>
-                            <Star size={24} color="#fbbf24" fill="#fbbf24" />
-                        </div>
-                        <div>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '4px' }}>Full Subject Mastery</h3>
-                            <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>A comprehensive test covering all chapters.</p>
-                        </div>
+                    <div className={styles.masteryContent}>
+                        <Star size={24} color="white" fill="white" style={{ marginBottom: '0.75rem' }} />
+                        <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Full Subject Quiz</h3>
+                        <p style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '4px' }}>Complete exam covering all available chapters.</p>
                     </div>
-                    <ChevronRight size={24} opacity={0.5} />
                 </motion.button>
 
                 {/* Chapter Options */}
