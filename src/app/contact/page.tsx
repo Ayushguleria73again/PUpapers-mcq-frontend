@@ -7,6 +7,42 @@ import { motion } from 'framer-motion';
 import styles from './contact.module.css';
 
 const ContactPage = () => {
+    const [formData, setFormData] = React.useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+    });
+    const [status, setStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setStatus('loading');
+
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            if (res.ok) {
+                setStatus('success');
+                setFormData({ name: '', email: '', subject: '', message: '' });
+                setTimeout(() => setStatus('idle'), 5000);
+            } else {
+                setStatus('error');
+            }
+        } catch (err) {
+            console.error(err);
+            setStatus('error');
+        }
+    };
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -52,31 +88,70 @@ const ContactPage = () => {
                             Send Message
                         </h2>
                         
-                        <form style={{ display: 'grid', gap: '1.2rem' }}>
+                        <form style={{ display: 'grid', gap: '1.2rem' }} onSubmit={handleSubmit}>
                             <div className={styles.formGrid}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>Name</label>
-                                    <input type="text" placeholder="John Doe" className={styles.input} />
+                                    <input 
+                                        type="text" 
+                                        name="name"
+                                        placeholder="Ayush" 
+                                        className={styles.input} 
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.label}>Email</label>
-                                    <input type="email" placeholder="john@example.com" className={styles.input} />
+                                    <input 
+                                        type="email" 
+                                        name="email"
+                                        placeholder="ayush@example.com" 
+                                        className={styles.input} 
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
                             </div>
                             
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Subject</label>
-                                <input type="text" placeholder="How can we help?" className={styles.input} />
+                                <input 
+                                    type="text" 
+                                    name="subject"
+                                    placeholder="How can we help?" 
+                                    className={styles.input} 
+                                    value={formData.subject}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
                             
                             <div className={styles.formGroup}>
                                 <label className={styles.label}>Message</label>
-                                <textarea rows={5} placeholder="Tell us about your query..." className={styles.textarea}></textarea>
+                                <textarea 
+                                    name="message"
+                                    rows={5} 
+                                    placeholder="Tell us about your query..." 
+                                    className={styles.textarea}
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    required
+                                ></textarea>
                             </div>
                             
-                            <button type="button" className={styles.submitBtn}>
-                                Send Message <Send size={18} />
+                            <button type="submit" className={styles.submitBtn} disabled={status === 'loading'}>
+                                {status === 'loading' ? 'Sending...' : 'Send Message'} <Send size={18} />
                             </button>
+
+                            {status === 'success' && (
+                                <p style={{ color: '#10b981', textAlign: 'center', marginTop: '0.5rem', fontWeight: 600 }}>Message sent successfully!</p>
+                            )}
+                            {status === 'error' && (
+                                <p style={{ color: '#ef4444', textAlign: 'center', marginTop: '0.5rem', fontWeight: 600 }}>Failed to send message.</p>
+                            )}
                         </form>
                     </motion.div>
 
