@@ -521,5 +521,14 @@ const EditorStyles = () => (
         background: #f8fafc;
         border-color: #94a3b8;
     }
+
+    @media (max-width: 640px) {
+        .tiptap-content .katex-display {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+        }
+        .tiptap-content .katex { font-size: 1.05em; }
+    }
   ` }} />
 );
