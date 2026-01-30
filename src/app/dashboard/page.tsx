@@ -14,7 +14,8 @@ import {
   Trash2,
   X,
   AlertTriangle,
-  User as UserIcon
+  User as UserIcon,
+  Bookmark
 } from 'lucide-react';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
@@ -185,9 +186,14 @@ const DashboardPage = () => {
             <h2>Ready for a new challenge?</h2>
             <p>Take a practice set curated specifically for your weak areas.</p>
           </div>
-          <button className={styles.startBtn} onClick={() => window.location.href = '/mock-tests'}>
-            <Play size={20} fill="currentColor" /> Start Practice Set
-          </button>
+          <div className={styles.actionButtons}>
+            <Link href="/mock-tests" className={styles.startBtn} style={{ textDecoration: 'none' }}>
+              <Play size={20} fill="currentColor" /> Start Practice Set
+            </Link>
+            <Link href="/revision" className={styles.vaultBtn} style={{ textDecoration: 'none' }}>
+              <Bookmark size={20} /> Revision Vault
+            </Link>
+          </div>
         </motion.div>
 
         {/* Subject Mastery Section */}

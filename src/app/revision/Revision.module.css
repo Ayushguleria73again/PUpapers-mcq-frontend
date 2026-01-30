@@ -1,0 +1,160 @@
+.vaultPage {
+    min-height: 100vh;
+    background: #ffffff;
+    padding-bottom: 5rem;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.header {
+    padding: 100px 0 60px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1rem;
+}
+
+.header p {
+    color: #64748b;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.emptyState {
+    text-align: center;
+    padding: 100px 0;
+    background: #f8fafc;
+    border-radius: 32px;
+    border: 2px dashed #e2e8f0;
+}
+
+.emptyState h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 1.5rem 0 0.5rem;
+}
+
+.emptyState p {
+    color: #64748b;
+    margin-bottom: 2.5rem;
+}
+
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.questionCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 2.5rem;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.subjectBadge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--primary);
+    background: rgba(255, 107, 0, 0.1);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+}
+
+.removeBtn {
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.removeBtn:hover {
+    color: #ef4444;
+    background: #fef2f2;
+}
+
+.questionText {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.optionsList {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+.optionItem {
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.correctOption {
+    background: #f0fdf4;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.explanation {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+.explanationHeader {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2.25rem;
+    }
+
+    .questionCard {
+        padding: 1.5rem;
+    }
+
+    .questionText {
+        font-size: 1.1rem;
+    }
+}

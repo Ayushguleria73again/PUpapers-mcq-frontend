@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Clock, CheckCircle2, ChevronRight, XCircle, 
-  Trophy, BookOpen, BrainCircuit, Target, Check, X, BarChart2
+  Trophy, BookOpen, BrainCircuit, Target, Check, X, BarChart2,
+  Bookmark
 } from 'lucide-react';
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
@@ -48,6 +49,8 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
   const [showResult, setShowResult] = useState(false);
   const [savingResult, setSavingResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState(180); 
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [togglingBookmark, setTogglingBookmark] = useState(false);
 
   const storageKey = `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}${difficulty !== 'all' ? `_${difficulty}` : ''}`;
 
@@ -71,7 +74,18 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
     const initializeQuiz = async () => {
       setLoading(true);
       
-      // 1. Check Storage First
+      // 1. Fetch User Bookmarks (Move inside async)
+      try {
+        const bookRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+            credentials: 'include'
+        });
+        if (bookRes.ok) {
+            const userData = await bookRes.json();
+            setBookmarks(userData.bookmarks || []);
+        }
+      } catch (err) { console.error("Failed to fetch bookmarks:", err); }
+
+      // 2. Check Storage First
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         try {
@@ -124,7 +138,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
       finally { setLoading(false); }
     };
 
-    initializeQuiz();
+      initializeQuiz();
   }, [subjectSlug, storageKey]);
 
   useEffect(() => {
@@ -199,6 +213,27 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
   const resetAndRedirect = () => {
     localStorage.removeItem(storageKey);
     router.push('/dashboard');
+  };
+
+  const toggleBookmark = async (id: string) => {
+    if (togglingBookmark) return;
+    setTogglingBookmark(true);
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/bookmarks`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questionId: id }),
+            credentials: 'include'
+        });
+        if (res.ok) {
+            const data = await res.json();
+            setBookmarks(data.bookmarks);
+        }
+    } catch (err) {
+        console.error("Bookmark toggle failed:", err);
+    } finally {
+        setTogglingBookmark(false);
+    }
   };
 
   if (loading) return (
@@ -353,7 +388,13 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
           </AnimatePresence>
 
           <div className={styles.quizFooter}>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 500 }}>Select an option to continue</p>
+            <button 
+                className={`${styles.bookmarkBtn} ${bookmarks.includes(questions[currentQuestion]._id) ? styles.bookmarked : ''}`}
+                onClick={() => toggleBookmark(questions[currentQuestion]._id)}
+            >
+                <Bookmark size={18} fill={bookmarks.includes(questions[currentQuestion]._id) ? "white" : "transparent"} />
+                {bookmarks.includes(questions[currentQuestion]._id) ? "Bookmarked" : "Bookmark"}
+            </button>
             <button className="btn-primary" onClick={handleNext} disabled={selectedOption === null} style={{ padding: '0.6rem 2rem', borderRadius: '8px', fontWeight: 700 }}>
               {currentQuestion === questions.length - 1 ? 'Finish Test' : 'Next Question'} <ChevronRight size={16} />
             </button>

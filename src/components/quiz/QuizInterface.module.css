@@ -105,15 +105,55 @@
 
 .selectedOption:hover {
     background: #1e293b;
+    color: white;
 }
 
 .quizFooter {
     display: flex;
     justify-content: space-between;
-    margin-top: 4rem;
     align-items: center;
     padding-top: 2rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--border);
+}
+
+.bookmarkBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: #64748b;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bookmarkBtn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(255, 107, 0, 0.05);
+}
+
+.bookmarked {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.bookmarked:hover {
+    background: #e66000;
+    color: white;
+}
+
+@media (max-width: 640px) {
+    .quizFooter {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
 }
 
 /* Results View */
