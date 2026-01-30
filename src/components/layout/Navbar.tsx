@@ -14,7 +14,7 @@ const Navbar = () => {
 
   React.useEffect(() => {
     // Don't fetch on auth pages
-    if (pathname === '/login' || pathname === '/signup') return;
+    if (pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/reset-password') return;
 
     const checkUser = async () => {
       try {
@@ -54,6 +54,8 @@ const Navbar = () => {
   if (
     pathname === '/login' || 
     pathname === '/signup' || 
+    pathname === '/forgot-password' || 
+    pathname === '/reset-password' ||
     (pathname.startsWith('/mock-tests/') && pathname !== '/mock-tests') ||
     pathname.startsWith('/admin')
   ) {

@@ -13,6 +13,8 @@ const Footer = () => {
     if (
         pathname === '/login' || 
         pathname === '/signup' || 
+        pathname === '/forgot-password' || 
+        pathname === '/reset-password' || 
         (pathname.startsWith('/mock-tests/') && pathname !== '/mock-tests') ||
         pathname.startsWith('/admin')
     ) {
