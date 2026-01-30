@@ -30,6 +30,7 @@ interface Question {
     name: string;
     slug: string;
   };
+  averageTime?: number;
 }
 
 interface QuizInterfaceProps {
@@ -401,6 +402,12 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                         <div key={q._id} className={styles.solutionStep}>
                             <div className={styles.stepHeader}>
                                 Question {index + 1} • {isCorrect ? <span style={{ color: '#059669' }}>Correct</span> : <span style={{ color: '#dc2626' }}>Incorrect</span>}
+                                {questionStats[index] && (
+                                    <span style={{ fontSize: '0.8rem', marginLeft: '1rem', color: '#64748b', fontWeight: 500 }}>
+                                        ⏱ You: <strong>{Math.round(questionStats[index].timeTaken)}s</strong> 
+                                        {q.averageTime ? <span> • Avg: <strong>{Math.round(q.averageTime)}s</strong></span> : ''}
+                                    </span>
+                                )}
                             </div>
                             
                             <div className="tiptap-content" style={{ fontWeight: 600, fontSize: '1.1rem', color: '#1e293b', marginBottom: '1.5rem' }}>
