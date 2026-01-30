@@ -13,7 +13,8 @@ import {
   Settings,
   Trash2,
   X,
-  AlertTriangle
+  AlertTriangle,
+  User as UserIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
@@ -121,7 +122,11 @@ const DashboardPage = () => {
                     <p>Keep practicing to stay ahead in your PU CET Chandigarh preparation.</p>
                 </div>
                 <button className={styles.settingsBtn} onClick={() => setShowSettings(!showSettings)}>
-                    <Settings size={24} />
+                    {user.profileImage ? (
+                        <img src={user.profileImage} alt="Profile" className={styles.headerAvatar} />
+                    ) : (
+                        <Settings size={24} />
+                    )}
                 </button>
                 
                 <AnimatePresence>
@@ -132,6 +137,10 @@ const DashboardPage = () => {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: -10 }}
                         >
+                            <Link href="/profile" className={styles.settingsLink}>
+                                <UserIcon size={16} /> Edit Profile
+                            </Link>
+                            <div className={styles.divider}></div>
                             <button className={styles.deleteAccountBtn} onClick={() => { setDeleteStep(1); setShowSettings(false); }}>
                                 <Trash2 size={16} /> Delete Account
                             </button>
