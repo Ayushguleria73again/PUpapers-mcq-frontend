@@ -120,6 +120,7 @@ const AdminPage = () => {
 
     const handleSuccess = (msg: string) => {
         setMessage({ type: 'success', text: msg });
+        if (editItem) setActiveTab('manage');
         setEditItem(null);
         setTimeout(() => setMessage(null), 5000);
     };
