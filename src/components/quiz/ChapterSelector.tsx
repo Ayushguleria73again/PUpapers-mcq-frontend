@@ -29,6 +29,17 @@ interface ChapterSelectorProps {
 const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps) => {
     const [user, setUser] = useState<any>(null);
     const [showPremiumModal, setShowPremiumModal] = useState(false);
+    const [chapters, setChapters] = useState<Chapter[]>([]);
+    const [subject, setSubject] = useState<Subject | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [difficulty, setDifficulty] = useState('all');
+
+    const difficulties = [
+        { id: 'all', label: 'All Levels', icon: <BrainCircuit size={14} /> },
+        { id: 'easy', label: 'Easy', icon: <Star size={14} /> },
+        { id: 'medium', label: 'Medium', icon: <Target size={14} /> },
+        { id: 'hard', label: 'Hard', icon: <Trophy size={14} /> },
+    ];
 
     useEffect(() => {
         const fetchContent = async () => {
