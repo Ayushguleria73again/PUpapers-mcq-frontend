@@ -54,6 +54,10 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
   const [togglingBookmark, setTogglingBookmark] = useState(false);
   const [aiExplanations, setAiExplanations] = useState<Record<string, { content: string; loading: boolean }>>({});
 
+  /* Time Tracking State */
+  const [startTime, setStartTime] = useState<number>(Date.now());
+  const [questionStats, setQuestionStats] = useState<{ question: string; timeTaken: number; userChoice: number; isCorrect: boolean }[]>([]);
+
   const storageKey = stream 
     ? `quiz_state_pucet_${stream}`
     : `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}${difficulty !== 'all' ? `_${difficulty}` : ''}`;
@@ -63,10 +67,15 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
   useEffect(() => {
     if (!loading && questions.length > 0 && !showResult) {
       localStorage.setItem(storageKey, JSON.stringify({
-        questions, currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft
+        questions, currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, questionStats
       }));
     }
-  }, [currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, storageKey, loading, questions]);
+  }, [currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, storageKey, loading, questions, questionStats]);
+
+  useEffect(() => {
+    // Reset start time when question changes
+    setStartTime(Date.now());
+  }, [currentQuestion]);
 
   useEffect(() => {
     if (!subjectSlug && !stream) {
@@ -102,7 +111,9 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
             setScore(parsed.score || 0);
             setShowResult(parsed.showResult || false);
             setTimeLeft(parsed.timeLeft ?? 180);
+            setQuestionStats(parsed.questionStats || []);
             setLoading(false);
+            setStartTime(Date.now()); // Reset timer on restore
             return; // Successfully restored, EXIT initialization
           }
         } catch (e) { console.error("Restore failed:", e); }
@@ -142,7 +153,9 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
           setUserAnswers([]);
           setScore(0);
           setShowResult(false);
+          setQuestionStats([]);
           setTimeLeft(stream ? 3600 : 180); // 60 mins for full exam, 3 mins for quick quiz
+          setStartTime(Date.now());
         }
       } catch (err) { console.error(err); } 
       finally { setLoading(false); }
@@ -164,23 +177,54 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const finishQuiz = (finalAnswersArg?: number[]) => {
+  const finishQuiz = (finalAnswersArg?: number[], finalStatsArg?: any[]) => {
       let finalAnswers = finalAnswersArg || [...userAnswers];
+      let finalStats = finalStatsArg || [...questionStats];
+
+      // Capture last question stats if coming from button click (not timeout)
       if (selectedOption !== null && currentQuestion === finalAnswers.length) {
           finalAnswers = [...finalAnswers, selectedOption];
+
+           // Calculate stats for the last question
+           const timeTaken = Math.round((Date.now() - startTime) / 1000);
+           const isCorrect = Number(selectedOption) === Number(questions[currentQuestion].correctOption);
+           finalStats.push({
+               question: questions[currentQuestion]._id,
+               timeTaken,
+               userChoice: selectedOption,
+               isCorrect
+           });
       }
-      while (finalAnswers.length < questions.length) finalAnswers.push(-1);
+      
+      // Fill remaining if any
+      while (finalAnswers.length < questions.length) {
+          finalAnswers.push(-1);
+          // For skipped/unreached questions we could push dummy stats or just leave them out
+          // Let's push a "skipped" stat
+           const qIdx = finalStats.length;
+           if (qIdx < questions.length) {
+               finalStats.push({
+                   question: questions[qIdx]._id,
+                   timeTaken: 0,
+                   userChoice: -1,
+                   isCorrect: false
+               });
+           }
+      }
+      
       setUserAnswers(finalAnswers);
+      setQuestionStats(finalStats);
+
       let finalScore = 0;
       finalAnswers.forEach((answer, index) => { 
           if (Number(answer) === Number(questions[index].correctOption)) finalScore++; 
       });
       setScore(finalScore);
       setShowResult(true);
-      saveResult(finalScore);
+      saveResult(finalScore, finalStats);
   };
 
-  const saveResult = async (finalScore: number) => {
+  const saveResult = async (finalScore: number, finalStats: any[]) => {
     if (questions.length === 0) return;
     setSavingResult(true);
     try {
@@ -192,13 +236,26 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                 subjectId: questions[0]?.subject._id,
                 score: finalScore,
                 totalQuestions: questions.length,
-                questions: questions.map(q => q._id)
+                questions: finalStats // NEW: Sending detailed stats
             })
         });
     } catch (err) { console.error(err); } finally { setSavingResult(false); }
   };
 
   const handleNext = () => {
+    const timeTaken = Math.round((Date.now() - startTime) / 1000);
+    const isCorrect = Number(selectedOption) === Number(questions[currentQuestion].correctOption);
+    
+    // Update Stats
+    const newStats = [...questionStats];
+    newStats.push({
+        question: questions[currentQuestion]._id,
+        timeTaken,
+        userChoice: selectedOption !== null ? selectedOption : -1,
+        isCorrect
+    });
+    setQuestionStats(newStats);
+
     const newAnswers = [...userAnswers];
     newAnswers.push(selectedOption !== null ? selectedOption : -1);
     
@@ -206,8 +263,9 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
       setUserAnswers(newAnswers);
       setCurrentQuestion(currentQuestion + 1);
       setSelectedOption(null);
+      // setStartTime handled by useEffect
     } else {
-        finishQuiz(newAnswers);
+        finishQuiz(newAnswers, newStats);
     }
   };
 
@@ -217,8 +275,10 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     setSelectedOption(null);
     setScore(0);
     setUserAnswers([]);
+    setQuestionStats([]);
     setShowResult(false);
     setTimeLeft(180);
+    setStartTime(Date.now());
   };
 
   const resetAndRedirect = () => {
