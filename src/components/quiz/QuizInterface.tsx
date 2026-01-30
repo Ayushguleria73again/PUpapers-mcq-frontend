@@ -158,6 +158,16 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
     }
   };
 
+  const resetQuiz = () => {
+    localStorage.removeItem(storageKey);
+    setCurrentQuestion(0);
+    setSelectedOption(null);
+    setScore(0);
+    setUserAnswers([]);
+    setShowResult(false);
+    setTimeLeft(180);
+  };
+
   if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Initializing Module...</div>;
 
   const optionLetters = ['A', 'B', 'C', 'D'];
@@ -237,7 +247,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '4rem' }}>
-              <button className="btn-primary" onClick={() => window.location.reload()}>Start New Practice</button>
+              <button className="btn-primary" onClick={resetQuiz}>Start New Practice</button>
               <Link href="/dashboard" className="btn-secondary">View Dashboard</Link>
             </div>
           </div>
