@@ -140,16 +140,23 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
     });
 
     useEffect(() => {
-        if (editor && value !== (editor.storage as any).markdown.getMarkdown()) {
-            editor.commands.setContent(value);
+        // Only sync from value to editor if NOT focused AND NOT cleaning
+        // This is CRITICAL to prevent state-reset races during batch uploads
+        if (editor && !editor.isFocused && !isCleaning) {
+            const currentMarkdown = (editor.storage as any).markdown.getMarkdown();
+            if (value !== currentMarkdown) {
+                console.log('[Tiptap] External sync triggered');
+                editor.commands.setContent(value);
+            }
         }
-    }, [value, editor]);
+    }, [value, editor, isCleaning]);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (!files || files.length === 0 || !editor) return;
 
-        setIsCleaning(true); // Reuse cleaning state as upload indicator
+        console.log(`[Tiptap] Batch upload started: ${files.length} files`);
+        setIsCleaning(true);
         
         try {
             for (let i = 0; i < files.length; i++) {
@@ -165,15 +172,24 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
 
                 if (res.ok) {
                     const data = await res.json();
-                    // Insert image and a space to move cursor forward
-                    editor.chain().focus().setImage({ src: data.url }).insertContent(' ').run();
+                    console.log(`[Tiptap] Uploaded ${i + 1}/${files.length}: ${data.url}`);
+                    
+                    // Use more robust insertion: append image + newline
+                    editor.chain()
+                        .focus()
+                        .insertContent([
+                            { type: 'image', attrs: { src: data.url } },
+                            { type: 'paragraph' }
+                        ])
+                        .run();
                 } else {
-                    console.error(`Upload failed for file: ${file.name}`);
+                    console.error(`[Tiptap] Failed to upload: ${file.name}`);
                 }
             }
         } catch (err) {
-            console.error('Upload error:', err);
+            console.error('[Tiptap] Upload error:', err);
         } finally {
+            console.log('[Tiptap] Batch upload complete');
             setIsCleaning(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
@@ -243,7 +259,26 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                     </div>
                 </div>
 
-                <div style={{ padding: '1rem', minHeight: '150px' }}>
+                <div style={{ padding: '1rem', minHeight: '150px', position: 'relative' }}>
+                    <AnimatePresence>
+                        {isCleaning && (
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                style={{
+                                    position: 'absolute', inset: 0, zIndex: 10,
+                                    background: 'rgba(255, 255, 255, 0.8)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    backdropFilter: 'blur(2px)', fontWeight: 600, color: '#FF6B00',
+                                    gap: '10px'
+                                }}
+                            >
+                                <div className="spinner" style={{ width: '20px', height: '20px', border: '3px solid #f3f3f3', borderTop: '3px solid #FF6B00', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                Processing Uploads...
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                     <EditorContent editor={editor} />
                 </div>
             </div>
@@ -262,13 +297,18 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
 
     .editor-image {
         max-width: 100%;
-        max-height: 200px;
+        max-height: 250px;
         height: auto;
         object-fit: contain;
         border-radius: 8px;
         display: block;
-        margin: 1rem 0;
+        margin: 1rem auto;
         border: 1px solid #e2e8f0;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
             `}</style>
         </div>
