@@ -22,7 +22,7 @@ const PUCETSection = () => {
       description: 'Practice with official PUCET question papers from the last 10 years.',
       icon: <FileText size={32} />,
       link: '/previous-papers', // Placeholder route
-      color: '#3B82F6'
+      color: '#FF6B00'
     },
     {
       id: 'syllabus',
@@ -30,7 +30,7 @@ const PUCETSection = () => {
       description: 'Detailed breakdown of the exam pattern and marking scheme.',
       icon: <BookOpen size={32} />,
       link: '/syllabus', // Placeholder route
-      color: '#10B981'
+      color: '#FF6B00'
     }
   ];
 
