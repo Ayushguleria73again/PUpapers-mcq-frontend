@@ -62,7 +62,10 @@ const CountdownSection = () => {
 
     return (
         <section style={{ 
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            background: `linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)), url('/images/home/countdown-bg.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
             padding: '80px 0',
             position: 'relative',
             overflow: 'hidden'

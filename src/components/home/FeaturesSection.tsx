@@ -46,7 +46,12 @@ const FeaturesSection = () => {
     ];
 
     return (
-        <section className={styles.section} style={{ background: '#ffffff', paddingTop: '50px' }}>
+        <section className={styles.section} style={{ 
+            background: `linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.95)), url('/images/home/features-bg.png')`,
+            backgroundSize: 'cover',
+            paddingTop: '80px',
+            paddingBottom: '80px'
+        }}>
             <div className="container">
                 <div className={styles.header}>
                     <h2>Why Choose <span>PUPapers</span>?</h2>

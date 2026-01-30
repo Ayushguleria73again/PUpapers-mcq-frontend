@@ -35,7 +35,12 @@ const PUCETSection = () => {
   ];
 
   return (
-    <section className={styles.section} style={{ background: '#f8fafc', paddingTop: '50px' }}>
+    <section className={styles.section} style={{ 
+        background: `linear-gradient(rgba(248, 250, 252, 0.97), rgba(248, 250, 252, 0.97)), url('/images/home/pucet-pattern.png')`,
+        backgroundSize: '400px', // Pattern repeat
+        paddingTop: '80px',
+        paddingBottom: '80px'
+    }}>
       <div className="container">
         <div className={styles.header}>
           <h2>PUCET <span>Champions</span> Zone</h2>
