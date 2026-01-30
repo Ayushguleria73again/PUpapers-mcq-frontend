@@ -135,10 +135,11 @@ const AdminPage = () => {
         const [isPreview, setIsPreview] = useState(false);
         const [uploading, setUploading] = useState(false);
         const fileInputRef = React.useRef<HTMLInputElement>(null);
+        const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
         const insertText = (before: string, after: string = '') => {
-            const textarea = document.activeElement as HTMLTextAreaElement;
-            if (!textarea || textarea.tagName !== 'TEXTAREA') return;
+            const textarea = textareaRef.current;
+            if (!textarea) return;
 
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
@@ -150,7 +151,7 @@ const AdminPage = () => {
             // Refocus and set cursor
             setTimeout(() => {
                 textarea.focus();
-                textarea.setSelectionRange(start + before.length, end + before.length);
+                textarea.setSelectionRange(start + before.length, end + before.length + (selected ? selected.length : 0));
             }, 0);
         };
 
@@ -210,6 +211,7 @@ const AdminPage = () => {
                             <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
                         </div>
                         <textarea 
+                            ref={textareaRef}
                             value={value}
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={placeholder}
@@ -230,7 +232,7 @@ const AdminPage = () => {
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{value || '*No content to preview*'}</ReactMarkdown>
                     </div>
                 )}
-                <style jsx global>{`
+                <style>{`
                     .markdown-preview img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
                     .markdown-preview ul { padding-left: 1.5rem; margin: 10px 0; }
                     .markdown-preview p { margin: 10px 0; }
@@ -994,30 +996,34 @@ const AdminPage = () => {
                             />
 
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Options</label>
-                                <div style={{ display: 'grid', gap: '0.8rem' }}>
+                                <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600, color: '#2c3e50' }}>Multiple Choice Options (Markdown supported)</label>
+                                <div style={{ display: 'grid', gap: '1.2rem' }}>
                                     {qOptions.map((opt, idx) => (
-                                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <span style={{ width: '20px', fontWeight: 600 }}>{String.fromCharCode(65 + idx)}</span>
-                                            <input 
-                                                type="text" 
-                                                value={opt || ''}
-                                                onChange={(e) => handleOptionChange(idx, e.target.value)}
-                                                required
-                                                placeholder={`Option ${idx + 1}`}
-                                                style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid #ddd' }}
-                                            />
-                                            <input 
-                                                type="radio" 
-                                                name="correctOption"
-                                                checked={qCorrect === idx}
-                                                onChange={() => setQCorrect(idx)}
-                                                style={{ width: '20px', height: '20px' }}
+                                        <div key={idx} style={{ background: '#f9fafb', padding: '1rem', borderRadius: '12px', border: '1px solid #eee' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                                                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#666' }}>OPTION {String.fromCharCode(65 + idx)}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <label style={{ fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                        <input 
+                                                            type="radio" 
+                                                            name="correctOption"
+                                                            checked={qCorrect === idx}
+                                                            onChange={() => setQCorrect(idx)}
+                                                            style={{ width: '16px', height: '16px', accentColor: '#2ecc71' }}
+                                                        />
+                                                        Correct Answer
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <MarkdownEditor 
+                                                label="" 
+                                                value={opt || ''} 
+                                                onChange={(val) => handleOptionChange(idx, val)} 
+                                                placeholder={`Enter option ${String.fromCharCode(65 + idx)}...`}
                                             />
                                         </div>
                                     ))}
                                 </div>
-                                <small style={{ color: '#888' }}>Select the radio button next to the correct answer.</small>
                             </div>
 
                             <MarkdownEditor 

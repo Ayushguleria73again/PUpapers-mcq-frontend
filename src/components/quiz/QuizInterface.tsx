@@ -227,16 +227,16 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                     
                                     // Highlight logic
                                     if (optIdx === q.correctOption) {
-                                        optionStyle = { ...optionStyle, border: '1px solid #2ecc71', background: '#eafaf1', color: '#2ecc71', fontWeight: 'bold' };
+                                        optionStyle = { ...optionStyle, border: '1px solid #2ecc71', background: '#eafaf1', color: '#2ecc71', fontWeight: 'bold', position: 'relative' };
                                     } else if (optIdx === userAnswer && !isCorrect) {
-                                        optionStyle = { ...optionStyle, border: '1px solid #e74c3c', background: '#fdedec', color: '#e74c3c' };
+                                        optionStyle = { ...optionStyle, border: '1px solid #e74c3c', background: '#fdedec', color: '#e74c3c', position: 'relative' };
                                     }
 
                                     return (
-                                        <div key={optIdx} style={optionStyle}>
-                                            {opt} 
-                                            {optIdx === q.correctOption && <span style={{ marginLeft: '8px' }}>✓</span>}
-                                            {optIdx === userAnswer && !isCorrect && <span style={{ marginLeft: '8px' }}>✗</span>}
+                                        <div key={optIdx} style={optionStyle} className="markdown-render">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{opt}</ReactMarkdown>
+                                            {optIdx === q.correctOption && <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>✓</span>}
+                                            {optIdx === userAnswer && !isCorrect && <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>✗</span>}
                                         </div>
                                     );
                                 })}
@@ -316,10 +316,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                 {questions[currentQuestion].options.map((option, index) => (
                   <button
                     key={index}
-                    className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''}`}
+                    className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} markdown-render`}
                     onClick={() => handleOptionSelect(index)}
+                    style={{ textAlign: 'left' }}
                   >
-                    {option}
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: 'span' }}>{option}</ReactMarkdown>
                   </button>
                 ))}
               </div>
@@ -347,10 +348,10 @@ export default QuizInterface;
 
 // Adding styles for markdown rendering
 const MarkdownStyles = () => (
-  <style jsx global>{`
+  <style dangerouslySetInnerHTML={{ __html: `
     .markdown-render img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
     .markdown-render ul, .markdown-render ol { padding-left: 1.5rem; margin: 10px 0; }
     .markdown-render p { margin: 10px 0; }
     .markdown-render h1, .markdown-render h2, .markdown-render h3 { margin: 15px 0 10px; }
-  `}</style>
+  ` }} />
 );
