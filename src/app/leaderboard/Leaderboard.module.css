@@ -1,0 +1,213 @@
+.pageWrapper {
+    background: #ffffff;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem 1rem 2rem;
+}
+
+.headerSection {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.trophyWrapper {
+    display: inline-flex;
+    padding: 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.contentWrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.filterContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.filterSelect {
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.rankingsCard {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.columnGrid {
+    display: grid;
+    grid-template-columns: 80px 1fr 100px 100px;
+    align-items: center;
+}
+
+.tableHeader {
+    padding: 1.2rem 2rem;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+    color: #666;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tableRow {
+    padding: 1.2rem 2rem;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.2s;
+}
+
+.rankCell {
+    display: flex;
+    justify-content: center;
+    width: 30px;
+}
+
+.studentCell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.studentName {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #333;
+}
+
+.championBadge {
+    margin-left: 8px;
+    font-size: 0.7rem;
+    background: #FFD700;
+    color: #B4690E;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.testsCell {
+    text-align: center;
+    color: #666;
+    font-weight: 500;
+}
+
+.scoreCell {
+    text-align: right;
+}
+
+.totalScore {
+    font-weight: 700;
+    color: #FF6B00;
+    font-size: 1.1rem;
+}
+
+.avgScore {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.emptyState {
+    padding: 4rem;
+    text-align: center;
+    color: #888;
+}
+
+/* Mobile Optimization */
+@media (max-width: 640px) {
+    .container {
+        padding: 6rem 1rem 2rem;
+    }
+
+    .columnGrid {
+        grid-template-columns: 50px 1fr 80px;
+        /* Hide Tests column */
+        gap: 10px;
+    }
+
+    .tableHeader {
+        padding: 1rem;
+        font-size: 0.8rem;
+    }
+
+    .tableRow {
+        padding: 1rem;
+    }
+
+    /* Hide the 3rd column (Tests) */
+    .tableHeader>div:nth-child(3),
+    .tableRow>div:nth-child(3) {
+        display: none;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .filterSelect {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    .studentCell {
+        gap: 0.5rem;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .studentName {
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+
+    .championBadge {
+        display: block;
+        width: fit-content;
+        margin-left: 0;
+        margin-top: 2px;
+    }
+}
