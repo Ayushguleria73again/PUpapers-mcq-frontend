@@ -49,21 +49,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
   const storageKey = `quiz_state_${subjectSlug}`;
 
-  useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved && subjectSlug) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.questions) setQuestions(parsed.questions);
-        setCurrentQuestion(parsed.currentQuestion || 0);
-        setSelectedOption(parsed.selectedOption);
-        setUserAnswers(parsed.userAnswers || []);
-        setScore(parsed.score || 0);
-        setShowResult(parsed.showResult || false);
-        setTimeLeft(parsed.timeLeft || 180);
-      } catch (e) { console.error(e); }
-    }
-  }, [storageKey, subjectSlug]);
+  // REMOVED individual useEffect for restoration - moved into unified initialization below
 
   useEffect(() => {
     if (!loading && questions.length > 0) {
@@ -74,30 +60,62 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   }, [currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, storageKey, loading, questions]);
 
   useEffect(() => {
-    if (!subjectSlug || questions.length > 0) {
-        if (!subjectSlug) setQuestions([]); 
+    if (!subjectSlug) {
+        setQuestions([]); 
         setLoading(false);
         return;
     }
-    const fetchQuestions = async () => {
+
+    const initializeQuiz = async () => {
+      setLoading(true);
+      
+      // 1. Check Storage First
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.questions && parsed.questions.length > 0) {
+            setQuestions(parsed.questions);
+            setCurrentQuestion(parsed.currentQuestion || 0);
+            setSelectedOption(parsed.selectedOption ?? null);
+            setUserAnswers(parsed.userAnswers || []);
+            setScore(parsed.score || 0);
+            setShowResult(parsed.showResult || false);
+            setTimeLeft(parsed.timeLeft ?? 180);
+            setLoading(false);
+            return; // Successfully restored, EXIT initialization
+          }
+        } catch (e) { console.error("Restore failed:", e); }
+      }
+
+      // 2. Fallback to API Fetch
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`, {
             credentials: 'include'
         });
         if (res.ok) {
           const data = await res.json();
+          // SHUFFLE ONLY ONCE (First time fetch)
           const shuffled = [...data];
           for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
           }
           setQuestions(shuffled);
+          // Reset state for a fresh start
+          setCurrentQuestion(0);
+          setSelectedOption(null);
+          setUserAnswers([]);
+          setScore(0);
+          setShowResult(false);
+          setTimeLeft(180);
         }
       } catch (err) { console.error(err); } 
       finally { setLoading(false); }
     };
-    fetchQuestions();
-  }, [subjectSlug]);
+
+    initializeQuiz();
+  }, [subjectSlug, storageKey]);
 
   useEffect(() => {
     if (timeLeft > 0 && !showResult && questions.length > 0) {
