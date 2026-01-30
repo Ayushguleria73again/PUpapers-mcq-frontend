@@ -27,6 +27,63 @@
     max-width: 600px;
 }
 
+.heroHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    position: relative;
+}
+
+.settingsBtn {
+    background: transparent;
+    border: 1px solid #f0f0f0;
+    color: #888;
+    padding: 0.75rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.settingsBtn:hover {
+    background: #f8fafc;
+    color: var(--primary);
+    border-color: rgba(255, 107, 0, 0.2);
+}
+
+.settingsDropdown {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
+    z-index: 100;
+    min-width: 180px;
+}
+
+.deleteAccountBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.deleteAccountBtn:hover {
+    background: #fef2f2;
+}
+
 .contentContainer {
     margin-top: -2rem;
 }
@@ -286,4 +343,147 @@
     .heroSection {
         padding: 3rem 0;
     }
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modalContent {
+    background: white;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modalHeader {
+    padding: 1.5rem 2rem;
+    background: #fef2f2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alertIcon {
+    color: #ef4444;
+}
+
+.closeBtn {
+    background: white;
+    border: none;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+    background: #eee;
+    color: #000;
+}
+
+.modalBody {
+    padding: 2.5rem 2rem;
+    text-align: center;
+}
+
+.modalBody h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #111;
+}
+
+.modalBody p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.modalBody p strong {
+    color: #ef4444;
+}
+
+.modalActions {
+    display: flex;
+    gap: 1rem;
+}
+
+.cancelBtn {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.cancelBtn:hover {
+    background: #f8fafc;
+}
+
+.confirmDeleteBtn,
+.finalDeleteBtn {
+    flex: 2;
+    padding: 1rem;
+    border-radius: 14px;
+    border: none;
+    background: #ef4444;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    transition: all 0.2s ease;
+}
+
+.confirmDeleteBtn:hover,
+.finalDeleteBtn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.25);
+}
+
+.finalDeleteBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.confirmInput {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    border: 2px solid #f1f5f9;
+    background: #f8fafc;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.confirmInput:focus {
+    border-color: #ef4444;
 }

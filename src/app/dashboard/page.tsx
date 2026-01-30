@@ -9,15 +9,23 @@ import {
   BookOpen, 
   TrendingUp,
   Award,
-  Play
+  Play,
+  Settings,
+  Trash2,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
+import { AnimatePresence } from 'framer-motion';
 
 const DashboardPage = () => {
   const [user, setUser] = React.useState<any>(null);
   const [progress, setProgress] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [showSettings, setShowSettings] = React.useState(false);
+  const [deleteStep, setDeleteStep] = React.useState(0); // 0: None, 1: Confirm, 2: Final Verify
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +63,29 @@ const DashboardPage = () => {
     fetchData();
   }, []);
 
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/account`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        alert('Failed to delete account. Please try again.');
+        setIsDeleting(false);
+        setDeleteStep(0);
+      }
+    } catch (err) {
+      console.error('Delete account failed', err);
+      alert('An error occurred. Please try again.');
+      setIsDeleting(false);
+      setDeleteStep(0);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -84,8 +115,30 @@ const DashboardPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1>Welcome back, <span>{user.fullName.split(' ')[0]}</span></h1>
-            <p>Keep practicing to stay ahead in your PU CET Chandigarh preparation.</p>
+            <div className={styles.heroHeader}>
+                <div>
+                    <h1>Welcome back, <span>{user.fullName.split(' ')[0]}</span></h1>
+                    <p>Keep practicing to stay ahead in your PU CET Chandigarh preparation.</p>
+                </div>
+                <button className={styles.settingsBtn} onClick={() => setShowSettings(!showSettings)}>
+                    <Settings size={24} />
+                </button>
+                
+                <AnimatePresence>
+                    {showSettings && (
+                        <motion.div 
+                            className={styles.settingsDropdown}
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                        >
+                            <button className={styles.deleteAccountBtn} onClick={() => { setDeleteStep(1); setShowSettings(false); }}>
+                                <Trash2 size={16} /> Delete Account
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
           </motion.div>
         </div>
       </header>
@@ -250,6 +303,77 @@ const DashboardPage = () => {
           </motion.section>
         </div>
       </div>
+
+      {/* Account Deletion Modal */}
+      <AnimatePresence>
+        {deleteStep > 0 && (
+          <div className={styles.modalOverlay}>
+            <motion.div 
+              className={styles.modalContent}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            >
+              <div className={styles.modalHeader}>
+                <div className={styles.alertIcon}>
+                  <AlertTriangle size={32} />
+                </div>
+                <button className={styles.closeBtn} onClick={() => setDeleteStep(0)}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className={styles.modalBody}>
+                {deleteStep === 1 ? (
+                  <>
+                    <h2>Delete Account?</h2>
+                    <p>This will permanently remove your profile, all quiz results, and mastery progress. <strong>This action cannot be undone.</strong></p>
+                    <div className={styles.modalActions}>
+                      <button className={styles.cancelBtn} onClick={() => setDeleteStep(0)}>Cancel</button>
+                      <button className={styles.confirmDeleteBtn} onClick={() => setDeleteStep(2)}>
+                        Yes, Continue
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h2>Are you absolutely sure?</h2>
+                    <p>Enter your full name <strong>"{user.fullName}"</strong> to confirm permanent deletion.</p>
+                    <input 
+                      type="text" 
+                      className={styles.confirmInput}
+                      placeholder="Type your full name here"
+                      onChange={(e) => {
+                        if (e.target.value === user.fullName) {
+                          // Allow deletion
+                        }
+                      }}
+                      id="delete-confirm-input"
+                    />
+                    <div className={styles.modalActions}>
+                      <button className={styles.cancelBtn} onClick={() => setDeleteStep(0)}>Abort</button>
+                      <button 
+                        className={styles.finalDeleteBtn}
+                        disabled={isDeleting}
+                        onClick={() => {
+                          const input = document.getElementById('delete-confirm-input') as HTMLInputElement;
+                          if (input.value === user.fullName) {
+                            handleDeleteAccount();
+                          } else {
+                            alert('Name does not match exactly!');
+                          }
+                        }}
+                      >
+                        {isDeleting ? 'Deleting...' : 'Permanently Delete My Data'}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
