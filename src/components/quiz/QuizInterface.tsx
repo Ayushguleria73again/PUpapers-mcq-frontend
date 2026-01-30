@@ -65,6 +65,9 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
 
   // REMOVED individual useEffect for restoration - moved into unified initialization below
 
+  /* Restart Trigger */
+  const [restartKey, setRestartKey] = useState(0);
+
   useEffect(() => {
     if (!loading && questions.length > 0 && !showResult) {
       localStorage.setItem(storageKey, JSON.stringify({
@@ -99,28 +102,31 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
         }
       } catch (err) { console.error("Failed to fetch bookmarks:", err); }
 
-      // 2. Check Storage First
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed.questions && parsed.questions.length > 0) {
-            setQuestions(parsed.questions);
-            setCurrentQuestion(parsed.currentQuestion || 0);
-            setSelectedOption(parsed.selectedOption ?? null);
-            setUserAnswers(parsed.userAnswers || []);
-            setScore(parsed.score || 0);
-            setShowResult(parsed.showResult || false);
-            setTimeLeft(parsed.timeLeft ?? 180);
-            setQuestionStats(parsed.questionStats || []);
-            setLoading(false);
-            setStartTime(Date.now()); // Reset timer on restore
-            return; // Successfully restored, EXIT initialization
-          }
-        } catch (e) { console.error("Restore failed:", e); }
+      // 2. Check Storage First (ONLY if not restarting explicitly)
+      // If restartKey > 0, we skip storage and force fetch.
+      if (restartKey === 0) {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            try {
+            const parsed = JSON.parse(saved);
+            if (parsed.questions && parsed.questions.length > 0) {
+                setQuestions(parsed.questions);
+                setCurrentQuestion(parsed.currentQuestion || 0);
+                setSelectedOption(parsed.selectedOption ?? null);
+                setUserAnswers(parsed.userAnswers || []);
+                setScore(parsed.score || 0);
+                setShowResult(parsed.showResult || false);
+                setTimeLeft(parsed.timeLeft ?? 180);
+                setQuestionStats(parsed.questionStats || []);
+                setLoading(false);
+                setStartTime(Date.now()); 
+                return; 
+            }
+            } catch (e) { console.error("Restore failed:", e); }
+        }
       }
 
-      // 2. Fallback to API Fetch
+      // 3. API Fetch (Fresh Start)
       try {
         let url;
         if (stream) {
@@ -140,8 +146,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
         });
         if (res.ok) {
           const data = await res.json();
-          // SHUFFLE ONLY ONCE (First time fetch)
-          // For pucet-exam, it's already shuffled on backend, but extra shuffle doesn't hurt
+          // SHUFFLE ONLY ONCE
           const shuffled = [...data];
           for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -155,7 +160,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
           setScore(0);
           setShowResult(false);
           setQuestionStats([]);
-          setTimeLeft(stream ? 3600 : 180); // 60 mins for full exam, 3 mins for quick quiz
+          setTimeLeft(stream ? 3600 : 180); 
           setStartTime(Date.now());
         }
       } catch (err) { console.error(err); } 
@@ -163,7 +168,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     };
 
       initializeQuiz();
-  }, [subjectSlug, storageKey, stream]);
+  }, [subjectSlug, storageKey, stream, restartKey]);
 
   useEffect(() => {
     if (timeLeft > 0 && !showResult && questions.length > 0) {
@@ -272,6 +277,10 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
 
   const resetQuiz = () => {
     localStorage.removeItem(storageKey);
+    // Trigger useEffect to refetch fresh questions
+    setRestartKey(prev => prev + 1);
+    setLoading(true);
+    // State reset happens in fetch success, but good to clear here too
     setCurrentQuestion(0);
     setSelectedOption(null);
     setScore(0);
@@ -279,7 +288,6 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     setQuestionStats([]);
     setShowResult(false);
     setTimeLeft(180);
-    setStartTime(Date.now());
   };
 
   const resetAndRedirect = () => {
