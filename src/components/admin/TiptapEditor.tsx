@@ -9,12 +9,13 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
+import Typography from '@tiptap/extension-typography';
 import { Markdown } from 'tiptap-markdown';
 import { 
     Bold, Italic, List, ListOrdered, Quote, 
     Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight,
     ImageIcon, Link as LinkIcon, Undo, Redo, Heading1, Heading2,
-    Type, Sparkles, Wand2, Minus, Eraser
+    Type, Sparkles, Wand2, Minus, Eraser, ClipboardPaste
 } from 'lucide-react';
 
 interface TiptapEditorProps {
@@ -34,14 +35,17 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             StarterKit.configure({
                 heading: { levels: [1, 2] },
                 code: { HTMLAttributes: { class: 'math-code' } },
+                bulletList: { keepAttributes: true, keepMarks: true },
+                orderedList: { keepAttributes: true, keepMarks: true },
             }),
+            Typography, // Auto-converts symbols like -> to → and 1/2 to ½
             Markdown.configure({
                 html: true,
                 tightLists: true,
                 bulletListMarker: '-',
             }),
             Placeholder.configure({
-                placeholder: placeholder || 'Write something amazing...',
+                placeholder: placeholder || 'Type or paste your content here...',
                 emptyEditorClass: 'is-editor-empty',
             }),
             Underline,
@@ -58,15 +62,40 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         ],
         content: value,
         onUpdate: ({ editor }) => {
-            // Using HTML as the intermediate format to prevent Markdown-based duplication issues with math
             const html = editor.getHTML();
             onChange(html);
         },
         onFocus: () => setIsFocused(true),
         onBlur: () => setIsFocused(false),
+        editorProps: {
+            handlePaste: (view, event) => {
+                const html = event.clipboardData?.getData('text/html');
+                const items = event.clipboardData?.items;
+
+                // Priority 1: Handle Images
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            const file = items[i].getAsFile();
+                            if (file) {
+                                uploadFile(file);
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                // Priority 2: If HTML is available, let Tiptap handle the rich paste
+                // This ensures "Simple Text" with bold/italics from Word/Web is kept
+                if (html) {
+                    return false; // Let default handler handle rich HTML
+                }
+
+                return false;
+            },
+        },
     });
 
-    // Sync content when value changes externally
     useEffect(() => {
         if (editor && value !== editor.getHTML()) {
             editor.commands.setContent(value);
@@ -142,7 +171,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                         <Wand2 size={12} color="#FF6B00" />
                         {label.toUpperCase()} EDITOR
                     </label>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>Professional Physics Suite</h3>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>Smart Editor</h3>
                 </div>
                 <AnimatePresence>
                     {uploading && (
@@ -165,7 +194,6 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 transition: 'all 0.3s ease',
                 boxShadow: isFocused ? '0 25px 50px -12px rgba(0, 0, 0, 0.15)' : '0 10px 15px -3px rgba(0, 0, 0, 0.04)',
             }}>
-                {/* Advanced Toolbar */}
                 <div style={{
                     background: '#fcfcfe',
                     padding: '8px 12px',
@@ -188,20 +216,18 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
 
                     <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
                         <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editor.isActive('bulletList'), false)} title="List"><List size={16} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} style={toolbarButtonStyle(false, false)} title="Divider (Step Separator)"><Minus size={16} /></button>
-                        <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} style={toolbarButtonStyle(editor.isActive('blockquote'), false)} title="Quote"><Quote size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} style={toolbarButtonStyle(editor.isActive('orderedList'), false)} title="Number List"><ListOrdered size={16} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} style={toolbarButtonStyle(false, false)} title="Divider"><Minus size={16} /></button>
                     </div>
 
                     <div style={{ display: 'flex', gap: '2px', background: '#f8fafc', padding: '3px', borderRadius: '12px' }}>
-                        <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} style={toolbarButtonStyle(editor.isActive({ textAlign: 'center' }), false)} title="Center Formulas"><AlignCenter size={16} /></button>
                         <button type="button" onClick={addLink} style={toolbarButtonStyle(editor.isActive('link'), false)} title="Link"><LinkIcon size={16} /></button>
                         <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)} title="Image"><ImageIcon size={16} /></button>
                         <button type="button" onClick={() => {
-                            if (window.confirm('Clear all formatting? This can help if text is duplicated.')) {
+                            if (window.confirm('This will clean duplicate text and fix formatting. Continue?')) {
                                 editor.chain().focus().clearContent().insertContent(editor.getText()).run();
                             }
-                        }} style={toolbarButtonStyle(false, false)} title="Clear Format & Duplicate Fix"><Eraser size={16} /></button>
-                        <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
+                        }} style={toolbarButtonStyle(false, false)} title="Smart Clean Content"><Eraser size={16} /></button>
                     </div>
 
                     <div style={{ flexGrow: 1 }} />
@@ -217,14 +243,17 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 </div>
             </div>
 
-            <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', padding: '0 8px' }}>
-                Tip: Use **$$...$$** for centered formulas. Use **$...$** for inline math.
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px' }}>
+                <ClipboardPaste size={12} color="#94a3b8" />
+                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
+                    Paste from any source—the editor will automatically keep formatting and fix "Step" styles.
+                </p>
+            </div>
 
             <style jsx global>{`
                 .ProseMirror {
                     outline: none !important;
-                    min-height: 300px;
+                    min-height: 350px;
                     font-family: 'Inter', system-ui, sans-serif;
                     line-height: 1.8;
                     color: #334155;
