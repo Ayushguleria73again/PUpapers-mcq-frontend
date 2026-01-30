@@ -272,9 +272,9 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                                 {msg.role === 'ai' ? (
                                     <ReactMarkdown 
                                         components={{
-                                            p: ({node, ...props}) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
-                                            ul: ({node, ...props}) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
-                                            li: ({node, ...props}) => <li style={{marginBottom: '0.2rem'}} {...props} />
+                                            p: ({node, ...props}: any) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
+                                            ul: ({node, ...props}: any) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
+                                            li: ({node, ...props}: any) => <li style={{marginBottom: '0.2rem'}} {...props} />
                                         }}
                                     >
                                         {msg.text}
