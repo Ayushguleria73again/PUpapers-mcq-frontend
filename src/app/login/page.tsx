@@ -136,16 +136,16 @@ const LoginPage = () => {
                     <input type="email" className={styles.input} placeholder="ayush@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                 </div>
-                <div className={styles.inputGroup}>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className={styles.label} style={{ marginBottom: 0 }}>Password</label>
-                    <Link href="/forgot-password" className="text-xs font-semibold text-orange-600 hover:text-orange-700">
-                      Forgot Password?
-                    </Link>
-                  </div>
+                  <div className={styles.inputGroup}>
+                   <label className={styles.label}>Password</label>
                   <div className={styles.inputWrapper}>
                     <Lock className={styles.inputIcon} size={18} />
                     <input type="password" className={styles.input} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    <Link href="/forgot-password" className="text-sm font-semibold text-orange-600 hover:text-orange-700">
+                      Forgot Password?
+                    </Link>
                   </div>
                 </div>
               </>
@@ -162,7 +162,7 @@ const LoginPage = () => {
               </div>
             )}
 
-            <motion.button whileHover={{ scale: 1.02 }} type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={loading} style={{ marginTop: '20px' }}>
+            <motion.button whileHover={{ scale: 1.02 }} type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={loading} style={{ marginTop: '10px' }}>
               <LogIn size={20} /> {loading ? 'Processing...' : step === 1 ? 'Sign In' : 'Verify & Enter'}
             </motion.button>
           </form>
