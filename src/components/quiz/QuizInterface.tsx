@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -35,6 +36,7 @@ interface QuizInterfaceProps {
 }
 
 const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
+  const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -160,6 +162,11 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
     setTimeLeft(180);
   };
 
+  const resetAndRedirect = () => {
+    localStorage.removeItem(storageKey);
+    router.push('/dashboard');
+  };
+
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff' }}>
         <p style={{ fontWeight: 700, color: '#0f172a' }}>Loading Assessment...</p>
@@ -260,7 +267,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '4rem' }}>
               <button className="btn-primary" onClick={resetQuiz} style={{ padding: '0.75rem 2rem', borderRadius: '8px' }}>Start New Practice</button>
-              <Link href="/dashboard" className="btn-secondary" style={{ padding: '0.75rem 2rem', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#020617' }}>View Dashboard</Link>
+              <button onClick={resetAndRedirect} className="btn-secondary" style={{ padding: '0.75rem 2rem', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#020617' }}>View Dashboard</button>
             </div>
           </div>
         </div>
