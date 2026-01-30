@@ -42,34 +42,66 @@ const AdminPage = () => {
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
 
-    const checkAdmin = async () => {
+    // Hoisted functions to avoid Temporal Dead Zone (ReferenceErrors)
+    async function checkAdmin() {
         try {
-            console.log('Checking authentication...');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+            console.log('Verifying admin credentials...');
+            const res = await fetch('/api/auth/me', {
                 credentials: 'include',
                 cache: 'no-store'
             });
             
             if (res.ok) {
                 const userData = await res.json();
-                console.log('User Role:', userData.role);
+                console.log('User Role:', userData?.role);
                 
-                if (userData.role === 'admin') {
+                if (userData?.role === 'admin') {
                     setIsAdmin(true);
                     fetchSubjects();
                 } else {
-                    console.warn('Access denied: Not an admin');
+                    console.warn('Access denied: Unauthorized role');
                     router.push('/dashboard');
                 }
             } else {
-                console.error('Auth fetch failed:', res.status);
+                console.error('Auth verification failed:', res.status);
                 router.push('/login');
             }
         } catch (err: any) {
-            console.error('Critical Auth Error:', err.message);
+            console.error('Auth Loop Error:', err.message);
             router.push('/login');
         }
-    };
+    }
+
+    async function fetchSubjects() {
+        try {
+            const res = await fetch('/api/content/subjects');
+            if (res.ok) {
+                const data = await res.json();
+                setSubjects(data);
+                if (data.length > 0) {
+                    const firstId = data[0]._id;
+                    setQSubjectId(firstId);
+                    setChapSubjectId(firstId);
+                }
+            }
+        } catch (err) {
+            console.error('Subject Load Error');
+        }
+    }
+
+    async function fetchChapters(subjectId: string) {
+        try {
+            const res = await fetch(`/api/content/chapters?subjectId=${subjectId}`, {
+                credentials: 'include'
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setChapters(data);
+            }
+        } catch (err) {
+            console.error('Chapter Load Error');
+        }
+    }
 
     useEffect(() => {
         checkAdmin();
@@ -88,47 +120,13 @@ const AdminPage = () => {
         return (
             <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
                 <div style={{ width: 40, height: 40, border: '3px solid #f3f3f3', borderTop: '3px solid #FF6B00', borderRadius: '50%', animation: 'spin-loading 1s linear infinite' }}></div>
-                <p style={{ color: '#666' }}>Verifying Admin Access...</p>
+                <p style={{ color: '#666' }}>Secure Login...</p>
                 <style>{`
                     @keyframes spin-loading { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                 `}</style>
             </div>
         );
     }
-
-    const fetchSubjects = async () => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/subjects`);
-            if (res.ok) {
-                const data = await res.json();
-                setSubjects(data);
-                if (data.length > 0) {
-                    const firstId = data[0]._id;
-                    setQSubjectId(firstId);
-                    setChapSubjectId(firstId);
-                }
-            }
-        } catch (err) {
-            console.error('Failed to fetch subjects');
-        }
-    };
-
-    const fetchChapters = async (subjectId: string) => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/chapters?subjectId=${subjectId}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Ensure auth if needed, though route uses verifyToken
-                },
-                credentials: 'include'
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setChapters(data);
-            }
-        } catch (err) {
-            console.error('Failed to fetch chapters');
-        }
-    };
 
     const handleSubjectSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
