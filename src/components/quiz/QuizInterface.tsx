@@ -120,7 +120,9 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
       while (finalAnswers.length < questions.length) finalAnswers.push(-1);
       setUserAnswers(finalAnswers);
       let finalScore = 0;
-      finalAnswers.forEach((answer, index) => { if (answer === questions[index].correctOption) finalScore++; });
+      finalAnswers.forEach((answer, index) => { 
+          if (Number(answer) === Number(questions[index].correctOption)) finalScore++; 
+      });
       setScore(finalScore);
       setShowResult(true);
       saveResult(finalScore);
@@ -217,7 +219,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>Answer Key & Explanations</h2>
                 
                 {questions.map((q, index) => {
-                    const isCorrect = userAnswers[index] === q.correctOption;
+                    const isCorrect = Number(userAnswers[index]) === Number(q.correctOption);
                     return (
                         <div key={q._id} className={styles.solutionStep}>
                             <div className={styles.stepHeader}>

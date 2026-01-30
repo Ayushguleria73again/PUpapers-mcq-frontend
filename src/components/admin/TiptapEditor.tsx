@@ -26,20 +26,27 @@ const normalizePhysicsContent = (content: string) => {
     if (!content) return content;
     let cleaned = content;
 
-    // 1. AGGRESSIVE VERTICAL RECONSTRUCTION (Words + Math)
+    // 1. AGGRESSIVE VERTICAL RECONSTRUCTION + REDUNDANCY GUARD
     const lines = cleaned.split('\n');
     const reconstructed: string[] = [];
     let buffer = '';
     
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
+        const nextLine = (lines[i + 1] || '').trim();
+
         if (line.length > 0 && line.length <= 2) {
             buffer += line;
         } else {
             if (buffer) {
-                const isMath = /[\d\+\-\=\^×\\$\(\)]/.test(buffer) || /[MLTPQ]/.test(buffer);
-                if (isMath) reconstructed.push(`$$ ${buffer} $$`);
-                else reconstructed.push(buffer);
+                const cleanBuffer = buffer.replace(/[\s\$\(\)]/g, '');
+                const cleanNext = nextLine.replace(/[\s\$\(\)]/g, '');
+                
+                if (!cleanNext.startsWith(cleanBuffer) || cleanBuffer.length < 2) {
+                    const isMath = /[\d\+\-\=\^×\\$\(\)]/.test(buffer) || /[MLTPQ]/.test(buffer);
+                    if (isMath) reconstructed.push(`$$ ${buffer} $$`);
+                    else reconstructed.push(buffer);
+                }
                 buffer = '';
             }
             if (line) reconstructed.push(line);
@@ -48,12 +55,14 @@ const normalizePhysicsContent = (content: string) => {
     if (buffer) reconstructed.push(buffer);
     cleaned = reconstructed.join('\n');
 
-    // 2. SHADOW CONTENT DEDUPLICATION (Fixes "powermower")
+    // 2. FUZZY SHADOW DEDUPLICATION (Fixes "powermower")
     cleaned = cleaned.split('\n').map(line => {
-        const mid = Math.floor(line.length / 2);
-        const firstHalf = line.substring(0, mid).trim();
-        const secondHalf = line.substring(mid).trim();
-        if (firstHalf === secondHalf && line.length > 4) return firstHalf;
+        const text = line.trim();
+        if (text.length < 4) return line;
+        const mid = Math.floor(text.length / 2);
+        const first = text.substring(0, mid).trim();
+        const second = text.substring(mid).trim();
+        if (first === second || first.replace(/\s/g, '') === second.replace(/\s/g, '')) return first;
         return line;
     }).join('\n');
 
