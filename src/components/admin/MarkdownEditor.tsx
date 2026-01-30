@@ -5,6 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Bold, Italic, List, ImageIcon, Link as LinkIcon, Eye, Code } from 'lucide-react';
 
+import remarkBreaks from 'remark-breaks';
+
 interface MarkdownEditorProps {
     value: string;
     onChange: (val: string) => void;
@@ -36,10 +38,7 @@ const MarkdownEditor = ({ value, onChange, placeholder, label }: MarkdownEditorP
         }, 0);
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
+    const uploadFile = async (file: File) => {
         setUploading(true);
         const formData = new FormData();
         formData.append('image', file);
@@ -52,7 +51,7 @@ const MarkdownEditor = ({ value, onChange, placeholder, label }: MarkdownEditorP
             });
             if (res.ok) {
                 const data = await res.json();
-                insertText(`![image](${data.url})`);
+                insertText(`\n![image](${data.url})\n`);
             } else {
                 alert('Upload failed');
             }
@@ -61,7 +60,26 @@ const MarkdownEditor = ({ value, onChange, placeholder, label }: MarkdownEditorP
             alert('Server error during upload');
         } finally {
             setUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        await uploadFile(file);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handlePaste = async (e: React.ClipboardEvent) => {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) {
+                    e.preventDefault();
+                    await uploadFile(file);
+                }
+            }
         }
     };
 
@@ -69,13 +87,16 @@ const MarkdownEditor = ({ value, onChange, placeholder, label }: MarkdownEditorP
         <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <label style={{ fontWeight: 500, color: '#444' }}>{label}</label>
-                <button 
-                    type="button" 
-                    onClick={() => setIsPreview(!isPreview)}
-                    style={{ fontSize: '0.8rem', color: '#FF6B00', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', background: 'none', border: 'none' }}
-                >
-                    {isPreview ? <Code size={14} /> : <Eye size={14} />} {isPreview ? 'Switch to Editor' : 'Live Preview'}
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    {uploading && <span style={{ fontSize: '0.75rem', color: '#FF6B00' }}>Uploading...</span>}
+                    <button 
+                        type="button" 
+                        onClick={() => setIsPreview(!isPreview)}
+                        style={{ fontSize: '0.8rem', color: '#FF6B00', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', background: 'none', border: 'none' }}
+                    >
+                        {isPreview ? <Code size={14} /> : <Eye size={14} />} {isPreview ? 'Switch to Editor' : 'Live Preview'}
+                    </button>
+                </div>
             </div>
 
             {!isPreview ? (
@@ -95,9 +116,10 @@ const MarkdownEditor = ({ value, onChange, placeholder, label }: MarkdownEditorP
                         ref={textareaRef}
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
+                        onPaste={handlePaste}
                         placeholder={placeholder}
                         rows={6}
-                        style={{ width: '100%', padding: '1rem', border: 'none', outline: 'none', fontFamily: 'monospace', fontSize: '0.95rem', minHeight: '150px' }}
+                        style={{ width: '100%', padding: '1rem', border: 'none', outline: 'none', fontFamily: 'monospace', fontSize: '0.95rem', minHeight: '150px', resize: 'vertical' }}
                     />
                 </div>
             ) : (
@@ -110,7 +132,7 @@ const MarkdownEditor = ({ value, onChange, placeholder, label }: MarkdownEditorP
                     fontSize: '0.95rem',
                     lineHeight: '1.6'
                 }}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{value || '*No content to preview*'}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{value || '*No content to preview*'}</ReactMarkdown>
                 </div>
             )}
             <style>{`

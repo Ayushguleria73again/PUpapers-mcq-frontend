@@ -6,6 +6,7 @@ import { Clock, CheckCircle2, ChevronRight, RefreshCcw, XCircle } from 'lucide-r
 import styles from './QuizInterface.module.css';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 interface Question {
   _id: string;
@@ -219,7 +220,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                     return (
                         <div key={q._id} style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.8rem' }} className="markdown-render">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{`${index + 1}. ${q.text}`}</ReactMarkdown>
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{`${index + 1}. ${q.text}`}</ReactMarkdown>
                             </div>
                             <div style={{ display: 'grid', gap: '0.5rem' }}>
                                 {q.options.map((opt, optIdx) => {
@@ -234,7 +235,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
                                     return (
                                         <div key={optIdx} style={optionStyle} className="markdown-render">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{opt}</ReactMarkdown>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{opt}</ReactMarkdown>
                                             {optIdx === q.correctOption && <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>✓</span>}
                                             {optIdx === userAnswer && !isCorrect && <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>✗</span>}
                                         </div>
@@ -249,7 +250,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                 {q.explanation && (
                                     <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#e3f2fd', borderRadius: '6px', borderLeft: '3px solid #3498db', color: '#1565c0', fontSize: '0.9rem' }} className="markdown-render">
                                         <strong>Explanation:</strong> 
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{q.explanation}</ReactMarkdown>
+                                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{q.explanation}</ReactMarkdown>
                                     </div>
                                 )}
                             </div>
@@ -310,7 +311,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               transition={{ duration: 0.3 }}
             >
               <div className={`${styles.question} markdown-render`}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{questions[currentQuestion].text}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{questions[currentQuestion].text}</ReactMarkdown>
               </div>
               <div className={styles.optionsGrid}>
                 {questions[currentQuestion].options.map((option, index) => (
@@ -320,7 +321,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                     onClick={() => handleOptionSelect(index)}
                     style={{ textAlign: 'left' }}
                   >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: 'span' }}>{option}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={{ p: 'span' }}>{option}</ReactMarkdown>
                   </button>
                 ))}
               </div>
