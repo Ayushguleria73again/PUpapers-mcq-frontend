@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -10,9 +11,9 @@ const Hero = () => {
 
   return (
     <>
-      <section className={styles.hero}>
-        <div className={`${styles.container} container`}>
-        <div className={styles.heroWrapper}>
+    <section className={styles.hero}>
+      <div className="container">
+      <div className={styles.heroWrapper}>
           <motion.div 
             className={styles.heroContent}
             initial={{ opacity: 0, x: -50 }}
