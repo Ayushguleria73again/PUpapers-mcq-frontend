@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, CheckCircle2, ChevronRight, RefreshCcw, XCircle } from 'lucide-react';
+import { Clock, CheckCircle2, ChevronRight, RefreshCcw, XCircle, Info, Trophy, Layout, ChevronLeft } from 'lucide-react';
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -35,10 +35,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [
-    userAnswers,
-    setUserAnswers
-  ] = useState<number[]>([]);
+  const [userAnswers, setUserAnswers] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [savingResult, setSavingResult] = useState(false);
@@ -46,7 +43,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
   useEffect(() => {
     if (!subjectSlug) {
-        setQuestions([]); // Or load mock data as fallback
+        setQuestions([]); 
         setLoading(false);
         return;
     }
@@ -92,10 +89,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   const saveResult = async (finalScore: number) => {
     if (questions.length === 0) return;
     setSavingResult(true);
-    
-    // Assume all questions belong to the same subject, pick the first one's subject ID
     const subjectId = questions[0].subject._id;
-
     try {
         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/results`, {
             method: 'POST',
@@ -115,28 +109,20 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   };
 
   const finishQuiz = () => {
-      // Calculate score based on userAnswers and the current selection (if any)
-      // Note: userAnswers array might not have the last answer yet if triggered by timer
-      
       let finalAnswers = [...userAnswers];
       if (selectedOption !== null && currentQuestion === finalAnswers.length) {
           finalAnswers.push(selectedOption);
       }
-      
-      // Fill remaining answers with -1 (unanswered)
       while (finalAnswers.length < questions.length) {
           finalAnswers.push(-1);
       }
-      
       setUserAnswers(finalAnswers);
-
       let finalScore = 0;
       finalAnswers.forEach((answer, index) => {
           if (answer === questions[index].correctOption) {
               finalScore++;
           }
       });
-      
       setScore(finalScore);
       setShowResult(true);
       saveResult(finalScore);
@@ -144,30 +130,17 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
   const handleNext = () => {
     if (questions.length === 0) return;
-
-    // Save answer
     const newAnswers = [...userAnswers];
-    if (selectedOption !== null) {
-      newAnswers.push(selectedOption);
-    } else {
-      newAnswers.push(-1); // Skipped
-    }
+    newAnswers.push(selectedOption !== null ? selectedOption : -1);
     setUserAnswers(newAnswers);
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedOption(null);
     } else {
-      // This path is usually triggered by "Finish Quiz" button
-      // But we need to update state properly before calling finish
-      // For simplicity, we can let the state update locally and then finish
-      
-      // Calculate score immediately for this flow
       let finalScore = 0;
       newAnswers.forEach((answer, index) => {
-          if (answer === questions[index].correctOption) {
-              finalScore++;
-          }
+          if (answer === questions[index].correctOption) finalScore++;
       });
       setScore(finalScore);
       setShowResult(true);
@@ -185,12 +158,22 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   };
 
   if (loading) {
-    return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>Loading Quiz...</div>;
+    return (
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="loader" style={{ width: '40px', height: '40px', border: '3px solid #f1f5f9', borderTop: '3px solid #FF6B00', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        </div>
+    );
   }
 
   if (questions.length === 0) {
-     return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>No questions found for this subject.</div>;
+     return <div className="container" style={{ padding: '8rem 2rem', textAlign: 'center' }}>
+         <Info size={48} color="#94a3b8" style={{ marginBottom: '1.5rem' }} />
+         <h2 style={{ color: '#0f172a', fontWeight: 800 }}>No practice material found.</h2>
+         <p style={{ color: '#64748b' }}>Check back later for new questions in this subject.</p>
+     </div>;
   }
+
+  const optionLetters = ['A', 'B', 'C', 'D'];
 
   if (showResult) {
     return (
@@ -198,50 +181,75 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
         <EditorStyles />
         <motion.div 
           className={styles.quizCard}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
         >
           <div className={styles.results}>
-            <CheckCircle2 size={64} color="#FF6B00" style={{ margin: '0 auto 1.5rem' }} />
-            <h2 className={styles.question}>Quiz Completed!</h2>
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Trophy size={64} color="#FFD700" style={{ marginBottom: '1.5rem', filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.4))' }} />
+            </div>
+            <h2 className={styles.question}>Mock Test Report</h2>
+            
             <div className={styles.scoreCircle}>
-              <span className={styles.scoreNumber}>{score}/{questions.length}</span>
-              <span className={styles.scoreLabel}>Final Score</span>
+                <div style={{ transform: 'none' }}>
+                    <span className={styles.scoreNumber}>{score}/{questions.length}</span>
+                    <br />
+                    <span className={styles.scoreLabel}>Final Score</span>
+                </div>
             </div>
             
             <p className={styles.cardDesc}>
               {savingResult ? "Saving your result..." : 
-                (score === questions.length ? "Perfect! You're ready for the CET!" : "Good effort! Keep practicing to improve your score.")
+                (score === questions.length ? "Incredible performance! Perfect score." : "Good progress! Analyze your errors below.")
               }
             </p>
 
-            <div className={styles.detailedResults} style={{ width: '100%', marginTop: '2rem', textAlign: 'left' }}>
-                <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Detailed Analysis</h3>
+            <div className={styles.detailedResults} style={{ width: '100%', marginTop: '3rem', textAlign: 'left' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '1rem' }}>
+                    <Layout size={20} color="#FF6B00" />
+                    <h3 style={{ margin: 0, fontWeight: 800, color: '#0f172a' }}>Solution Guide</h3>
+                </div>
+
                 {questions.map((q, index) => {
                     const userAnswer = userAnswers[index];
                     const isCorrect = userAnswer === q.correctOption;
                     const isSkipped = userAnswer === -1;
 
                     return (
-                        <div key={q._id} style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
-                            <div style={{ fontWeight: 600, marginBottom: '0.8rem' }} className="tiptap-content">
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
-                                    {`${index + 1}. ${q.text}`}
-                                </ReactMarkdown>
+                        <div key={q._id} style={{ marginBottom: '2rem', padding: '1.5rem', background: '#fff', border: '1.5px solid #f1f5f9', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+                                <span style={{ background: '#f1f5f9', color: '#64748b', fontSize: '12px', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', marginTop: '4px' }}>Q{index + 1}</span>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b' }} className="tiptap-content">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
+                                        {q.text}
+                                    </ReactMarkdown>
+                                </div>
                             </div>
-                            <div style={{ display: 'grid', gap: '0.5rem' }}>
+
+                            <div style={{ display: 'grid', gap: '0.6rem' }}>
                                 {q.options.map((opt, optIdx) => {
-                                    let optionStyle: React.CSSProperties = { padding: '8px 12px', borderRadius: '4px', fontSize: '0.9rem', border: '1px solid #ddd' };
+                                    const isCorrectOpt = optIdx === q.correctOption;
+                                    const isUserPick = optIdx === userAnswer;
                                     
-                                    // Highlight logic
-                                    if (optIdx === q.correctOption) {
-                                        optionStyle = { ...optionStyle, border: '1px solid #2ecc71', background: '#eafaf1', color: '#2ecc71', fontWeight: 'bold', position: 'relative' };
-                                    } else if (optIdx === userAnswer && !isCorrect) {
-                                        optionStyle = { ...optionStyle, border: '1px solid #e74c3c', background: '#fdedec', color: '#e74c3c', position: 'relative' };
-                                    }
+                                    let borderColor = '#f1f5f9';
+                                    let bg = '#f8fafc';
+                                    let textColor = '#64748b';
+                                    
+                                    if (isCorrectOpt) { borderColor = '#10b981'; bg = '#f0fdf4'; textColor = '#059669'; }
+                                    else if (isUserPick && !isCorrect) { borderColor = '#ef4444'; bg = '#fef2f2'; textColor = '#dc2626'; }
 
                                     return (
-                                        <div key={optIdx} style={optionStyle} className="tiptap-content">
+                                        <div key={optIdx} style={{ 
+                                            padding: '0.75rem 1rem', 
+                                            borderRadius: '10px', 
+                                            fontSize: '0.95rem', 
+                                            border: `1.5px solid ${borderColor}`,
+                                            background: bg,
+                                            color: textColor,
+                                            fontWeight: isCorrectOpt || isUserPick ? 700 : 500,
+                                            display: 'flex', gap: '10px'
+                                        }} className="tiptap-content">
+                                            <span style={{ opacity: 0.6 }}>{optionLetters[optIdx]}.</span>
                                             <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                                                 {opt}
                                             </ReactMarkdown>
@@ -249,40 +257,34 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                     );
                                 })}
                             </div>
-                            <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                                {isCorrect ? 
-                                    <span style={{ color: '#2ecc71', display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={16} /> Correct</span> : 
-                                    <span style={{ color: '#e74c3c', display: 'flex', alignItems: 'center', gap: '4px' }}><XCircle size={16} /> {isSkipped ? 'Skipped' : 'Incorrect'}</span>
-                                }
-                                {q.explanation && (
-                                    <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#e3f2fd', borderRadius: '6px', borderLeft: '3px solid #3498db', color: '#1565c0', fontSize: '0.9rem' }} className="tiptap-content">
-                                        <strong>Explanation:</strong> 
-                                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
-                                            {q.explanation || ''}
-                                        </ReactMarkdown>
+
+                            {q.explanation && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    style={{ marginTop: '1.25rem', padding: '1.25rem', background: '#eff6ff', borderRadius: '12px', border: '1px solid #dbeafe', color: '#1e40af', fontSize: '0.9rem' }} 
+                                    className="tiptap-content"
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>
+                                        <Info size={14} /> Comprehensive Explanation
                                     </div>
-                                )}
-                            </div>
+                                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
+                                        {q.explanation}
+                                    </ReactMarkdown>
+                                </motion.div>
+                            )}
                         </div>
                     );
                 })}
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', margin: '2rem auto 0' }}>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '3rem' }}>
               <button className="btn-primary" onClick={resetQuiz} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <RefreshCcw size={20} /> Try Again
+                <RefreshCcw size={18} /> Re-Take Test
               </button>
-              <button 
-                className="btn-secondary" 
-                onClick={() => window.location.href = '/dashboard'} 
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px'
-                }}
-              >
-                Go to Dashboard
-              </button>
+              <Link href="/dashboard" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                Dashboard Home
+              </Link>
             </div>
           </div>
         </motion.div>
@@ -293,13 +295,16 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   return (
     <div className={styles.quizContainer}>
       <EditorStyles />
-      <div className="container">
-        <div className={styles.quizCard}>
+      <div className="container" style={{ position: 'relative' }}>
+        <motion.div 
+            className={styles.quizCard}
+            layout
+        >
           <div className={styles.quizHeader}>
-            <span className={styles.questionCount}>Question {currentQuestion + 1} of {questions.length}</span>
+            <span className={styles.questionCount}>Assessment • Q{currentQuestion + 1}/{questions.length}</span>
             <div className={styles.timer}>
-              <Clock size={20} />
-              <span>{formatTime(timeLeft)}</span>
+              <Clock size={16} />
+              <span>{formatTime(timeLeft)} Remaining</span>
             </div>
           </div>
 
@@ -308,6 +313,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               className={styles.progressBar}
               initial={{ width: 0 }}
               animate={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+              transition={{ type: 'spring', stiffness: 50 }}
             />
           </div>
 
@@ -317,42 +323,59 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
             >
               <div className={`${styles.question} tiptap-content`}>
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                   {questions[currentQuestion].text}
                 </ReactMarkdown>
               </div>
+              
               <div className={styles.optionsGrid}>
                 {questions[currentQuestion].options.map((option, index) => (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     key={index}
                     className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} tiptap-content`}
                     onClick={() => handleOptionSelect(index)}
-                    style={{ textAlign: 'left' }}
                   >
+                    <span style={{ 
+                        width: '24px', height: '24px', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                        borderRadius: '6px', fontSize: '12px', fontWeight: 900,
+                        background: selectedOption === index ? '#FF6B00' : '#e2e8f0',
+                        color: selectedOption === index ? 'white' : '#64748b',
+                        flexShrink: 0
+                    }}>
+                        {optionLetters[index]}
+                    </span>
                     <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                       {option}
                     </ReactMarkdown>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.div>
           </AnimatePresence>
 
           <div className={styles.quizFooter}>
-            <p style={{ fontSize: '0.875rem', color: '#999' }}>* Select an option to proceed</p>
+            <div className={styles.footerHint}>
+                <Info size={14} /> Select the most accurate response
+            </div>
             <button 
               className="btn-primary" 
               onClick={handleNext}
               disabled={selectedOption === null}
-              style={{ opacity: selectedOption === null ? 0.5 : 1 }}
+              style={{ padding: '0.8rem 2.2rem', borderRadius: '14px', fontSize: '1rem' }}
             >
-              {currentQuestion === questions.length - 1 ? 'Finish Quiz' : 'Next Question'} <ChevronRight size={20} style={{ marginLeft: '4px', verticalAlign: 'middle' }} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {currentQuestion === questions.length - 1 ? 'Complete Test' : 'Next Step'}
+                <ChevronRight size={18} />
+              </span>
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -360,74 +383,39 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
 export default QuizInterface;
 
-// Adding styles for rich text rendering
 const EditorStyles = () => (
   <style dangerouslySetInnerHTML={{ __html: `
     .tiptap-content { 
-      font-family: 'Inter', -apple-system, sans-serif; 
-      line-height: 1.85; 
-      color: #374151; 
-      font-size: 1.125rem;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+      line-height: 1.6; 
+      color: inherit;
     }
-    .tiptap-content p { margin: 1.75rem 0; }
+    .tiptap-content p { margin: 0; }
     
-    /* Step Headings - Professional Look */
-    .tiptap-content h1, .tiptap-content h2 { 
-      font-size: 1.9rem; 
-      font-weight: 850; 
-      color: #111827; 
-      margin: 4rem 0 1.5rem; 
-      letter-spacing: -0.025em;
-      line-height: 1.25;
-      display: block;
-    }
-    
-    /* Math Display (Textbook Cards) */
     .tiptap-content .katex-display { 
-      margin: 3.5rem 0; 
-      padding: 2.5rem 1.5rem; 
+      margin: 1.5rem 0; 
+      padding: 1.5rem; 
       background: #f8fafc; 
-      border-radius: 24px; 
-      border: 1.5px solid #f1f5f9;
-      box-shadow: 0 4px 25px -5px rgba(0,0,0,0.03), inset 0 2px 4px 0 rgba(0,0,0,0.01);
+      border-radius: 12px; 
+      border: 1px solid #f1f5f9;
       overflow-x: auto;
-      text-align: center;
     }
-    .tiptap-content .katex { font-size: 1.3em; color: #0f172a; }
+    .tiptap-content .katex { font-size: 1.1em; }
     
-    /* Horizontal Rule (Clear Step Separators) */
-    .tiptap-content hr { 
-      border: none; 
-      border-top: 2.5px solid #f1f5f9; 
-      margin: 5rem 0; 
-      opacity: 1;
+    .tiptap-content h1, .tiptap-content h2 { 
+      font-size: 1.4rem; 
+      font-weight: 800; 
+      color: #0f172a; 
+      margin: 1.5rem 0 1rem; 
     }
-    
-    /* Bold physics variables */
-    .tiptap-content strong { color: #000; font-weight: 850; }
     
     /* Image Handling */
     .tiptap-content img {
       max-width: 100%;
       height: auto;
-      border-radius: 20px;
-      margin: 3rem auto;
+      border-radius: 12px;
+      margin: 1.5rem 0;
       display: block;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
-    
-    /* Link styling */
-    .tiptap-content a { color: #FF6B00; text-decoration: underline; font-weight: 600; }
-    
-    /* Dark mode - Cinematic Pro theme */
-    [data-theme='dark'] .tiptap-content { color: #d1d5db; }
-    [data-theme='dark'] .tiptap-content h1, [data-theme='dark'] .tiptap-content h2 { color: #f9fafb; }
-    [data-theme='dark'] .tiptap-content .katex-display { 
-        background: #111827; 
-        border-color: #1f2937; 
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
-    }
-    [data-theme='dark'] .tiptap-content .katex { color: white; }
-    [data-theme='dark'] .tiptap-content hr { border-top-color: #1f2937; }
   ` }} />
 );
