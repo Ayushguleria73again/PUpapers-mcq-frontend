@@ -48,29 +48,29 @@ const AdminPage = () => {
 
     const checkAdmin = async () => {
         try {
-            console.log('Checking admin status...');
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me?t=${new Date().getTime()}`, {
+            console.log('Checking authentication...');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
                 credentials: 'include',
                 cache: 'no-store'
             });
             
             if (res.ok) {
-                const user = await res.json();
-                console.log('User data received:', user);
-                if (user.role !== 'admin') {
-                    console.log('User is not admin, role is:', user.role);
-                    router.push('/dashboard');
-                } else {
-                    console.log('Admin verified, fetching subjects...');
+                const userData = await res.json();
+                console.log('User Role:', userData.role);
+                
+                if (userData.role === 'admin') {
                     setIsAdmin(true);
                     fetchSubjects();
+                } else {
+                    console.warn('Access denied: Not an admin');
+                    router.push('/dashboard');
                 }
             } else {
-                console.log('Auth check failed, status:', res.status);
+                console.error('Auth fetch failed:', res.status);
                 router.push('/login');
             }
-        } catch (err) {
-            console.error('CheckAdmin Error:', err);
+        } catch (err: any) {
+            console.error('Critical Auth Error:', err.message);
             router.push('/login');
         }
     };
@@ -86,10 +86,11 @@ const AdminPage = () => {
 
     if (!isAdmin) {
         return (
-            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: 40, height: 40, border: '3px solid #f3f3f3', borderTop: '3px solid #3498db', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                <style jsx>{`
-                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+                <div style={{ width: 40, height: 40, border: '3px solid #f3f3f3', borderTop: '3px solid #FF6B00', borderRadius: '50%', animation: 'spin-loading 1s linear infinite' }}></div>
+                <p style={{ color: '#666' }}>Verifying Admin Access...</p>
+                <style>{`
+                    @keyframes spin-loading { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                 `}</style>
             </div>
         );
