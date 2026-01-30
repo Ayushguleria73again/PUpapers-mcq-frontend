@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Shield, Plus, BookOpen, Book, FileQuestion, Check, AlertCircle, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import MarkdownEditor from '@/components/admin/MarkdownEditor';
+import TiptapEditor from '@/components/admin/TiptapEditor';
 
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState('subject'); // 'subject', 'chapter', 'question'
@@ -877,7 +877,7 @@ const AdminPage = () => {
                                 </div>
                             </div>
 
-                            <MarkdownEditor 
+                            <TiptapEditor 
                                 label="Question Text (Markdown supported)"
                                 value={qText || ''}
                                 onChange={setQText}
@@ -904,7 +904,7 @@ const AdminPage = () => {
                                                     </label>
                                                 </div>
                                             </div>
-                                            <MarkdownEditor 
+                                            <TiptapEditor 
                                                 label="" 
                                                 value={opt || ''} 
                                                 onChange={(val) => handleOptionChange(idx, val)} 
@@ -915,7 +915,7 @@ const AdminPage = () => {
                                 </div>
                             </div>
 
-                            <MarkdownEditor 
+                            <TiptapEditor 
                                 label="Explanation (Markdown supported)"
                                 value={qExplanation || ''}
                                 onChange={setQExplanation}
