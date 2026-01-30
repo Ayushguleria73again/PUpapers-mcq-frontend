@@ -1,20 +1,24 @@
-import type { NextConfig } from "next";
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development'
+});
 
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
   reactCompiler: true,
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.SERVER_URL || 'http://localhost:5001/api'}/:path*`,
+        destination: `${process.env.SERVER_URL}/:path*`,
       },
       {
-        source: '/auth/:path*', // Also catch /auth if used directly, though api is preferred
-        destination: `${process.env.SERVER_URL || 'http://localhost:5001/api'}/auth/:path*`,
+        source: '/auth/:path*',
+        destination: `${process.env.SERVER_URL }/auth/:path*`,
       }
     ];
   },
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

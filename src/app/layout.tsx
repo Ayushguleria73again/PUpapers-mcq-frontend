@@ -49,6 +49,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'PuCET MCQ',
+  },
 };
 
 export default function RootLayout({
