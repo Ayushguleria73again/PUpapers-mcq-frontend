@@ -2,11 +2,29 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Brain, LineChart, Target, ShieldCheck, Zap, Users } from 'lucide-react';
+import { Brain, LineChart, Target, ShieldCheck, Zap, Users, FileText } from 'lucide-react';
 import styles from './SubjectGrid.module.css'; // Reusing grid styles for consistency
 
 const FeaturesSection = () => {
     const features = [
+        {
+            icon: <Zap size={32} />,
+            title: "Optimized Performance",
+            description: "Experience a lightning-fast interface designed for seamless studying on any device.",
+            color: "#EAB308" // Yellow/Gold
+        },
+        {
+            icon: <ShieldCheck size={32} />,
+            title: "Secure & Reliable",
+            description: "Your data and progress are safe with our enterprise-grade security protocols.",
+            color: "#10B981" // Emerald
+        },
+        {
+            icon: <FileText size={32} />,
+            title: "PDF Format Papers",
+            description: "Download previous year question papers in high-quality PDF format for offline practice.",
+            color: "#EF4444" // Red
+        },
         {
             icon: <Brain size={32} />,
             title: "AI-Powered Explanations",
@@ -17,31 +35,13 @@ const FeaturesSection = () => {
             icon: <LineChart size={32} />,
             title: "Performance Analytics",
             description: "Track your progress with detailed charts. Identify weak areas and improve efficiently.",
-            color: "#10B981"
-        },
-        {
-            icon: <ShieldCheck size={32} />,
-            title: "5000+ Question Bank",
-            description: "Practice with a massive repository of high-yield MCQs curated by experts.",
-            color: "#F59E0B"
+            color: "#3B82F6"
         },
         {
             icon: <Target size={32} />,
             title: "Exam Simulation",
             description: "Experience the real exam pressure with timed tests and official marking schemes.",
-            color: "#EF4444"
-        },
-        {
-            icon: <Zap size={32} />,
-            title: "Instant Results",
-            description: "Get immediate feedback and rankings after every mock test submission.",
-            color: "#3B82F6"
-        },
-        {
-            icon: <Users size={32} />,
-            title: "Community Leaderboards",
-            description: "Compete with peers and see where you stand among thousands of aspirants.",
-            color: "#EC4899"
+            color: "#F97316" // Orange
         }
     ];
 

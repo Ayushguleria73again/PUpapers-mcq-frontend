@@ -17,12 +17,12 @@ const Hero = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-            <span className={styles.badge}>Official PU CET Prep Partner</span>
+            <span className={styles.badge}>PUPAPERS: Official Prep Partner</span>
             <h1 className={styles.title}>
-              Master Your <span>Entrance</span> Exams with Confidence
+              Panjab University <span>Chandigarh</span> Previous Year Papers & Mocks
             </h1>
             <p className={styles.description}>
-              The ultimate platform for Panjab University Chandigarh Common Entrance Test (CET) preparation. Access thousands of MCQs, previous year papers, and real-time mock tests.
+              The most secure and optimized platform for PU CET. Access thousands of MCQs, previous year PDF papers, and real-time mock tests for MSc, BSc, and more.
             </p>
             <div className={styles.ctaGroup} style={{ position: 'relative', zIndex: 100 }}>
               <Link href="/pucet-mock" style={{ display: 'block' }}>
