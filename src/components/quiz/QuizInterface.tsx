@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle2, ChevronRight, RefreshCcw, XCircle } from 'lucide-react';
 import styles from './QuizInterface.module.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Question {
   _id: string;
@@ -187,6 +189,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   if (showResult) {
     return (
       <div className={styles.quizContainer}>
+        <MarkdownStyles />
         <motion.div 
           className={styles.quizCard}
           initial={{ opacity: 0, scale: 0.9 }}
@@ -215,9 +218,9 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
                     return (
                         <div key={q._id} style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
-                            <p style={{ fontWeight: 600, marginBottom: '0.8rem' }}>
-                                {index + 1}. {q.text}
-                            </p>
+                            <div style={{ fontWeight: 600, marginBottom: '0.8rem' }} className="markdown-render">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{`${index + 1}. ${q.text}`}</ReactMarkdown>
+                            </div>
                             <div style={{ display: 'grid', gap: '0.5rem' }}>
                                 {q.options.map((opt, optIdx) => {
                                     let optionStyle: React.CSSProperties = { padding: '8px 12px', borderRadius: '4px', fontSize: '0.9rem', border: '1px solid #ddd' };
@@ -244,8 +247,9 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                     <span style={{ color: '#e74c3c', display: 'flex', alignItems: 'center', gap: '4px' }}><XCircle size={16} /> {isSkipped ? 'Skipped' : 'Incorrect'}</span>
                                 }
                                 {q.explanation && (
-                                    <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#e3f2fd', borderRadius: '6px', borderLeft: '3px solid #3498db', color: '#1565c0', fontSize: '0.9rem' }}>
-                                        <strong>Explanation:</strong> {q.explanation}
+                                    <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#e3f2fd', borderRadius: '6px', borderLeft: '3px solid #3498db', color: '#1565c0', fontSize: '0.9rem' }} className="markdown-render">
+                                        <strong>Explanation:</strong> 
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{q.explanation}</ReactMarkdown>
                                     </div>
                                 )}
                             </div>
@@ -278,6 +282,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
   return (
     <div className={styles.quizContainer}>
+      <MarkdownStyles />
       <div className="container">
         <div className={styles.quizCard}>
           <div className={styles.quizHeader}>
@@ -304,7 +309,9 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <h2 className={styles.question}>{questions[currentQuestion].text}</h2>
+              <div className={`${styles.question} markdown-render`}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{questions[currentQuestion].text}</ReactMarkdown>
+              </div>
               <div className={styles.optionsGrid}>
                 {questions[currentQuestion].options.map((option, index) => (
                   <button
@@ -337,3 +344,13 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 };
 
 export default QuizInterface;
+
+// Adding styles for markdown rendering
+const MarkdownStyles = () => (
+  <style jsx global>{`
+    .markdown-render img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+    .markdown-render ul, .markdown-render ol { padding-left: 1.5rem; margin: 10px 0; }
+    .markdown-render p { margin: 10px 0; }
+    .markdown-render h1, .markdown-render h2, .markdown-render h3 { margin: 15px 0 10px; }
+  `}</style>
+);

@@ -5,6 +5,9 @@ import { motion } from 'framer-motion';
 import { Shield, Plus, BookOpen, Book, FileQuestion, Check, AlertCircle, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Bold, Italic, List, Link as LinkIcon, Image as ImageIcon, Eye, Code } from 'lucide-react';
 
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState('subject'); // 'subject', 'chapter', 'question'
@@ -127,6 +130,114 @@ const AdminPage = () => {
             </div>
         );
     }
+
+    const MarkdownEditor = ({ value, onChange, placeholder, label }: { value: string, onChange: (val: string) => void, placeholder?: string, label: string }) => {
+        const [isPreview, setIsPreview] = useState(false);
+        const [uploading, setUploading] = useState(false);
+        const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+        const insertText = (before: string, after: string = '') => {
+            const textarea = document.activeElement as HTMLTextAreaElement;
+            if (!textarea || textarea.tagName !== 'TEXTAREA') return;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selected = text.substring(start, end);
+            const newValue = text.substring(0, start) + before + selected + after + text.substring(end);
+            onChange(newValue);
+            
+            // Refocus and set cursor
+            setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(start + before.length, end + before.length);
+            }, 0);
+        };
+
+        const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            setUploading(true);
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch('/api/content/upload', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    insertText(`![image](${data.url})`);
+                } else {
+                    alert('Upload failed');
+                }
+            } catch (err) {
+                console.error('Upload Error:', err);
+                alert('Server error during upload');
+            } finally {
+                setUploading(false);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            }
+        };
+
+        return (
+            <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <label style={{ fontWeight: 500 }}>{label}</label>
+                    <button 
+                        type="button" 
+                        onClick={() => setIsPreview(!isPreview)}
+                        style={{ fontSize: '0.8rem', color: '#FF6B00', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', background: 'none', border: 'none' }}
+                    >
+                        {isPreview ? <Code size={14} /> : <Eye size={14} />} {isPreview ? 'Switch to Editor' : 'Live Preview'}
+                    </button>
+                </div>
+
+                {!isPreview ? (
+                    <div style={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+                        {/* Toolbar */}
+                        <div style={{ background: '#f8f9fa', padding: '8px', borderBottom: '1px solid #ddd', display: 'flex', gap: '8px' }}>
+                            <button type="button" onClick={() => insertText('**', '**')} style={{ padding: '4px', borderRadius: '4px', border: 'none', background: 'none', cursor: 'pointer' }} title="Bold"><Bold size={16} /></button>
+                            <button type="button" onClick={() => insertText('_', '_')} style={{ padding: '4px', borderRadius: '4px', border: 'none', background: 'none', cursor: 'pointer' }} title="Italic"><Italic size={16} /></button>
+                            <button type="button" onClick={() => insertText('- ')} style={{ padding: '4px', borderRadius: '4px', border: 'none', background: 'none', cursor: 'pointer' }} title="List"><List size={16} /></button>
+                            <button type="button" onClick={() => insertText('[', '](url)')} style={{ padding: '4px', borderRadius: '4px', border: 'none', background: 'none', cursor: 'pointer' }} title="Link"><LinkIcon size={16} /></button>
+                            <button type="button" onClick={() => fileInputRef.current?.click()} style={{ padding: '4px', borderRadius: '4px', border: 'none', background: 'none', cursor: 'pointer', color: uploading ? '#888' : 'inherit' }} title="Upload Image">
+                                <ImageIcon size={16} />
+                            </button>
+                            <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
+                        </div>
+                        <textarea 
+                            value={value}
+                            onChange={(e) => onChange(e.target.value)}
+                            placeholder={placeholder}
+                            rows={6}
+                            style={{ width: '100%', padding: '1rem', border: 'none', outline: 'none', fontFamily: 'monospace', fontSize: '0.95rem' }}
+                        />
+                    </div>
+                ) : (
+                    <div className="markdown-preview" style={{ 
+                        padding: '1rem', 
+                        border: '1px solid #ddd', 
+                        borderRadius: '8px', 
+                        minHeight: '175px', 
+                        background: '#fafafa',
+                        fontSize: '0.95rem',
+                        lineHeight: '1.6'
+                    }}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{value || '*No content to preview*'}</ReactMarkdown>
+                    </div>
+                )}
+                <style jsx global>{`
+                    .markdown-preview img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+                    .markdown-preview ul { padding-left: 1.5rem; margin: 10px 0; }
+                    .markdown-preview p { margin: 10px 0; }
+                `}</style>
+            </div>
+        );
+    };
 
     const handleSubjectSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -875,16 +986,12 @@ const AdminPage = () => {
                                 </div>
                             </div>
 
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Question Text</label>
-                                <textarea 
-                                    value={qText || ''}
-                                    onChange={(e) => setQText(e.target.value)}
-                                    required
-                                    rows={3}
-                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd', fontFamily: 'inherit' }}
-                                />
-                            </div>
+                            <MarkdownEditor 
+                                label="Question Text (Markdown supported)"
+                                value={qText || ''}
+                                onChange={setQText}
+                                placeholder="Enter your question here... Use Markdown for formatting and images."
+                            />
 
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Options</label>
@@ -913,16 +1020,12 @@ const AdminPage = () => {
                                 <small style={{ color: '#888' }}>Select the radio button next to the correct answer.</small>
                             </div>
 
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Explanation</label>
-                                <textarea 
-                                    value={qExplanation || ''}
-                                    onChange={(e) => setQExplanation(e.target.value)}
-                                    placeholder="Why is it correct?"
-                                    rows={2}
-                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd', fontFamily: 'inherit' }}
-                                />
-                            </div>
+                            <MarkdownEditor 
+                                label="Explanation (Markdown supported)"
+                                value={qExplanation || ''}
+                                onChange={setQExplanation}
+                                placeholder="Explain why the correct answer is right..."
+                            />
 
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Difficulty</label>
