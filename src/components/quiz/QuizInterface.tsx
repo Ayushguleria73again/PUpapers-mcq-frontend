@@ -10,6 +10,7 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
 import 'katex/dist/katex.min.css';
 
 interface Question {
@@ -224,7 +225,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                     return (
                         <div key={q._id} style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.8rem' }} className="tiptap-content">
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                                     {`${index + 1}. ${q.text}`}
                                 </ReactMarkdown>
                             </div>
@@ -319,7 +320,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               transition={{ duration: 0.3 }}
             >
               <div className={`${styles.question} tiptap-content`}>
-                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                   {questions[currentQuestion].text}
                 </ReactMarkdown>
               </div>
@@ -372,45 +373,53 @@ const EditorStyles = () => (
     
     /* Step Headings - Professional Look */
     .tiptap-content h1, .tiptap-content h2 { 
-      font-size: 1.8rem; 
+      font-size: 1.9rem; 
       font-weight: 850; 
       color: #111827; 
-      margin: 3.5rem 0 1.5rem; 
+      margin: 4rem 0 1.5rem; 
       letter-spacing: -0.025em;
-      line-height: 1.2;
+      line-height: 1.25;
+      display: block;
     }
     
-    /* Math Display (centered cards) */
+    /* Math Display (Textbook Cards) */
     .tiptap-content .katex-display { 
-      margin: 3rem 0; 
-      padding: 2rem 1rem; 
-      background: #fcfdfe; 
-      border-radius: 20px; 
+      margin: 3.5rem 0; 
+      padding: 2.5rem 1.5rem; 
+      background: #f8fafc; 
+      border-radius: 24px; 
       border: 1.5px solid #f1f5f9;
-      box-shadow: 0 4px 20px -5px rgba(0,0,0,0.03), inset 0 2px 4px 0 rgba(0,0,0,0.01);
+      box-shadow: 0 4px 25px -5px rgba(0,0,0,0.03), inset 0 2px 4px 0 rgba(0,0,0,0.01);
       overflow-x: auto;
       text-align: center;
     }
-    .tiptap-content .katex { font-size: 1.25em; }
+    .tiptap-content .katex { font-size: 1.3em; color: #0f172a; }
     
-    /* Final Answer Styling - Detecting text content */
-    .tiptap-content h2 {
-        display: block;
-        transition: all 0.3s ease;
-    }
-    
-    /* Horizontal Rule (Step Separators) */
+    /* Horizontal Rule (Clear Step Separators) */
     .tiptap-content hr { 
       border: none; 
-      border-top: 2px solid #f1f5f9; 
-      margin: 4.5rem 0; 
-      position: relative;
+      border-top: 2.5px solid #f1f5f9; 
+      margin: 5rem 0; 
+      opacity: 1;
     }
     
     /* Bold physics variables */
-    .tiptap-content strong { color: #000; font-weight: 800; }
+    .tiptap-content strong { color: #000; font-weight: 850; }
     
-    /* Dark mode - Pro theme */
+    /* Image Handling */
+    .tiptap-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 20px;
+      margin: 3rem auto;
+      display: block;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Link styling */
+    .tiptap-content a { color: #FF6B00; text-decoration: underline; font-weight: 600; }
+    
+    /* Dark mode - Cinematic Pro theme */
     [data-theme='dark'] .tiptap-content { color: #d1d5db; }
     [data-theme='dark'] .tiptap-content h1, [data-theme='dark'] .tiptap-content h2 { color: #f9fafb; }
     [data-theme='dark'] .tiptap-content .katex-display { 
@@ -418,6 +427,7 @@ const EditorStyles = () => (
         border-color: #1f2937; 
         box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
     }
+    [data-theme='dark'] .tiptap-content .katex { color: white; }
     [data-theme='dark'] .tiptap-content hr { border-top-color: #1f2937; }
   ` }} />
 );
