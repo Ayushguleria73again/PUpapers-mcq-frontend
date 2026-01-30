@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, ChevronRight, BrainCircuit, Target, Star, ArrowLeft } from 'lucide-react';
+import { BookOpen, ChevronRight, BrainCircuit, Target, Star, ArrowLeft, Trophy } from 'lucide-react';
 import styles from './ChapterSelector.module.css';
 
 interface Chapter {
@@ -21,7 +21,7 @@ interface Subject {
 
 interface ChapterSelectorProps {
     subjectSlug: string;
-    onSelect: (chapterId: string | null) => void;
+    onSelect: (chapterId: string | null, difficulty: string) => void;
     onBack: () => void;
 }
 
@@ -29,6 +29,14 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [subject, setSubject] = useState<Subject | null>(null);
     const [loading, setLoading] = useState(true);
+    const [difficulty, setDifficulty] = useState('all');
+
+    const difficulties = [
+        { id: 'all', label: 'All Levels', icon: <BrainCircuit size={14} /> },
+        { id: 'easy', label: 'Easy', icon: <Star size={14} /> },
+        { id: 'medium', label: 'Medium', icon: <Target size={14} /> },
+        { id: 'hard', label: 'Hard', icon: <Trophy size={14} /> },
+    ];
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -92,9 +100,22 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                     <h1 className={styles.title}>
                         {subject?.name} <span>Chapters</span>
                     </h1>
-                    <p className={styles.description}>
-                        Choose a specific chapter to practice with surgical precision or take the full subject mastery challenge.
-                    </p>
+                    
+                    <div className={styles.difficultySection}>
+                        <p className={styles.sectionLabel}>Select Difficulty</p>
+                        <div className={styles.difficultyPicker}>
+                            {difficulties.map((diff) => (
+                                <button
+                                    key={diff.id}
+                                    className={`${styles.diffBtn} ${difficulty === diff.id ? styles.activeDiff : ''}`}
+                                    onClick={() => setDifficulty(diff.id)}
+                                >
+                                    {diff.icon}
+                                    {diff.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </motion.div>
             </div>
 
@@ -104,7 +125,7 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                     className={styles.masteryCard}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => onSelect(null)}
+                    onClick={() => onSelect(null, difficulty)}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
@@ -127,7 +148,7 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                         className={styles.chapterCard}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => onSelect(chapter._id)}
+                        onClick={() => onSelect(chapter._id, difficulty)}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 + 0.1 }}
@@ -149,7 +170,7 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                         <button 
                             className={styles.masteryCard} 
                             style={{ margin: '2rem auto 0', width: 'auto', display: 'flex' }}
-                            onClick={() => onSelect(null)}
+                            onClick={() => onSelect(null, difficulty)}
                         >
                             Take Full Subject Quiz
                         </button>

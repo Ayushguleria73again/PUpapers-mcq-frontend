@@ -34,9 +34,10 @@ interface Question {
 interface QuizInterfaceProps {
   subjectSlug?: string;
   chapterId?: string | null;
+  difficulty?: string;
 }
 
-const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
+const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInterfaceProps) => {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +49,7 @@ const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
   const [savingResult, setSavingResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState(180); 
 
-  const storageKey = `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}`;
+  const storageKey = `quiz_state_${subjectSlug}${chapterId ? `_${chapterId}` : ''}${difficulty !== 'all' ? `_${difficulty}` : ''}`;
 
   // REMOVED individual useEffect for restoration - moved into unified initialization below
 
@@ -94,6 +95,9 @@ const QuizInterface = ({ subjectSlug, chapterId }: QuizInterfaceProps) => {
         let url = `${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`;
         if (chapterId) {
             url += `&chapterId=${chapterId}`;
+        }
+        if (difficulty && difficulty !== 'all') {
+            url += `&difficulty=${difficulty}`;
         }
 
         const res = await fetch(url, {

@@ -10,16 +10,22 @@ export default function SubjectQuizPage() {
   const router = useRouter();
   const slug = params.slug as string;
   const [selectedChapter, setSelectedChapter] = useState<string | null | undefined>(undefined);
+  const [difficulty, setDifficulty] = useState('all');
 
   // undefined: Still need to choose
   // null: Full subject mastery chosen
   // string: Chapter ID chosen
 
+  const handleSelect = (chapterId: string | null, diff: string) => {
+    setDifficulty(diff);
+    setSelectedChapter(chapterId);
+  };
+
   if (selectedChapter === undefined) {
     return (
       <ChapterSelector 
         subjectSlug={slug} 
-        onSelect={setSelectedChapter} 
+        onSelect={handleSelect} 
         onBack={() => router.push('/mock-tests')} 
       />
     );
@@ -27,7 +33,11 @@ export default function SubjectQuizPage() {
 
   return (
     <main>
-      <QuizInterface subjectSlug={slug} chapterId={selectedChapter} />
+      <QuizInterface 
+        subjectSlug={slug} 
+        chapterId={selectedChapter} 
+        difficulty={difficulty} 
+      />
     </main>
   );
 }
