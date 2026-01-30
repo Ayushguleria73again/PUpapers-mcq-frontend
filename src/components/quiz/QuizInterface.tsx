@@ -242,7 +242,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
 
                                     return (
                                         <div key={optIdx} style={optionStyle} className="tiptap-content">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                                                 {opt}
                                             </ReactMarkdown>
                                         </div>
@@ -257,7 +257,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                                 {q.explanation && (
                                     <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#e3f2fd', borderRadius: '6px', borderLeft: '3px solid #3498db', color: '#1565c0', fontSize: '0.9rem' }} className="tiptap-content">
                                         <strong>Explanation:</strong> 
-                                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                                             {q.explanation || ''}
                                         </ReactMarkdown>
                                     </div>
@@ -332,7 +332,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                     onClick={() => handleOptionSelect(index)}
                     style={{ textAlign: 'left' }}
                   >
-                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                       {option}
                     </ReactMarkdown>
                   </button>
