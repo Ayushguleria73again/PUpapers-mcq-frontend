@@ -13,41 +13,10 @@ import Typography from '@tiptap/extension-typography';
 import { Markdown } from 'tiptap-markdown';
 import { 
     Bold, Italic, List, ListOrdered, Quote, 
-    Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight,
-    ImageIcon, Link as LinkIcon, Undo, Redo, Heading1, Heading2,
-    Type, Sparkles, Wand2, Minus, Eraser, Zap, Maximize2, Minimize2,
-    CheckCircle2, Info, FileJson, Layers
+    Underline as UnderlineIcon, ImageIcon, 
+    Link as LinkIcon, Undo, Redo, Heading1, Heading2,
+    Type, Sparkles, Minus, Zap, Info
 } from 'lucide-react';
-
-/**
- * PRODUCTION-GRADE PHYSICS MATH SANITIZER
- * Developed by Senior Engineer for IIT/Scientific Content.
- */
-const advancedSanitize = (content: string) => {
-    if (!content) return content;
-    let cleaned = content;
-
-    // 1. Study Site triplication pattern (Toppr/Brainly/Doubtnut)
-    // pattern: [V]=ABC [V]=LaTeX [V]=ABC
-    const sandwichPattern = /([\[(][A-Z][\])])\s*=\s*([A-Z0-9\-\^\s]+)\s*\1\s*=\s*(\\[a-z]+\{[^}]+\})\s*\1\s*=\s*\2/gi;
-    cleaned = cleaned.replace(sandwichPattern, (match, variable, plain, latex) => `${variable} = ${latex}`);
-
-    // 2. Dimensional Analysis Normalization (IIT Standards)
-    // M1L2T-3 -> M^{1}L^{2}T^{-3}
-    cleaned = cleaned.replace(/([MLTPQ])(\-?\d+)/g, (match, variable, value) => {
-        return `${variable}^{${value}}`;
-    });
-
-    // 3. Spacing and Brackets Cleanup
-    cleaned = cleaned.replace(/\[([MLT])\]\[([MLT])\]/g, '$1$2'); // [M][L] -> ML
-    cleaned = cleaned.replace(/([\d])([MLT])/g, '$1 $2'); // 3ML -> 3 ML
-
-    // 4. Duplicate Word Cleanup (Sites often double up options)
-    // "Option A Option A" -> "Option A"
-    cleaned = cleaned.replace(/\b(\w+)\s+\1\b/g, '$1');
-
-    return cleaned.trim();
-};
 
 interface TiptapEditorProps {
     value: string;
@@ -59,7 +28,6 @@ interface TiptapEditorProps {
 const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps) => {
     const [uploading, setUploading] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
-    const [isCleaning, setIsCleaning] = useState(false);
     const [charCount, setCharCount] = useState(0);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -68,13 +36,12 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             StarterKit.configure({
                 heading: { levels: [1, 2] },
                 bulletList: { keepAttributes: true, keepMarks: true },
-                codeBlock: false,
             }),
             Typography,
             Underline,
             Markdown,
             Placeholder.configure({
-                placeholder: placeholder || 'Paste math content here (Auto-cleanup enabled)...',
+                placeholder: placeholder || 'Type or paste content here...',
                 emptyEditorClass: 'is-editor-empty',
             }),
             Link.configure({ openOnClick: false }),
@@ -89,20 +56,6 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         },
         onFocus: () => setIsFocused(true),
         onBlur: () => setIsFocused(false),
-        editorProps: {
-            handlePaste: (view, event) => {
-                const text = event.clipboardData?.getData('text/plain');
-                if (text && (text.includes('\\') || text.includes('ML') || text.includes('='))) {
-                    console.log('Senior Sanitizer Active...');
-                    const sanitized = advancedSanitize(text);
-                    if (sanitized !== text) {
-                        view.dispatch(view.state.tr.insertText(sanitized));
-                        return true; 
-                    }
-                }
-                return false;
-            },
-        },
     });
 
     useEffect(() => {
@@ -111,17 +64,6 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             setCharCount(editor.getText().length);
         }
     }, [value, editor]);
-
-    const performDeepClean = () => {
-        if (!editor) return;
-        setIsCleaning(true);
-        setTimeout(() => {
-            const currentMarkdown = (editor.storage as any).markdown.getMarkdown();
-            const cleaned = advancedSanitize(currentMarkdown);
-            editor.commands.setContent(cleaned);
-            setIsCleaning(false);
-        }, 800);
-    };
 
     const uploadFile = async (file: File) => {
         setUploading(true);
@@ -160,40 +102,23 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
     });
 
     return (
-        <div className="math-editor-pro" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#FF6B00', boxShadow: '0 0 8px #FF6B00' }} />
-                        <span style={{ fontSize: '10px', fontWeight: 900, color: '#94a3b8', letterSpacing: '2px', textTransform: 'uppercase' }}>
-                            {label}
-                        </span>
-                    </div>
+        <div className="professional-editor" style={{ marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Zap size={14} color="#FF6B00" />
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        {label}
+                    </span>
                 </div>
-                
-                <AnimatePresence>
-                    {isCleaning && (
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.9 }} 
-                            animate={{ opacity: 1, scale: 1 }} 
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            style={{ 
-                                fontSize: '10px', background: '#020617', color: 'white', 
-                                padding: '4px 12px', borderRadius: '6px', fontWeight: 700, 
-                                display: 'flex', alignItems: 'center', gap: '8px' 
-                            }}
-                        >
-                            <Sparkles size={12} className="spinning" />
-                            RECONSTRUCTING MATH...
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                <div style={{ fontSize: '10px', color: '#94a3b8', fontStyle: 'italic' }}>
+                    Markdown Input Support
+                </div>
             </div>
 
             <div style={{
                 border: `1px solid ${isFocused ? '#FF6B00' : '#e2e8f0'}`,
                 borderRadius: '12px', background: 'white',
-                boxShadow: isFocused ? '0 10px 25px -5px rgba(255, 107, 0, 0.1)' : 'none',
+                boxShadow: isFocused ? '0 10px 25px -5px rgba(255, 107, 0, 0.05)' : 'none',
                 transition: 'all 0.2s ease', overflow: 'hidden'
             }}>
                 <div style={{
@@ -202,41 +127,34 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 }}>
                     <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editor.isActive('bold'), false)}><Bold size={15} /></button>
                     <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editor.isActive('italic'), false)}><Italic size={15} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editor.isActive('underline'), false)}><UnderlineIcon size={15} /></button>
                     
-                    <div style={{ width: '1px', height: '16px', background: '#cbd5e1', margin: '0 4px' }} />
+                    <div style={{ width: '1px', height: '16px', background: '#cbd5e1', margin: '0 8px' }} />
                     
                     <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 1 }), false)}><Heading1 size={15} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} style={toolbarButtonStyle(editor.isActive('heading', { level: 2 }), false)}><Heading2 size={15} /></button>
                     <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editor.isActive('bulletList'), false)}><List size={15} /></button>
                     
-                    <div style={{ width: '1px', height: '16px', background: '#cbd5e1', margin: '0 4px' }} />
+                    <div style={{ width: '1px', height: '16px', background: '#cbd5e1', margin: '0 8px' }} />
 
-                    <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)}><ImageIcon size={15} /></button>
-                    <button 
-                        type="button" 
-                        onClick={performDeepClean}
-                        style={{ ...toolbarButtonStyle(false, false), background: '#fff7ed', color: '#FF6B00' }} 
-                        title="Deep Normalize Math"
-                    >
-                        <Wand2 size={15} />
-                    </button>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} style={toolbarButtonStyle(false, false)} title="Insert Image"><ImageIcon size={15} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} style={toolbarButtonStyle(false, false)} title="Divider"><Minus size={15} /></button>
 
                     <div style={{ flexGrow: 1 }} />
                     
-                    <div style={{ display: 'flex', gap: '2px' }}>
-                         <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())}><Undo size={15} /></button>
-                         <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolbarButtonStyle(false, !editor.can().redo())}><Redo size={15} /></button>
-                    </div>
+                    <button type="button" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} style={toolbarButtonStyle(false, !editor.can().undo())}><Undo size={15} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} style={toolbarButtonStyle(false, !editor.can().redo())}><Redo size={15} /></button>
                 </div>
 
-                <div style={{ position: 'relative', minHeight: '150px' }}>
+                <div style={{ position: 'relative', minHeight: '180px' }}>
                     <EditorContent editor={editor} style={{ padding: '1rem' }} />
                 </div>
 
                 <div style={{ 
-                    padding: '6px 12px', background: '#f8fafc', borderTop: '1px solid #e2e8f0',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', color: '#94a3b8'
+                    padding: '8px 16px', background: '#f8fafc', borderTop: '1px solid #e2e8f0',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#94a3b8'
                 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Info size={12} /> LaTeX Normalization Active</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Info size={12} /> Rich text editor ready</span>
                     <span>{charCount} characters</span>
                 </div>
             </div>
@@ -244,12 +162,11 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
 
             <style jsx global>{`
-                .ProseMirror { outline: none !important; font-family: 'Inter', sans-serif; min-height: 150px; color: #1e293b; font-size: 0.95rem; }
+                .ProseMirror { outline: none !important; font-family: 'Inter', sans-serif; min-height: 180px; color: #1e293b; font-size: 1rem; line-height: 1.6; }
                 .ProseMirror p { margin-bottom: 0.75rem; }
-                .ProseMirror-focused { position: relative; }
+                .ProseMirror h1 { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #0f172a; }
+                .ProseMirror h2 { font-size: 1.25rem; font-weight: 600; margin: 1.25rem 0 0.5rem; color: #1e293b; }
                 .ProseMirror .is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; color: #cbd5e1; pointer-events: none; height: 0; }
-                @keyframes spin { 100% { transform: rotate(360deg); } }
-                .spinning { animation: spin 2s linear infinite; }
             `}</style>
         </div>
     );
