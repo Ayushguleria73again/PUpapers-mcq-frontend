@@ -255,18 +255,23 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all' }: QuizInter
 
         if (res.ok) {
             const data = await res.json();
+            // Sanitize smart quotes that break KaTeX
+            const cleanContent = data.explanation
+                .replace(/[“”]/g, '"')
+                .replace(/[‘’]/g, "'");
             setAiExplanations(prev => ({
                 ...prev,
-                [id]: { content: data.explanation, loading: false }
+                [id]: { content: cleanContent, loading: false }
             }));
         } else {
-            throw new Error("Failed to fetch");
+            const errorText = await res.text();
+            throw new Error(`Server responded with ${res.status}: ${errorText}`);
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error("AI Explanation failed:", err);
         setAiExplanations(prev => ({
             ...prev,
-            [id]: { content: "Failed to generate AI explanation. Please check your API configuration.", loading: false }
+            [id]: { content: `Error: ${err.message || "Failed to generate AI explanation"}`, loading: false }
         }));
     }
   };
