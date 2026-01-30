@@ -53,7 +53,16 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`, {
             credentials: 'include'
         });
-        if (res.ok) setQuestions(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          // Fisher-Yates Shuffle Algorithm for production-grade randomness
+          const shuffled = [...data];
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          setQuestions(shuffled);
+        }
       } catch (err) { console.error(err); } 
       finally { setLoading(false); }
     };
