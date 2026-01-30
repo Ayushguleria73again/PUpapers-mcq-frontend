@@ -26,27 +26,31 @@ const normalizePhysicsContent = (content: string) => {
     if (!content) return content;
     let cleaned = content;
 
-    // 1. DEDUPLICATION: Detect "Sandwich" patterns (Visual = LaTeX = Visual)
-    // Example: [P]=ML2[P]=\mathbf{ML^2}[P]=ML2
+    // 1. CHARACTER CONSOLIDATION: Prevents splitting of M L T across lines
+    cleaned = cleaned.replace(/([MLTPQ])\n+([MLTPQ])/g, '$1$2');
+    cleaned = cleaned.replace(/([MLTPQ])\s+([MLTPQ])/g, '$1$2');
+
+    // 2. DEDUPLICATION: Detect "Sandwich" patterns (Visual = LaTeX = Visual)
     const sandwichPattern = /([\[(][A-Z][\])])\s*=\s*([A-Z0-9\-\^\s]+)\s*\1\s*=\s*(\\[a-z]+\{[^}]+\})\s*\1\s*=\s*\2/gi;
     cleaned = cleaned.replace(sandwichPattern, (match, varName, plain, latex) => `${varName} = ${latex}`);
 
-    // 2. LATEX CLEANUP: Remove non-functional math decorators that cause KaTeX errors
-    cleaned = cleaned.replace(/\\mathbf\{([^}]*)\}/g, '$1'); // Remove \mathbf{} but keep content
-    cleaned = cleaned.replace(/\\text\{([^}]*)\}/g, '$1');   // Remove \text{} but keep content
+    // 3. EQUATION CONSOLIDATION: Merge [P] = ML2 into a single cohesive line if split
+    cleaned = cleaned.replace(/\\\[(.+?)\\\]\s*=\s*([A-Z0-9\-\s]+)/g, (match, latex, plain) => {
+        return `$$ ${latex.trim()} = ${plain.trim()} $$`;
+    });
 
-    // 3. DIMENSIONAL ANALYSIS NORMALIZATION: ML2 -> M^{2}, T-3 -> T^{-3}
-    // Matches M, L, T, P, Q followed by digits (opt +/-)
+    // 4. LATEX CLEANUP: Remove non-functional decorators
+    cleaned = cleaned.replace(/\\mathbf\{([^}]*)\}/g, '$1');
+    cleaned = cleaned.replace(/\\text\{([^}]*)\}/g, '$1');
+
+    // 5. DIMENSIONAL ANALYSIS NORMALIZATION: ML2 -> M^{2}
     cleaned = cleaned.replace(/([MLTPQ])(\-?\d+)/g, (match, variable, value) => {
         return `${variable}^{${value}}`;
     });
 
-    // 4. CHARACTER NORMALIZATION
-    cleaned = cleaned.replace(/−/g, '-'); // Mathematical minus -> standard hyphen for LaTeX
-    cleaned = cleaned.replace(/×/g, '\\times'); // Multiplier symbol
-    
-    // 5. NOISE REMOVAL: Sites often double up content when JS isn't fully loaded
-    cleaned = cleaned.replace(/\[([MLT])\]\[([MLT])\]/g, '$1$2'); // [M][L] -> ML
+    // 6. SYMBOL NORMALIZATION
+    cleaned = cleaned.replace(/−/g, '-');
+    cleaned = cleaned.replace(/×/g, '\\times');
 
     return cleaned.trim();
 };
