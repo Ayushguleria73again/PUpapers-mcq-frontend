@@ -58,7 +58,7 @@
 
 .progressBar {
     height: 100%;
-    background: #0f172a;
+    background: var(--primary);
     border-radius: 100px;
 }
 
@@ -98,8 +98,8 @@
 }
 
 .selectedOption {
-    border-color: #0f172a;
-    background: #0f172a;
+    border-color: var(--primary);
+    background: var(--primary);
     color: #ffffff;
 }
 
@@ -142,7 +142,7 @@
 .metricValue {
     font-size: 2rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--primary);
 }
 
 .metricLabel {

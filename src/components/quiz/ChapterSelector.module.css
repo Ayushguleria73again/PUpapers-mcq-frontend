@@ -1,7 +1,7 @@
 .selectorContainer {
     min-height: 100vh;
-    padding: 100px 20px;
-    background: #ffffff;
+    padding: 100px 0;
+    background: var(--background);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -10,91 +10,103 @@
 .header {
     text-align: center;
     max-width: 800px;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
 }
 
 .header h1 {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 0.5rem;
+    color: var(--foreground);
+    margin-bottom: 1rem;
 }
 
 .header p {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 1.1rem;
 }
 
 .selectionGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
+    padding: 0 2rem;
 }
 
 .masteryCard {
     grid-column: 1 / -1;
-    background: #020617;
-    border-radius: 16px;
-    padding: 2rem;
+    background: var(--secondary);
+    border-radius: 20px;
+    padding: 2.5rem;
     color: white;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border: none;
     text-align: left;
     margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
 }
 
 .masteryCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    background: #000000;
 }
 
 .chapterCard {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 1.5rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     text-align: left;
+    position: relative;
+    overflow: hidden;
 }
 
 .chapterCard:hover {
-    border-color: #020617;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
 }
 
 .chapterIcon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: #f8fafc;
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: rgba(255, 107, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0f172a;
+    color: var(--primary);
+    transition: all 0.3s ease;
+}
+
+.chapterCard:hover .chapterIcon {
+    background: var(--primary);
+    color: white;
 }
 
 .chapterInfo h3 {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 0.25rem;
+    color: var(--foreground);
+    margin-bottom: 0.5rem;
 }
 
 .chapterInfo p {
-    font-size: 0.875rem;
-    color: #64748b;
-    line-height: 1.4;
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 .loading {

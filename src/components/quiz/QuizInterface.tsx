@@ -374,16 +374,20 @@ const EditorStyles = () => (
         border: 1px solid #e2e8f0;
         overflow-x: auto;
     }
-    .tiptap-content .katex { font-size: 1.15em; color: #020617; }
+    .tiptap-content .katex { font-size: 1.15em; color: var(--foreground); }
     
     .btn-primary { 
-        background: #020617; 
+        background: var(--primary); 
         color: white; 
         border: none; 
         cursor: pointer;
-        transition: opacity 0.2s ease;
+        transition: all 0.2s ease;
     }
-    .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+    .btn-primary:hover:not(:disabled) { 
+        background: var(--primary-hover); 
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+    }
     .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .btn-secondary {
