@@ -128,6 +128,46 @@ const DashboardPage = () => {
           </button>
         </motion.div>
 
+        {/* Subject Mastery Section */}
+        <section className={styles.masterySection}>
+          <div className={styles.sectionHeader} style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Subject Mastery</h2>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 500 }}>Global performance per discipline</p>
+          </div>
+          
+          <div className={styles.masteryGrid}>
+            {progress?.subjectProgress?.map((subject: any, idx: number) => (
+              <motion.div 
+                key={subject.id}
+                className={styles.masteryCard}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 + (idx * 0.05) }}
+              >
+                <div className={styles.subjectHeader}>
+                  <h4>{subject.name}</h4>
+                  <span className={styles.testCount}>{subject.testsCount} {subject.testsCount === 1 ? 'Test' : 'Tests'}</span>
+                </div>
+
+                <div className={styles.progressWrapper}>
+                  <div className={styles.progressLabel}>
+                    <span>Current Mastery</span>
+                    <span className={styles.accuracyValue}>{subject.accuracy}%</span>
+                  </div>
+                  <div className={styles.progressBar}>
+                    <motion.div 
+                      className={styles.progressFill}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${subject.accuracy}%` }}
+                      transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
         {/* Bottom Split Section */}
         <div className={styles.sectionsGrid}>
           {/* Recent Performance */}
