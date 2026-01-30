@@ -26,11 +26,37 @@ const normalizePhysicsContent = (content: string) => {
     if (!content) return content;
     let cleaned = content;
 
-    // 1. CHARACTER CONSOLIDATION: Prevents splitting of M L T across lines
-    cleaned = cleaned.replace(/([MLTPQ])\n+([MLTPQ])/g, '$1$2');
+    // 1. VERTICAL CHARACTER RECONSTRUCTION (The "Vertical Stack" Fix)
+    const charsToJoin = /[MLTPQ0-9\-\^−]/;
+    const lines = cleaned.split('\n');
+    const reconstructed: string[] = [];
+    let mathBuffer = '';
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.length > 0 && line.length <= 2 && charsToJoin.test(line)) {
+            mathBuffer += line;
+        } else {
+            if (mathBuffer) {
+                if (line.startsWith('=') || line.startsWith('+') || line.startsWith('-')) {
+                    mathBuffer += ' ' + line;
+                } else {
+                    reconstructed.push(`$$ ${mathBuffer} $$`);
+                    mathBuffer = '';
+                    if (line) reconstructed.push(line);
+                }
+            } else {
+                if (line) reconstructed.push(line);
+            }
+        }
+    }
+    if (mathBuffer) reconstructed.push(`$$ ${mathBuffer} $$`);
+    cleaned = reconstructed.join('\n');
+
+    // 2. CHARACTER CONSOLIDATION: Prevents splitting of M L T by remaining spaces
     cleaned = cleaned.replace(/([MLTPQ])\s+([MLTPQ])/g, '$1$2');
 
-    // 2. DEDUPLICATION: Detect "Sandwich" patterns (Visual = LaTeX = Visual)
+    // 3. DEDUPLICATION: Detect "Sandwich" patterns
     const sandwichPattern = /([\[(][A-Z][\])])\s*=\s*([A-Z0-9\-\^\s]+)\s*\1\s*=\s*(\\[a-z]+\{[^}]+\})\s*\1\s*=\s*\2/gi;
     cleaned = cleaned.replace(sandwichPattern, (match, varName, plain, latex) => `${varName} = ${latex}`);
 
