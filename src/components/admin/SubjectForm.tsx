@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 interface Subject {
     _id: string;
@@ -254,7 +255,7 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                         <h3 style={{ margin: 0, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>✨ AI Assistant</h3>
                         <button type="button" onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '1.2rem' }}>×</button>
                     </div>
-                    
+
                     <div style={{ flex: 1, padding: '1rem', overflowY: 'auto', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                         {chatMessages.map((msg, i) => (
                             <div key={i} style={{ 
@@ -268,7 +269,19 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                                 fontSize: '0.9rem',
                                 lineHeight: '1.4'
                             }}>
-                                {msg.text}
+                                {msg.role === 'ai' ? (
+                                    <ReactMarkdown 
+                                        components={{
+                                            p: ({node, ...props}) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
+                                            ul: ({node, ...props}) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
+                                            li: ({node, ...props}) => <li style={{marginBottom: '0.2rem'}} {...props} />
+                                        }}
+                                    >
+                                        {msg.text}
+                                    </ReactMarkdown>
+                                ) : (
+                                    msg.text
+                                )}
                             </div>
                         ))}
                         {chatLoading && (
