@@ -42,6 +42,41 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
   const [savingResult, setSavingResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState(180); 
 
+  // Persistence Key
+  const storageKey = `quiz_state_${subjectSlug}`;
+
+  // Restore State on Mount
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setCurrentQuestion(parsed.currentQuestion || 0);
+        setSelectedOption(parsed.selectedOption);
+        setUserAnswers(parsed.userAnswers || []);
+        setScore(parsed.score || 0);
+        setShowResult(parsed.showResult || false);
+        setTimeLeft(parsed.timeLeft || 180);
+      } catch (e) {
+        console.error('Failed to restore quiz state', e);
+      }
+    }
+  }, [storageKey]);
+
+  // Save State on Change
+  useEffect(() => {
+    if (!loading && questions.length > 0) {
+      localStorage.setItem(storageKey, JSON.stringify({
+        currentQuestion,
+        selectedOption,
+        userAnswers,
+        score,
+        showResult,
+        timeLeft
+      }));
+    }
+  }, [currentQuestion, selectedOption, userAnswers, score, showResult, timeLeft, storageKey, loading, questions]);
+
   useEffect(() => {
     if (!subjectSlug) {
         setQuestions([]); 
