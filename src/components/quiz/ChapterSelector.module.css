@@ -1,192 +1,248 @@
 .selectorContainer {
     min-height: 100vh;
-    padding: 100px 20px;
-    background: var(--background);
+    padding: 120px 20px 80px;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 .backButton {
     position: absolute;
     top: 40px;
-    left: 20px;
+    left: 40px;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
+    background: transparent;
+    border: 1px solid var(--border);
     color: var(--text-muted);
-    transition: color 0.2s ease;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
 }
 
 .backButton:hover {
-    color: var(--primary);
-    background: rgba(255, 107, 0, 0.05);
+    background: var(--border);
+    color: var(--foreground);
+    transform: translateX(-4px);
 }
 
 .header {
     text-align: center;
     max-width: 800px;
     margin-bottom: 4rem;
+    width: 100%;
 }
 
-.header h1 {
-    font-size: 2.5rem;
+.headerWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--primary);
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 107, 0, 0.2);
+}
+
+.title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.1;
     font-weight: 800;
+    margin-bottom: 1.5rem;
     color: var(--foreground);
-    margin-bottom: 1rem;
 }
 
-.header p {
+.title span {
+    color: var(--primary);
+}
+
+.description {
+    font-size: 1.125rem;
     color: var(--text-muted);
-    font-size: 1.1rem;
+    max-width: 600px;
+    line-height: 1.6;
 }
 
 .selectionGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 2rem;
     width: 100%;
-    max-width: 1200px;
-    padding: 0 2rem;
+    max-width: 1100px;
+}
+
+.masteryCard,
+.chapterCard {
+    background: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+}
+
+.masteryCard:hover,
+.chapterCard:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: rgba(255, 107, 0, 0.2);
 }
 
 .masteryCard {
     grid-column: 1 / -1;
     background: #ffffff;
     border: 2px solid var(--primary);
-    border-radius: 20px;
-    padding: 2rem 2.5rem;
-    color: var(--foreground);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: left;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
+    padding: 2.5rem;
 }
 
-.masteryCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(255, 107, 0, 0.1);
-    background: rgba(255, 107, 0, 0.02);
+.masteryCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 107, 0, 0.05) 100%);
+    pointer-events: none;
 }
 
 .masteryContent {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    z-index: 2;
 }
 
 .masteryIcon {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
+    width: 64px;
+    height: 64px;
     background: var(--primary);
     color: white;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 8px 16px rgba(255, 107, 0, 0.3);
 }
 
 .masteryText h3 {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     font-weight: 800;
+    margin-bottom: 0.25rem;
     color: var(--foreground);
-    margin: 0;
 }
 
 .masteryText p {
-    font-size: 0.9rem;
     color: var(--text-muted);
-    margin: 4px 0 0 0;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 .masteryArrow {
     color: var(--primary);
     opacity: 0.5;
-    transition: transform 0.2s ease;
-}
-
-.masteryCard:hover .masteryArrow {
-    transform: translateX(4px);
-    opacity: 1;
-}
-
-.chapterCard {
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-}
-
-.chapterCard:hover {
-    border-color: var(--primary);
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
 }
 
 .chapterIcon {
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    background: rgba(255, 107, 0, 0.1);
+    color: var(--primary);
     border-radius: 12px;
-    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary);
-    transition: all 0.3s ease;
 }
 
-.chapterCard:hover .chapterIcon {
-    background: var(--primary);
-    color: white;
+.chapterInfo {
+    flex: 1;
+    margin-left: 1.25rem;
 }
 
 .chapterInfo h3 {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: var(--foreground);
     margin-bottom: 0.5rem;
+    color: var(--foreground);
 }
 
 .chapterInfo p {
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     line-height: 1.5;
 }
 
 .loading {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 50vh;
+    background: #ffffff;
 }
 
-@media (max-width: 640px) {
-    .header h1 {
-        font-size: 1.8rem;
+@media (max-width: 768px) {
+    .selectorContainer {
+        padding: 100px 20px 40px;
+    }
+
+    .backButton {
+        top: 20px;
+        left: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .header {
+        margin-bottom: 2.5rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .description {
+        font-size: 1rem;
     }
 
     .selectionGrid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .masteryCard {
+        padding: 1.5rem;
+    }
+
+    .masteryIcon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .masteryText h3 {
+        font-size: 1.25rem;
     }
 }
