@@ -109,7 +109,11 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 placeholder: placeholder || 'Paste physics explanation here...',
                 emptyEditorClass: 'is-editor-empty',
             }),
-            Image,
+            Image.configure({
+                HTMLAttributes: {
+                    class: 'editor-image',
+                },
+            }),
         ],
         content: value,
         immediatelyRender: false,
@@ -242,7 +246,24 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 .ProseMirror { outline: none !important; min-height: 200px; font-family: 'Inter', sans-serif; font-size: 1.05rem; line-height: 1.7; color: #334155; }
                 .ProseMirror p { margin-bottom: 1rem; }
                 .ProseMirror h1 { font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 1.5rem 0 1rem; }
-                .ProseMirror .is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; color: #cbd5e1; pointer-events: none; height: 0; }
+                .ProseMirror    .is-editor-empty:before {
+        content: attr(data-placeholder);
+        float: left;
+        color: #adb5bd;
+        pointer-events: none;
+        height: 0;
+    }
+
+    .editor-image {
+        max-width: 100%;
+        max-height: 200px;
+        height: auto;
+        object-fit: contain;
+        border-radius: 8px;
+        display: block;
+        margin: 1rem 0;
+        border: 1px solid #e2e8f0;
+    }
             `}</style>
         </div>
     );
