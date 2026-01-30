@@ -165,7 +165,8 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
 
                 if (res.ok) {
                     const data = await res.json();
-                    editor.chain().focus().setImage({ src: data.url }).run();
+                    // Insert image and a space to move cursor forward
+                    editor.chain().focus().setImage({ src: data.url }).insertContent(' ').run();
                 } else {
                     console.error(`Upload failed for file: ${file.name}`);
                 }
