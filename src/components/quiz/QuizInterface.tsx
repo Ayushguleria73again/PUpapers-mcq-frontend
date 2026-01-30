@@ -8,6 +8,9 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 interface Question {
   _id: string;
@@ -221,7 +224,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
                     return (
                         <div key={q._id} style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.8rem' }} className="tiptap-content">
-                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeKatex]}>
                                     {`${index + 1}. ${q.text}`}
                                 </ReactMarkdown>
                             </div>
@@ -316,7 +319,7 @@ const QuizInterface = ({ subjectSlug }: QuizInterfaceProps) => {
               transition={{ duration: 0.3 }}
             >
               <div className={`${styles.question} tiptap-content`}>
-                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]} rehypePlugins={[rehypeKatex]}>
                   {questions[currentQuestion].text}
                 </ReactMarkdown>
               </div>
@@ -359,10 +362,22 @@ export default QuizInterface;
 // Adding styles for rich text rendering
 const EditorStyles = () => (
   <style dangerouslySetInnerHTML={{ __html: `
-    .tiptap-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
-    .tiptap-content ul, .tiptap-content ol { padding-left: 1.5rem; margin: 10px 0; }
-    .tiptap-content p { margin: 5px 0; }
-    .tiptap-content h1, .tiptap-content h2, .tiptap-content h3 { margin: 15px 0 10px; }
-    .tiptap-content blockquote { border-left: 4px solid #ea580c; padding-left: 1rem; font-style: italic; color: #4b5563; }
+    .tiptap-content { font-family: 'Inter', system-ui, sans-serif; line-height: 1.7; color: #334155; }
+    .tiptap-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem 0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .tiptap-content ul, .tiptap-content ol { padding-left: 1.5rem; margin: 1.5rem 0; }
+    .tiptap-content p { margin: 1rem 0; font-size: 1.05rem; }
+    .tiptap-content h1, .tiptap-content h2, .tiptap-content h3 { color: #0f172a; margin: 2.5rem 0 1.25rem; font-weight: 800; line-height: 1.3; }
+    .tiptap-content h1 { font-size: 2.25rem; }
+    .tiptap-content h2 { font-size: 1.75rem; border-bottom: none; }
+    .tiptap-content blockquote { border-left: 4px solid #FF6B00; background: #fffaf0; padding: 1.25rem 2rem; font-style: italic; color: #4b5563; border-radius: 0 12px 12px 0; margin: 2rem 0; }
+    .tiptap-content hr { border: none; border-top: 1px solid #e2e8f0; margin: 3rem 0; }
+    .tiptap-content .katex-display { margin: 2rem 0; padding: 1rem; overflow-x: auto; overflow-y: hidden; background: #f8fafc; border-radius: 8px; }
+    .tiptap-content .katex { font-size: 1.15em; }
+    
+    /* Dark mode adjustments if detected in parent */
+    [data-theme='dark'] .tiptap-content { color: #f1f5f9; }
+    [data-theme='dark'] .tiptap-content h1, [data-theme='dark'] .tiptap-content h2 { color: white; }
+    [data-theme='dark'] .tiptap-content hr { border-top-color: #334155; }
+    [data-theme='dark'] .tiptap-content .katex-display { background: #1e293b; color: white; }
   ` }} />
 );

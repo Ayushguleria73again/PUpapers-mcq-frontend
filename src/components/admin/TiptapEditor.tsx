@@ -14,7 +14,7 @@ import {
     Bold, Italic, List, ListOrdered, Quote, 
     Underline as UnderlineIcon, AlignLeft, AlignCenter, AlignRight,
     ImageIcon, Link as LinkIcon, Undo, Redo, Heading1, Heading2,
-    Type, Sparkles, Wand2
+    Type, Sparkles, Wand2, Minus
 } from 'lucide-react';
 
 interface TiptapEditorProps {
@@ -192,6 +192,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                     <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
                         <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editor.isActive('bulletList'), false)} title="List"><List size={18} /></button>
                         <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} style={toolbarButtonStyle(editor.isActive('blockquote'), false)} title="Quote"><Quote size={18} /></button>
+                        <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} style={toolbarButtonStyle(false, false)} title="Divider"><Minus size={18} /></button>
                     </div>
 
                     <div style={{ display: 'flex', gap: '4px', background: 'white', padding: '4px', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
