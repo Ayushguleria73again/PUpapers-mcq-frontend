@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, ChevronRight, BrainCircuit, Target, Star, ArrowLeft, Trophy } from 'lucide-react';
+import { BookOpen, ChevronRight, BrainCircuit, Target, Star, ArrowLeft, Trophy, Lock } from 'lucide-react';
 import styles from './ChapterSelector.module.css';
+import PremiumModal from '../home/PremiumModal';
 
 interface Chapter {
     _id: string;
@@ -26,21 +27,16 @@ interface ChapterSelectorProps {
 }
 
 const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps) => {
-    const [chapters, setChapters] = useState<Chapter[]>([]);
-    const [subject, setSubject] = useState<Subject | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [difficulty, setDifficulty] = useState('all');
-
-    const difficulties = [
-        { id: 'all', label: 'All Levels', icon: <BrainCircuit size={14} /> },
-        { id: 'easy', label: 'Easy', icon: <Star size={14} /> },
-        { id: 'medium', label: 'Medium', icon: <Target size={14} /> },
-        { id: 'hard', label: 'Hard', icon: <Trophy size={14} /> },
-    ];
+    const [user, setUser] = useState<any>(null);
+    const [showPremiumModal, setShowPremiumModal] = useState(false);
 
     useEffect(() => {
         const fetchContent = async () => {
             try {
+                // Fetch User
+                const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, { credentials: 'include' });
+                if (userRes.ok) setUser(await userRes.json());
+
                 // 1. Fetch Subject to get ID
                 const subRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/subjects`, {
                     credentials: 'include'
@@ -70,6 +66,15 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
 
         fetchContent();
     }, [subjectSlug]);
+
+    const handleChapterClick = (chapterId: string | null) => {
+        const isPremium = user?.isPremium;
+        if (!isPremium) {
+            setShowPremiumModal(true);
+            return;
+        }
+        onSelect(chapterId, difficulty);
+    };
 
     if (loading) {
         return (
@@ -120,15 +125,20 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
             </div>
 
             <div className={styles.selectionGrid}>
-                {/* Mastery Option */}
+                {/* Mastery Option - Premium Only */}
                 <motion.button 
-                    className={styles.masteryCard}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => onSelect(null, difficulty)}
+                    className={`${styles.masteryCard} ${!user?.isPremium ? styles.locked : ''}`}
+                    whileHover={user?.isPremium ? { scale: 1.01 } : {}}
+                    whileTap={user?.isPremium ? { scale: 0.98 } : {}}
+                    onClick={() => handleChapterClick(null)}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
+                    {!user?.isPremium && (
+                        <div className={styles.lockOverlay}>
+                            <Lock size={32} color="#94a3b8" />
+                        </div>
+                    )}
                     <div className={styles.masteryContent}>
                         <div className={styles.masteryIcon}>
                             <Star size={24} />
@@ -138,21 +148,26 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                             <p>Test your knowledge across all chapters</p>
                         </div>
                     </div>
-                    <ChevronRight size={20} className={styles.masteryArrow} />
+                    {user?.isPremium && <ChevronRight size={20} className={styles.masteryArrow} />}
                 </motion.button>
 
-                {/* Chapter Options */}
+                {/* Chapter Options - Premium Only */}
                 {chapters.map((chapter, index) => (
                     <motion.button 
                         key={chapter._id}
-                        className={styles.chapterCard}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => onSelect(chapter._id, difficulty)}
+                        className={`${styles.chapterCard} ${!user?.isPremium ? styles.locked : ''}`}
+                        whileHover={user?.isPremium ? { scale: 1.02 } : {}}
+                        whileTap={user?.isPremium ? { scale: 0.98 } : {}}
+                        onClick={() => handleChapterClick(chapter._id)}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 + 0.1 }}
                     >
+                        {!user?.isPremium && (
+                            <div className={styles.lockOverlay}>
+                                <Lock size={24} color="#94a3b8" />
+                            </div>
+                        )}
                         <div className={styles.chapterIcon}>
                             <BookOpen size={20} />
                         </div>
@@ -170,13 +185,15 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
                         <button 
                             className={styles.masteryCard} 
                             style={{ margin: '2rem auto 0', width: 'auto', display: 'flex' }}
-                            onClick={() => onSelect(null, difficulty)}
+                            onClick={() => handleChapterClick(null)}
                         >
                             Take Full Subject Quiz
                         </button>
                     </div>
                 )}
             </div>
+
+            <PremiumModal isOpen={showPremiumModal} onClose={() => setShowPremiumModal(false)} />
         </div>
     );
 };
