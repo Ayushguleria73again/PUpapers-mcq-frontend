@@ -59,6 +59,28 @@
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.timerWarning {
+    color: #ef4444;
+    border-color: #ef4444;
+    background: #fef2f2;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .progressBarContainer {
@@ -72,8 +94,10 @@
 
 .progressBar {
     height: 100%;
-    background: var(--primary);
+    background: linear-gradient(90deg, #FF6B00 0%, #FF9900 100%);
     border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.3);
 }
 
 .question {
@@ -126,15 +150,13 @@
     background: #ffffff;
 }
 
-.selectedOption {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: #ffffff;
-}
-
+.selectedOption,
 .selectedOption:hover {
-    background: #1e293b;
-    color: white;
+    border-color: var(--primary);
+    background: rgba(255, 107, 0, 0.08);
+    /* Light orange tint instead of solid block */
+    color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.1);
 }
 
 .quizFooter {

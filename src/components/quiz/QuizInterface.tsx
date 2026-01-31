@@ -174,8 +174,27 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     if (timeLeft > 0 && !showResult && questions.length > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0) finishQuiz();
+    } else if (timeLeft === 0 && questions.length > 0) finishQuiz();
   }, [timeLeft, showResult, questions]);
+
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+        if (showResult || loading) return;
+        const key = e.key.toUpperCase();
+        if (['A', 'B', 'C', 'D'].includes(key)) {
+            const index = ['A', 'B', 'C', 'D'].indexOf(key);
+            if (questions[currentQuestion] && index < questions[currentQuestion].options.length) {
+                setSelectedOption(index);
+            }
+        }
+        if (e.key === 'Enter' && selectedOption !== null) {
+            handleNext();
+        }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentQuestion, selectedOption, showResult, loading, questions]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -518,7 +537,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
         <div className={styles.quizCard}>
           <div className={styles.quizHeader}>
             <span className={styles.questionCount}>Question {currentQuestion + 1}/{questions.length}</span>
-            <div className={styles.timer}>
+            <div className={`${styles.timer} ${timeLeft < 60 ? styles.timerWarning : ''}`}>
               <Clock size={14} />
               <span>{formatTime(timeLeft)}</span>
             </div>
@@ -540,8 +559,11 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                 {questions[currentQuestion]?.options.map((option, index) => (
                   <button key={index} className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} tiptap-content`} onClick={() => setSelectedOption(index)}>
                     <span style={{ 
-                        width: '24px', height: '24px', border: `1px solid ${selectedOption === index ? 'rgba(255,255,255,0.3)' : 'var(--border)'}`, 
-                        borderRadius: '6px', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        width: '28px', height: '28px', 
+                        background: selectedOption === index ? 'var(--primary)' : '#f1f5f9',
+                        color: selectedOption === index ? 'white' : '#64748b',
+                        borderRadius: '8px', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.2s ease'
                     }}>{optionLetters[index]}</span>
                     <div style={{ flex: 1 }}>
                         <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
