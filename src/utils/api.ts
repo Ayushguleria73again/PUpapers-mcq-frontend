@@ -25,6 +25,13 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         init.credentials = 'include';
     }
 
+    // Set default headers
+    const headers = new Headers(init.headers);
+    if (init.body && !(init.body instanceof FormData) && !headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+    }
+    init.headers = headers;
+
     try {
         const response = await fetch(url, init);
 
