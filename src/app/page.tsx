@@ -15,9 +15,6 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <FeaturesSection />
-      <PUCETSection />
-      <CountdownSection />
       {selectedStream ? (
         <SubjectGrid 
           selectedStream={selectedStream} 
@@ -26,7 +23,10 @@ export default function Home() {
       ) : (
         <StreamSelector onSelect={setSelectedStream} />
       )}
+      <PUCETSection />
+      <CountdownSection />
       <HomeLeaderboard />
+      <FeaturesSection />
     </main>
   );
 }
