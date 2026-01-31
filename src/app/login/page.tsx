@@ -9,6 +9,16 @@ import styles from '@/components/auth/Auth.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/utils/api';
+import { User } from '@/context/AuthContext';
+interface LoginResponse {
+  requiresOTP?: boolean;
+  user: User; 
+}
+
+interface OtpResponse {
+  user: User;
+}
+
 const LoginPage = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -28,7 +38,7 @@ const LoginPage = () => {
 
     console.log('Login form submitted:', { email });
     try {
-      const data = await apiFetch<any>('/auth/login', {
+      const data = await apiFetch<LoginResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
@@ -40,11 +50,11 @@ const LoginPage = () => {
         router.push('/dashboard');
       }
     } catch (err: unknown) {
-      const error = err as Error & { data?: any };
-      if (error.data?.unverified) {
+      const errorObj = err as Error & { data?: { unverified?: boolean } };
+      if (errorObj.data?.unverified) {
         setStep(2);
       } else {
-        setError(error.message || 'Login failed');
+        setError(errorObj.message || 'Login failed');
       }
     } finally {
       setLoading(false);
@@ -58,7 +68,7 @@ const LoginPage = () => {
 
     const otpString = otp.join('');
     try {
-      const data = await apiFetch<any>('/auth/verify-otp', {
+      const data = await apiFetch<OtpResponse>('/auth/verify-otp', {
         method: 'POST',
         body: JSON.stringify({ email, otp: otpString }),
       });

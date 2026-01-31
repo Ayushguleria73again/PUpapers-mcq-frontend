@@ -94,7 +94,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
       
       // 1. Fetch User Bookmarks (Move inside async)
       try {
-        const userData = await apiFetch<any>('/auth/me');
+        const userData = await apiFetch<{ bookmarks: string[] }>('/auth/me');
         setBookmarks(userData.bookmarks || []);
       } catch (err) { console.error("Failed to fetch bookmarks:", err); }
 
@@ -137,7 +137,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
           }
         }
 
-        const data = await apiFetch<any[]>(endpoint);
+        const data = await apiFetch<Question[]>(endpoint);
           // SHUFFLE ONLY ONCE
           const shuffled = [...data];
           for (let i = shuffled.length - 1; i > 0; i--) {
@@ -193,9 +193,9 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const finishQuiz = (finalAnswersArg?: number[], finalStatsArg?: any[]) => {
+  const finishQuiz = (finalAnswersArg?: number[], finalStatsArg?: { question: string; timeTaken: number; userChoice: number; isCorrect: boolean }[]) => {
       let finalAnswers = finalAnswersArg || [...userAnswers];
-      let finalStats = finalStatsArg || [...questionStats];
+      const finalStats = finalStatsArg || [...questionStats];
 
       // Capture last question stats if coming from button click (not timeout)
       if (selectedOption !== null && currentQuestion === finalAnswers.length) {
@@ -240,7 +240,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
       saveResult(finalScore, finalStats);
   };
 
-  const saveResult = async (finalScore: number, finalStats: any[]) => {
+  const saveResult = async (finalScore: number, finalStats: { question: string; timeTaken: number; userChoice: number; isCorrect: boolean }[]) => {
     if (questions.length === 0) return;
     setSavingResult(true);
     try {
@@ -307,7 +307,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     if (togglingBookmark) return;
     setTogglingBookmark(true);
     try {
-        const data = await apiFetch<any>('/auth/bookmarks', {
+        const data = await apiFetch<{ bookmarks: string[] }>('/auth/bookmarks', {
             method: 'POST',
             body: JSON.stringify({ questionId: id }),
         });
@@ -328,7 +328,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     }));
 
     try {
-        const data = await apiFetch<any>('/content/explain', {
+        const data = await apiFetch<{ explanation: string }>('/content/explain', {
             method: 'POST',
             body: JSON.stringify({ questionId: id, userChoice: userChoice }),
         });
@@ -341,11 +341,12 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
             ...prev,
             [id]: { content: cleanContent, loading: false }
         }));
-    } catch (err: any) {
-        console.error("AI Explanation failed:", err);
+    } catch (err: unknown) {
+        const error = err as Error;
+        console.error("AI Explanation failed:", error);
         setAiExplanations(prev => ({
             ...prev,
-            [id]: { content: `Error: ${err.message || "Failed to generate AI explanation"}`, loading: false }
+            [id]: { content: `Error: ${error.message || "Failed to generate AI explanation"}`, loading: false }
         }));
     }
   };
@@ -364,7 +365,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                 <AlertCircle size={32} color="#ef4444" />
             </div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>No Questions Found</h2>
-            <p style={{ color: '#64748b', marginBottom: '2rem' }}>We couldn't find any questions matching your selected criteria. Please try a different filter.</p>
+            <p style={{ color: '#64748b', fontWeight: 500 }}>We couldn&apos;t find any questions matching your selected criteria. Please try a different filter.</p>
             <button 
                 onClick={() => router.back()} 
                 className="btn-primary" 

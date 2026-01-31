@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import styles from './Profile.module.css';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 
 interface UserData {
@@ -48,9 +49,9 @@ export default function ProfilePage() {
                 fullName: user.fullName || '',
                 email: user.email || '',
                 profileImage: user.profileImage || '',
-                bio: (user as any).bio || '',
-                phone: (user as any).phone || '',
-                institution: (user as any).institution || ''
+                bio: user.bio || '',
+                phone: user.phone || '',
+                institution: user.institution || ''
             });
             setLoading(false);
         } else if (!authLoading && !user) {
@@ -79,7 +80,7 @@ export default function ProfilePage() {
         uploadData.append('image', file);
 
         try {
-            const data = await apiFetch<any>('/auth/profile-image', {
+            const data = await apiFetch<{ url: string }>('/auth/profile-image', {
                 method: 'POST',
                 body: uploadData,
             });
@@ -87,9 +88,10 @@ export default function ProfilePage() {
             setFormData({ ...formData, profileImage: data.url });
             updateUser({ profileImage: data.url });
             // Note: We keep previewUrl until next mount/change to avoid flicker
-        } catch (err: any) {
-            console.error('Image upload failed', err);
-            alert(err.message || 'An error occurred during upload.');
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error('Image upload failed', error);
+            alert(error.message || 'An error occurred during upload.');
             setPreviewUrl(null);
         } finally {
             setUploading(false);
@@ -115,7 +117,6 @@ export default function ProfilePage() {
             // Update global state immediately
             updateUser({ 
                 fullName: formData.fullName, 
-                // @ts-ignore
                 bio: formData.bio, 
                 phone: formData.phone, 
                 institution: formData.institution 
@@ -164,10 +165,12 @@ export default function ProfilePage() {
                         <div className={styles.imageUploadSection}>
                             <div className={styles.imagePreviewWrapper}>
                                 {previewUrl || formData.profileImage ? (
-                                    <img 
+                                    <Image 
                                         src={previewUrl || formData.profileImage} 
                                         alt="Profile" 
                                         className={styles.previewImage} 
+                                        width={120}
+                                        height={120}
                                     />
                                 ) : (
                                     <div className={styles.avatarFallback}>

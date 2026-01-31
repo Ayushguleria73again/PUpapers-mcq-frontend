@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { 
   Trophy, 
   Target, 
-  Clock, 
   BookOpen, 
   TrendingUp,
   Award,
@@ -17,6 +16,7 @@ import {
   User as UserIcon,
   Bookmark
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -24,10 +24,31 @@ import styles from './Dashboard.module.css';
 import { AnimatePresence } from 'framer-motion';
 import { apiFetch } from '@/utils/api';
 
+interface SubjectProgress {
+  id: string;
+  name: string;
+  testsCount: number;
+  accuracy: number;
+}
+
+interface RecentActivity {
+  subject: string;
+  date: string;
+  score: string;
+}
+
+interface DashboardProgress {
+  totalTests: number;
+  avgPercentage: number;
+  level: number;
+  subjectProgress: SubjectProgress[];
+  recentActivity: RecentActivity[];
+}
+
 const DashboardPage = () => {
   const router = useRouter();
   const { user, logout, loading: authLoading } = useAuth();
-  const [progress, setProgress] = React.useState<any>(null);
+  const [progress, setProgress] = React.useState<DashboardProgress | null>(null);
   const [loadingProgress, setLoadingProgress] = React.useState(true);
   const [showSettings, setShowSettings] = React.useState(false);
   const [deleteStep, setDeleteStep] = React.useState(0); // 0: None, 1: Confirm, 2: Final Verify
@@ -39,12 +60,13 @@ const DashboardPage = () => {
     const fetchProgress = async () => {
       try {
         console.log('Fetching progress...');
-        const progressData = await apiFetch<any>('/content/progress');
+        const progressData = await apiFetch<DashboardProgress>('/content/progress');
         console.log('Progress data received:', progressData);
         setProgress(progressData);
-      } catch (err: any) {
-        console.error('Failed to load dashboard data', err);
-        setError(err.message || 'Failed to load progress data');
+      } catch (err: unknown) {
+        const error = err as Error;
+        console.error('Failed to load dashboard data', error);
+        setError(error.message || 'Failed to load progress data');
       } finally {
         setLoadingProgress(false);
       }
@@ -116,7 +138,7 @@ const DashboardPage = () => {
                 </div>
                 <button className={styles.settingsBtn} onClick={() => setShowSettings(!showSettings)}>
                     {user.profileImage ? (
-                        <img src={user.profileImage} alt="Profile" className={styles.headerAvatar} />
+                        <Image src={user.profileImage} alt="Profile" className={styles.headerAvatar} width={32} height={32} />
                     ) : (
                         <Settings size={24} />
                     )}
@@ -196,7 +218,7 @@ const DashboardPage = () => {
           </div>
           
           <div className={styles.masteryGrid}>
-            {progress?.subjectProgress?.map((subject: any, idx: number) => (
+            {progress?.subjectProgress?.map((subject: SubjectProgress, idx: number) => (
               <motion.div 
                 key={subject.id}
                 className={styles.masteryCard}
@@ -241,9 +263,9 @@ const DashboardPage = () => {
               <h3>Recent Performance</h3>
               <Link href="/dashboard/history" className={styles.viewAll}>View Full History</Link>
             </div>
-            {progress?.recentActivity?.length > 0 ? (
+            {progress?.recentActivity && progress.recentActivity.length > 0 ? (
                 <div className={styles.activityList}>
-                {progress.recentActivity.map((activity: any, idx: number) => (
+                {progress.recentActivity.map((activity: RecentActivity, idx: number) => (
                     <div key={idx} className={styles.activityItem}>
                     <div className={styles.activityInfo}>
                         <h4>{activity.subject}</h4>
@@ -345,7 +367,7 @@ const DashboardPage = () => {
                 ) : (
                   <>
                     <h2>Are you absolutely sure?</h2>
-                    <p>Enter your full name <strong>"{user.fullName}"</strong> to confirm permanent deletion.</p>
+                    <p>Enter your full name <strong>&quot;{user.fullName}&quot;</strong> to confirm permanent deletion.</p>
                     <input 
                       type="text" 
                       className={styles.confirmInput}

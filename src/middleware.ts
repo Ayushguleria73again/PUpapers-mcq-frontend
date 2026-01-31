@@ -6,10 +6,7 @@ export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Paths that require authentication
-    const protectedPaths = ['/dashboard', '/admin', '/profile'];
-
-    // Paths that should NOT be accessible if logged in
-    const authPaths = ['/login', '/signup'];
+    const protectedPaths = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
 
     // If trying to access a protected path without a token
     const isProtected = protectedPaths.some(path => pathname.startsWith(path));
@@ -18,9 +15,8 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    if (token && authPaths.includes(pathname)) {
-        return NextResponse.redirect(new URL('/', request.url));
-    }
+    // Removed: redirect from login/signup when logged in
+    // This was preventing users from accessing login page
 
     return NextResponse.next();
 }

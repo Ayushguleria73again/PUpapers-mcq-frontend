@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Sparkles, ArrowRight, BookOpen, GraduationCap, Clock, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Shield, Sparkles, ArrowRight, GraduationCap, Clock, CheckCircle } from 'lucide-react';
 import QuizInterface from '@/components/quiz/QuizInterface';
 import styles from './PUCETMock.module.css';
 

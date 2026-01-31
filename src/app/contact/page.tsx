@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
-import { Mail, MapPin, Phone, Send, MessageSquare, Clock, ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Send, MessageSquare, Clock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import styles from './contact.module.css';
 
@@ -64,7 +64,7 @@ const ContactPage = () => {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className={styles.subtitle}
                     >
-                        Have questions about the PU CET exam or our platform? We're here to help you ace your preparation.
+                        Have questions about the PU CET exam or our platform? We&apos;re here to help you ace your preparation.
                     </motion.p>
                 </div>
                 
@@ -217,7 +217,7 @@ const ContactPage = () => {
                              className={styles.promoCard}
                         >
                             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.8rem' }}>Ready to start?</h3>
-                            <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '1.5rem' }}>Don't let doubts stop your preparation. Join thousands of students today.</p>
+                            <p style={{ fontSize: '0.95rem', opacity: 0.9, marginBottom: '1.5rem' }}>Don&apos;t let doubts stop your preparation. Join thousands of students today.</p>
                             <a href="/login" className={styles.promoBtn}>
                                 Get Started Free <ArrowRight size={16} />
                             </a>

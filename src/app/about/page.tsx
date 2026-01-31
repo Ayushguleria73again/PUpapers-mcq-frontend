@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { 
     Target, 
     Rocket, 
-    Users, 
     Shield, 
     Cpu, 
     Zap, 

@@ -86,8 +86,9 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                 setName(''); setSlug(''); setDescription(''); setIcon('Book'); setImageFile(null);
             }
             refreshSubjects();
-        } catch (err: any) {
-            onError(err.message || 'Failed to save subject');
+        } catch (err: unknown) {
+            const error = err as Error;
+            onError(error.message || 'Failed to save subject');
         } finally {
             setLoading(false);
         }
@@ -119,7 +120,7 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
         setChatLoading(true);
 
         try {
-            const data = await apiFetch<any>('/content/chat', {
+            const data = await apiFetch<{ reply: string }>('/content/chat', {
                 method: 'POST',
                 body: JSON.stringify({ 
                     message: userMsg,
@@ -128,8 +129,9 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
             });
 
             setChatMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-        } catch (err: any) {
-            setChatMessages(prev => [...prev, { role: 'ai', text: err.message || 'Network error. Please try again.' }]);
+        } catch (err: unknown) {
+            const error = err as Error;
+            setChatMessages(prev => [...prev, { role: 'ai', text: error.message || 'Network error. Please try again.' }]);
         } finally {
             setChatLoading(false);
         }
@@ -260,9 +262,9 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                                 {msg.role === 'ai' ? (
                                     <ReactMarkdown 
                                         components={{
-                                            p: ({node, ...props}: any) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
-                                            ul: ({node, ...props}: any) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
-                                            li: ({node, ...props}: any) => <li style={{marginBottom: '0.2rem'}} {...props} />
+                                            p: ({...props}) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
+                                            ul: ({...props}) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
+                                            li: ({...props}) => <li style={{marginBottom: '0.2rem'}} {...props} />
                                         }}
                                     >
                                         {msg.text}
@@ -286,13 +288,13 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                                 type="text" 
                                 value={chatInput} 
                                 onChange={(e) => setChatInput(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e as any)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e)}
                                 placeholder="Ask me anything..." 
                                 style={{ flex: 1, padding: '0.6rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }}
                             />
                             <button 
                                 type="button"
-                                onClick={handleSendMessage as any} 
+                                onClick={handleSendMessage} 
                                 disabled={chatLoading}
                                 style={{ 
                                     background: '#FF6B00', color: 'white', border: 'none', borderRadius: '8px', 

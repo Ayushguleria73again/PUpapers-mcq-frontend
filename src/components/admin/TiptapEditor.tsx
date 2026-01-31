@@ -119,7 +119,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         content: value,
         immediatelyRender: false,
         onUpdate: ({ editor }) => {
-            const markdown = (editor.storage as any).markdown.getMarkdown();
+            const markdown = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
             onChange(markdown);
         },
         onFocus: () => setIsFocused(true),
@@ -144,7 +144,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         // Only sync from value to editor if NOT focused AND NOT cleaning
         // This is CRITICAL to prevent state-reset races during batch uploads
         if (editor && !editor.isFocused && !isCleaning) {
-            const currentMarkdown = (editor.storage as any).markdown.getMarkdown();
+            const currentMarkdown = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
             if (value !== currentMarkdown) {
                 console.log('[Tiptap] External sync triggered');
                 editor.commands.setContent(value);
@@ -165,7 +165,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 const formData = new FormData();
                 formData.append('image', file);
 
-                const data = await apiFetch<any>('/content/upload', {
+                const data = await apiFetch<{ url: string }>('/content/upload', {
                     method: 'POST',
                     body: formData,
                 });
@@ -192,7 +192,7 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
         if (!editor) return;
         setIsCleaning(true);
         setTimeout(() => {
-            const currentMarkdown = (editor.storage as any).markdown.getMarkdown();
+            const currentMarkdown = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
             const cleaned = normalizePhysicsContent(currentMarkdown);
             editor.commands.setContent(cleaned);
             setIsCleaning(false);

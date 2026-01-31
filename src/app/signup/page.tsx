@@ -4,11 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, UserPlus, GraduationCap, Github, LogIn } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, UserPlus, GraduationCap, LogIn } from 'lucide-react';
 import styles from '@/components/auth/Auth.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/utils/api';
+import { User } from '@/context/AuthContext';
 const SignupPage = () => {
   const [fullName, setFullName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -35,8 +36,9 @@ const SignupPage = () => {
         body: JSON.stringify({ fullName, email, password }),
       });
       setStep(2);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ const SignupPage = () => {
     }
 
     try {
-      const data = await apiFetch<any>('/auth/verify-otp', {
+      const data = await apiFetch<{ user: User }>('/auth/verify-otp', {
         method: 'POST',
         body: JSON.stringify({ email, otp: otpString }),
       });
@@ -66,8 +68,9 @@ const SignupPage = () => {
       setTimeout(() => {
         router.push('/dashboard');
       }, 1500);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -82,8 +85,9 @@ const SignupPage = () => {
         body: JSON.stringify({ email }),
       });
       alert('A new code has been sent to your email.');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
     } finally {
       setResending(false);
     }
@@ -189,7 +193,7 @@ const SignupPage = () => {
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Full Name</label>
                   <div className={styles.inputWrapper}>
-                    <User className={styles.inputIcon} size={18} />
+                    <UserIcon className={styles.inputIcon} size={18} />
                     <input 
                       type="text" 
                       className={styles.input} 

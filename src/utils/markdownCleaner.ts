@@ -66,7 +66,7 @@ export const cleanMarkdownForRendering = (content: string) => {
     cleaned = cleaned.split('\n').map(line => {
         const trimmed = line.trim();
         if ((trimmed.includes('$') || trimmed.includes('\\') || trimmed.includes('=')) && !trimmed.startsWith('$$')) {
-            let eq = trimmed.replace(/\$\$?/g, '').trim();
+            const eq = trimmed.replace(/\$\$?/g, '').trim();
             if (eq.length > 1 && (/[MLTPQ]\w*/.test(eq) || eq.includes('=') || eq.includes('\\'))) {
                 return `$$ ${eq} $$`;
             }

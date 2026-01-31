@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/utils/api';
 import { motion } from 'framer-motion';
-import { ChevronLeft, History, FileText, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, History, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 interface HistoryItem {
@@ -73,7 +73,7 @@ const HistoryPage = () => {
             <div style={{ textAlign: 'center', padding: '4rem', background: 'white', borderRadius: '16px', border: '1px solid #eee' }}>
                 <FileText size={48} color="#ccc" style={{ marginBottom: '1rem' }} />
                 <h3>No history found</h3>
-                <p style={{ color: '#888', marginBottom: '1.5rem' }}>You haven't taken any quizzes yet.</p>
+                <p style={{ color: '#888', marginBottom: '1.5rem' }}>You haven&apos;t taken any quizzes yet.</p>
                 <Link href="/mock-tests" className="btn-primary">
                     Start a Mock Test
                 </Link>
@@ -92,7 +92,7 @@ const HistoryPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {history.map((item, index) => (
+                            {history.map((item) => (
                                 <tr key={item.id} style={{ borderTop: '1px solid #eee' }}>
                                     <td style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>{item.subject}</td>
                                     <td style={{ padding: '1rem 1.5rem', color: '#666', fontSize: '0.95rem' }}>{item.date}</td>

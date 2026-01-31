@@ -11,7 +11,7 @@ interface StreamSelectorProps {
 
 const StreamSelector: React.FC<StreamSelectorProps> = ({ onSelect }) => {
   return (
-    <section className={styles.section}>
+    <section className={styles.section} id="subjects-section">
       <div className="container">
         <div className={styles.header}>
           <h2>Select Your <span>Stream</span></h2>

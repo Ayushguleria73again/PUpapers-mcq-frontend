@@ -3,11 +3,36 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Edit } from 'lucide-react';
 
+interface Subject {
+    _id: string;
+    name: string;
+    slug: string;
+    image?: string;
+}
+
+interface Chapter {
+    _id: string;
+    name: string;
+    slug: string;
+    subject: string | Subject;
+}
+
+interface Question {
+    _id: string;
+    text: string;
+    options: string[];
+    correctOption: number;
+    explanation?: string;
+    difficulty: string;
+    subject?: string | { _id: string; name: string };
+    chapter?: string | { _id: string; name: string };
+}
+
 interface ContentManagerProps {
-    subjects: any[];
-    chapters: any[];
-    questions: any[];
-    onEdit: (type: 'subject' | 'chapter' | 'question', item: any) => void;
+    subjects: Subject[];
+    chapters: Chapter[];
+    questions: Question[];
+    onEdit: (type: 'subject' | 'chapter' | 'question', item: Subject | Chapter | Question) => void;
     onDelete: (type: 'subjects' | 'chapters' | 'questions', id: string) => void;
     onFetchQuestions: (subjectId: string, chapterId: string) => void;
     onFetchChapters: (subjectId: string) => void;
@@ -163,14 +188,14 @@ const ContentManager = ({ subjects, chapters, questions, onEdit, onDelete, onFet
                         {loading ? 'Fetching...' : 'Fetch Questions'}
                     </button>
 
-                    {questions.map((q: any) => (
+                    {questions.map((q) => (
                         <div key={q._id} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ maxWidth: '80%' }}>
                                 <div style={{ fontWeight: 500, marginBottom: '0.2rem' }}>
                                     <div dangerouslySetInnerHTML={{ __html: q.text.substring(0, 100) + (q.text.length > 100 ? '...' : '') }} />
                                 </div>
                                 <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                                    {q.subject?.name} {q.chapter && `> ${q.chapter.name}`} • {q.difficulty}
+                                    {typeof q.subject === 'object' && q.subject?.name} {q.chapter && typeof q.chapter === 'object' && `> ${q.chapter.name}`} • {q.difficulty}
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>

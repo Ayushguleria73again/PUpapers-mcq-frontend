@@ -10,9 +10,18 @@ import styles from './Leaderboard.module.css';
 
 import { useContent } from '@/context/ContentContext';
 
+interface LeaderboardEntry {
+    _id: string;
+    fullName?: string;
+    name?: string;
+    totalScore: number;
+    testsTaken: number;
+    avgPercentage: number;
+}
+
 const LeaderboardPage = () => {
     const { subjects } = useContent();
-    const [leaderboard, setLeaderboard] = useState<any[]>([]);
+    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     // Removed local subjects fetch logic
     const [selectedSubject, setSelectedSubject] = useState('all');
     const [loading, setLoading] = useState(true);
@@ -30,7 +39,7 @@ const LeaderboardPage = () => {
             if (subjectId !== 'all') {
                 endpoint += `?subjectId=${subjectId}`;
             }
-            const data = await apiFetch<any[]>(endpoint);
+            const data = await apiFetch<LeaderboardEntry[]>(endpoint);
             setLeaderboard(data);
         } catch (err) {
             console.error('Failed to fetch leaderboard');

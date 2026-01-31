@@ -5,49 +5,59 @@ import { Clock } from 'lucide-react';
 import Link from 'next/link';
 import styles from './CountdownSection.module.css';
 
+interface TimeLeft {
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+}
+
+const calculateTimeLeft = (targetDate: number): TimeLeft => {
+    const now = new Date().getTime();
+    const difference = targetDate - now;
+
+    if (difference > 0) {
+        return {
+            days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((difference % (1000 * 60)) / 1000)
+        };
+    }
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+};
+
+const TimeBlock = ({ value, label }: { value: number, label: string }) => (
+    <div className={styles.timeBlock}>
+        <span className={styles.timeValue}>
+            {String(value).padStart(2, '0')}
+        </span>
+        <span className={styles.timeLabel}>
+            {label}
+        </span>
+    </div>
+);
+
 const CountdownSection = () => {
     // Target date: 15th May 2026 (Tentative)
     const targetDate = new Date('2026-05-15T09:00:00').getTime();
-    const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number} | null>(null);
+    
+    const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
 
     useEffect(() => {
-        const calculateTimeLeft = () => {
-            const now = new Date().getTime();
-            const difference = targetDate - now;
+        // Set initial time on client side only to prevent hydration mismatch
+        setTimeLeft(calculateTimeLeft(targetDate));
+    }, [targetDate]);
 
-            if (difference > 0) {
-                return {
-                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                    hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-                    minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-                    seconds: Math.floor((difference % (1000 * 60)) / 1000)
-                };
-            }
-            return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-        };
-
-        // Initial set
-        setTimeLeft(calculateTimeLeft());
-
+    useEffect(() => {
         const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
+            setTimeLeft(calculateTimeLeft(targetDate));
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [targetDate]);
+    }, [targetDate, timeLeft]);
 
     if (!timeLeft) return null;
-
-    const TimeBlock = ({ value, label }: { value: number, label: string }) => (
-        <div className={styles.timeBlock}>
-            <span className={styles.timeValue}>
-                {String(value).padStart(2, '0')}
-            </span>
-            <span className={styles.timeLabel}>
-                {label}
-            </span>
-        </div>
-    );
 
     return (
         <section className={styles.section}>

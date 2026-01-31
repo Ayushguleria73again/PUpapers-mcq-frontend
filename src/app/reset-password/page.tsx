@@ -42,9 +42,10 @@ const ResetPasswordContent = () => {
             setTimeout(() => {
                 router.push('/login');
             }, 3000);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as Error;
             setStatus('error');
-            setErrorMsg(err.message || 'Reset failed');
+            setErrorMsg(error.message || 'Reset failed');
         }
     };
 

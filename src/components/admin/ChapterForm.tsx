@@ -89,8 +89,9 @@ const ChapterForm = ({ editItem, subjects, onSuccess, onError, onCancel, refresh
                 setName(''); setSlug(''); setDescription('');
             }
             refreshChapters(subjectId);
-        } catch (err: any) {
-            onError(err.message || 'Failed to save chapter');
+        } catch (err: unknown) {
+            const error = err as Error;
+            onError(error.message || 'Failed to save chapter');
         } finally {
             setLoading(false);
         }

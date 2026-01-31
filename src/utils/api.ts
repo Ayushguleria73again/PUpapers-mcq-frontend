@@ -9,6 +9,10 @@ interface RequestOptions extends RequestInit {
     params?: Record<string, string>;
 }
 
+interface ApiError extends Error {
+    data?: unknown;
+}
+
 export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const { params, ...init } = options;
 
@@ -38,10 +42,8 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         // Handle Unauthorized/Not Found for session-dependent routes
         if (response.status === 401 || response.status === 404) {
             if (typeof window !== 'undefined') {
-                const protectedRoutes = ['/dashboard', '/profile'];
+                const protectedRoutes = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
                 if (protectedRoutes.some(route => window.location.pathname.startsWith(route))) {
-                    // We let AuthContext handle the redirect if it's monitoring state,
-                    // but we can also trigger a formal redirect here if needed.
                     console.warn('Authentication failure detected in API fetch');
                 }
             }
@@ -49,13 +51,14 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            const error = new Error(errorData.message || `API Error: ${response.status}`) as Error & { data?: any };
+            const error = new Error(errorData.message || `API Error: ${response.status}`) as ApiError;
             error.data = errorData;
             throw error;
         }
 
         return await response.json();
-    } catch (error) {
+    } catch (err: unknown) {
+        const error = err as Error;
         console.error(`API Fetch Error [${endpoint}]:`, error);
         throw error;
     }

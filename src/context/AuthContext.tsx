@@ -1,18 +1,36 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/utils/api';
 
-interface User {
+interface QuizResult {
+  _id: string;
+  score: number;
+  totalQuestions: number;
+  subject: string;
+  chapter?: string;
+  createdAt: string;
+}
+
+interface Bookmark {
+  _id: string;
+  question: string;
+  createdAt: string;
+}
+
+export interface User {
   _id: string;
   fullName: string;
   email: string;
   role: string;
   isPremium: boolean;
   profileImage?: string;
-  quizHistory: any[];
-  bookmarks: any[];
+  bio?: string;
+  phone?: string;
+  institution?: string;
+  quizHistory: QuizResult[];
+  bookmarks: Bookmark[];
 }
 
 interface AuthContextType {
@@ -25,14 +43,14 @@ interface AuthContextType {
   updateUser: (updates: Partial<User>) => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = React.useState<User | null>(null);
+  const [loading, setLoading] = React.useState(true);
   const router = useRouter();
 
-  const checkAuth = async () => {
+  const checkAuth = React.useCallback(async () => {
     try {
       console.log('Checking auth session...');
       const data = await apiFetch<{ user: User }>('/auth/me');
@@ -43,23 +61,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUser(null);
       }
-    } catch (err) {
+    } catch {
       console.log('Auth check failed or unauthorized');
       setUser(null);
       
       // Redirect if on a protected route
-      const protectedRoutes = ['/dashboard', '/profile'];
+      const protectedRoutes = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
       if (typeof window !== 'undefined' && protectedRoutes.some(route => window.location.pathname.startsWith(route))) {
          router.push('/login');
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   const login = (userData: User) => {
     setUser(userData);
@@ -97,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

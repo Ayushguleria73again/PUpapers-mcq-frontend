@@ -181,10 +181,7 @@
     }
 
     .navActions>.btn-primary {
-        display: flex;
-        padding: 0.5rem 0.8rem;
-        font-size: 0.8rem;
-        margin-right: 0.5rem;
+        display: none;
     }
 
     .mobileMenuBtn {

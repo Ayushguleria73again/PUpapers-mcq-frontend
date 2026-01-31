@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { BookOpen, Award, FileText, TrendingUp, ArrowRight } from 'lucide-react';
+import { BookOpen, Award, FileText, ArrowRight } from 'lucide-react';
 import styles from './SubjectGrid.module.css';
 
 const PUCETSection = () => {

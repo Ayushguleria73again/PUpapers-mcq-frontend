@@ -22,8 +22,8 @@ interface Question {
     correctOption: number;
     explanation?: string;
     difficulty: string;
-    subject: string | any;
-    chapter?: string | any;
+    subject: string | Subject;
+    chapter?: string | Chapter;
 }
 
 interface QuestionFormProps {
@@ -62,7 +62,7 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                 onSubjectChange(firstSubId);
             }
         }
-    }, [editItem, subjects]);
+    }, [editItem, subjects, onSubjectChange, subjectId]);
 
     const handleOptionChange = (index: number, value: string) => {
         const newOptions = [...options];
@@ -99,16 +99,13 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                 setOptions(['', '', '', '']);
                 setExplanation('');
             }
-        } catch (err: any) {
-            onError(err.message || 'Server error');
+        } catch (err: unknown) {
+            const error = err as Error;
+            onError(error.message || 'Server error');
         } finally {
             setLoading(false);
         }
     };
-
-
-
-// ... (existing imports)
 
     // AI Chat State
     const [showChat, setShowChat] = useState(false);
@@ -136,7 +133,7 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
         setChatLoading(true);
 
         try {
-            const data = await apiFetch<any>('/content/chat', {
+            const data = await apiFetch<{ reply: string }>('/content/chat', {
                 method: 'POST',
                 body: JSON.stringify({ 
                     message: userMsg,
@@ -145,8 +142,9 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
             });
 
             setChatMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-        } catch (err: any) {
-            setChatMessages(prev => [...prev, { role: 'ai', text: err.message || 'Network error.' }]);
+        } catch (err: unknown) {
+            const error = err as Error;
+            setChatMessages(prev => [...prev, { role: 'ai', text: error.message || 'Network error.' }]);
         } finally {
             setChatLoading(false);
         }
@@ -298,9 +296,9 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                                 {msg.role === 'ai' ? (
                                     <ReactMarkdown 
                                         components={{
-                                            p: ({node, ...props}: any) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
-                                            ul: ({node, ...props}: any) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
-                                            li: ({node, ...props}: any) => <li style={{marginBottom: '0.2rem'}} {...props} />
+                                            p: ({ ...props }) => <p style={{margin: 0, marginBottom: '0.5rem'}} {...props} />,
+                                            ul: ({ ...props }) => <ul style={{margin: 0, paddingLeft: '1.2rem'}} {...props} />,
+                                            li: ({ ...props }) => <li style={{marginBottom: '0.2rem'}} {...props} />
                                         }}
                                     >
                                         {msg.text}
@@ -324,13 +322,13 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                                 type="text" 
                                 value={chatInput} 
                                 onChange={(e) => setChatInput(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e as any)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e)}
                                 placeholder="Ask me anything..." 
                                 style={{ flex: 1, padding: '0.6rem', border: '1px solid #ddd', borderRadius: '8px', outline: 'none' }}
                             />
                             <button 
                                 type="button"
-                                onClick={handleSendMessage as any} 
+                                onClick={handleSendMessage} 
                                 disabled={chatLoading}
                                 style={{ 
                                     background: '#FF6B00', color: 'white', border: 'none', borderRadius: '8px', 

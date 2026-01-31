@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Brain, LineChart, Target, ShieldCheck, Zap, Users, FileText } from 'lucide-react';
+import { Brain, LineChart, Target, ShieldCheck, Zap, FileText } from 'lucide-react';
 import styles from './SubjectGrid.module.css'; // Reusing grid styles for consistency
 
 const FeaturesSection = () => {

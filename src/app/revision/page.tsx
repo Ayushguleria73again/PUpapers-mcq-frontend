@@ -55,7 +55,7 @@ const RevisionVaultPage = () => {
     
         try {
             // We pass -1 or neutral choice since this is revision
-            const data = await apiFetch<any>('/content/explain', {
+            const data = await apiFetch<{ explanation: string }>('/content/explain', {
                 method: 'POST',
                 body: JSON.stringify({ questionId: id, userChoice: -1 }), 
             });
@@ -67,7 +67,8 @@ const RevisionVaultPage = () => {
                 ...prev,
                 [id]: { content: cleanContent, loading: false }
             }));
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as Error;
             setAiExplanations(prev => ({
                 ...prev,
                 [id]: { content: "Could not connect to AI Tutor. Please try again.", loading: false }

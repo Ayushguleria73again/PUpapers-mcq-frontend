@@ -31,9 +31,10 @@ export default function ForgotPasswordPage() {
             setTimeout(() => {
                 router.push(`/reset-password?email=${encodeURIComponent(email)}`);
             }, 3000);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as Error;
             setStatus('error');
-            setErrorMsg(err.message || 'Failed to connect to server');
+            setErrorMsg(error.message || 'Failed to connect to server');
         }
     };
 
@@ -55,7 +56,7 @@ export default function ForgotPasswordPage() {
                             <p>pu<span>papers</span>.com</p>
                         </Link>
                         <h1 className={styles.title}>Forgot Password?</h1>
-                        <p className={styles.subtitle}>Enter your email and we'll send you a code to reset your password.</p>
+                        <p className={styles.subtitle}>Enter your email and we&apos;ll send you a code to reset your password.</p>
                     </div>
 
                     {status === 'success' ? (

@@ -13,13 +13,47 @@ import ChapterForm from '@/components/admin/ChapterForm';
 import QuestionForm from '@/components/admin/QuestionForm';
 import ContentManager from '@/components/admin/ContentManager';
 
+interface Subject {
+    _id: string;
+    name: string;
+    slug: string;
+    image?: string;
+    description?: string;
+}
+
+interface Chapter {
+    _id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    subject: string | Subject;
+}
+
+interface Question {
+    _id: string;
+    text: string;
+    options: string[];
+    correctOption: number;
+    explanation?: string;
+    difficulty: string;
+    subject: string | Subject;
+    chapter?: string | Chapter;
+}
+
+interface User {
+    _id: string;
+    email: string;
+    role: string;
+}
+
+
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState('subject'); // 'subject', 'chapter', 'question', 'manage'
-    const [subjects, setSubjects] = useState<any[]>([]);
-    const [chapters, setChapters] = useState<any[]>([]);
-    const [questions, setQuestions] = useState<any[]>([]);
+    const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [chapters, setChapters] = useState<Chapter[]>([]);
+    const [questions, setQuestions] = useState<Question[]>([]);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [editItem, setEditItem] = useState<any>(null);
+    const [editItem, setEditItem] = useState<Subject | Chapter | Question | null>(null);
     const [loading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
@@ -30,7 +64,7 @@ const AdminPage = () => {
 
     const checkAdmin = async () => {
         try {
-            const userData = await apiFetch<any>('/auth/me');
+            const userData = await apiFetch<User>('/auth/me');
             if (userData?.role === 'admin') {
                 setIsAdmin(true);
                 fetchSubjects();
@@ -44,7 +78,7 @@ const AdminPage = () => {
 
     const fetchSubjects = async () => {
         try {
-            const data = await apiFetch<any[]>('/content/subjects');
+            const data = await apiFetch<Subject[]>('/content/subjects');
             setSubjects(data);
         } catch (err) {
             console.error('Subject Load Error');
@@ -54,7 +88,7 @@ const AdminPage = () => {
     const fetchChapters = async (subjectId: string) => {
         if (!subjectId) return;
         try {
-            const data = await apiFetch<any[]>(`/content/chapters?subjectId=${subjectId}`);
+            const data = await apiFetch<Chapter[]>(`/content/chapters?subjectId=${subjectId}`);
             setChapters(data);
         } catch (err) {
             console.error('Chapter Load Error');
@@ -65,7 +99,7 @@ const AdminPage = () => {
         try {
             let endpoint = `/content/questions?subjectId=${subjectId}`;
             if (chapterId) endpoint += `&chapterId=${chapterId}`;
-            const data = await apiFetch<any[]>(endpoint);
+            const data = await apiFetch<Question[]>(endpoint);
             setQuestions(data);
         } catch (err) {
             console.error('Question Load Error');
@@ -82,18 +116,20 @@ const AdminPage = () => {
 
             setMessage({ type: 'success', text: 'Deleted successfully' });
             if (type === 'subjects') fetchSubjects();
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.message || 'Server error' });
+        } catch (err: unknown) {
+            const error = err as Error;
+            setMessage({ type: 'error', text: error.message || 'Server error' });
         } finally {
             setLoading(false);
         }
     };
 
-    const handleEdit = (type: string, item: any) => {
+    const handleEdit = (type: string, item: Subject | Chapter | Question) => {
         setEditItem(item);
         setActiveTab(type); // 'subject', 'chapter', 'question'
         if (type === 'chapter' || type === 'question') {
-            const subId = item.subject?._id || item.subject;
+            const itemWithSubject = item as Chapter | Question;
+            const subId = typeof itemWithSubject.subject === 'object' ? itemWithSubject.subject._id : itemWithSubject.subject;
             if (subId) fetchChapters(subId);
         }
     };
@@ -177,13 +213,19 @@ const AdminPage = () => {
                 {/* Main Area */}
                 <div style={{ background: 'white', borderRadius: '16px', padding: '2rem', border: '1px solid #eee', minHeight: '600px' }}>
                     {activeTab === 'subject' && (
-                        <SubjectForm editItem={editItem} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} refreshSubjects={fetchSubjects} />
+                        <SubjectForm editItem={editItem as Subject | null} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} refreshSubjects={fetchSubjects} />
                     )}
                     {activeTab === 'chapter' && (
-                        <ChapterForm editItem={editItem} subjects={subjects} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} refreshChapters={() => fetchChapters(editItem?.subject?._id || editItem?.subject)} />
+                        <ChapterForm editItem={editItem as Chapter | null} subjects={subjects} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} refreshChapters={() => {
+                            const item = editItem as Chapter | null;
+                            if (item) {
+                                const subId = typeof item.subject === 'object' ? item.subject._id : item.subject;
+                                fetchChapters(subId);
+                            }
+                        }} />
                     )}
                     {activeTab === 'question' && (
-                        <QuestionForm editItem={editItem} subjects={subjects} chapters={chapters} onSubjectChange={fetchChapters} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
+                        <QuestionForm editItem={editItem as Question | null} subjects={subjects} chapters={chapters} onSubjectChange={fetchChapters} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
                     )}
                     {activeTab === 'manage' && (
                         <ContentManager subjects={subjects} chapters={chapters} questions={questions} onEdit={handleEdit} onDelete={handleDelete} onFetchChapters={fetchChapters} onFetchQuestions={fetchQuestions} />

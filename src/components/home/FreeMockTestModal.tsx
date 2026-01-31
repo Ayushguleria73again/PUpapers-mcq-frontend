@@ -12,8 +12,16 @@ interface FreeMockTestModalProps {
     onClose: () => void;
 }
 
+interface User {
+    _id: string;
+    fullName: string;
+    email: string;
+    isPremium: boolean;
+    freeTestsTaken?: number;
+}
+
 const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
@@ -25,7 +33,7 @@ const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
 
     const fetchUserStatus = async () => {
         try {
-            const data = await apiFetch<any>('/auth/me');
+            const data = await apiFetch<User>('/auth/me');
             setUser(data);
         } catch (err) {
             console.error('Failed to fetch user status');

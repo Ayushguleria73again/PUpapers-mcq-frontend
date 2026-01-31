@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, Settings, LogOut, LayoutDashboard } from 'lucide-react';
+import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, LogOut, LayoutDashboard } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 import { useAuth } from '@/context/AuthContext';

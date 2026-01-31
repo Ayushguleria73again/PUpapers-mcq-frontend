@@ -1,6 +1,5 @@
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 
 const TermsPage = () => {
     return (
@@ -11,7 +10,7 @@ const TermsPage = () => {
                 
                 <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
                     <p style={{ marginBottom: '1.5rem', lineHeight: '1.8', color: '#444' }}>
-                        Welcome to pupapers.com. By accessing or using our website, you agree to be bound by these Terms of Service.
+                        Please read these terms carefully before using PU Papers. By accessing or using our platform, you agree to be bound by these terms. If you don&apos;t agree to any part of these terms, you shouldn&apos;t use our services.
                     </p>
 
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '2rem', marginBottom: '1rem' }}>1. Acceptance of Terms</h2>
@@ -26,7 +25,7 @@ const TermsPage = () => {
 
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '2rem', marginBottom: '1rem' }}>3. Disclaimer</h2>
                     <p style={{ marginBottom: '1rem', lineHeight: '1.8', color: '#444' }}>
-                        The materials on pupapers.com are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+                        The materials on pupapers.com are provided on an &apos;as is&apos; basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
                     </p>
 
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginTop: '2rem', marginBottom: '1rem' }}>4. Limitations</h2>

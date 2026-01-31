@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, ChevronRight, BrainCircuit, Target, Star, ArrowLeft, Trophy } from 'lucide-react';
 import styles from './ChapterSelector.module.css';
+import { useContent } from '@/context/ContentContext';
 
 interface Chapter {
     _id: string;
@@ -9,15 +10,6 @@ interface Chapter {
     slug: string;
     description?: string;
 }
-
-interface Subject {
-    _id: string;
-    name: string;
-    slug: string;
-    image?: string;
-}
-
-import { useContent } from '@/context/ContentContext';
 
 interface ChapterSelectorProps {
     subjectSlug: string;

@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { BookOpen } from 'lucide-react';
 import styles from './SubjectGrid.module.css';
 
 import { useContent } from '@/context/ContentContext';

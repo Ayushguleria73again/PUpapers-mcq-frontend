@@ -7,13 +7,22 @@ import { motion } from 'framer-motion';
 import { Trophy, Medal, Crown, ArrowRight } from 'lucide-react';
 import styles from './HomeLeaderboard.module.css';
 
+interface LeaderboardStudent {
+    _id: string;
+    fullName?: string;
+    name?: string;
+    totalScore: number;
+    testsTaken: number;
+    avgPercentage: number;
+}
+
 const HomeLeaderboard = () => {
-    const [topStudents, setTopStudents] = useState<any[]>([]);
+    const [topStudents, setTopStudents] = useState<LeaderboardStudent[]>([]);
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const data = await apiFetch<any[]>('/content/leaderboard');
+                const data = await apiFetch<LeaderboardStudent[]>('/content/leaderboard');
                 setTopStudents(data.slice(0, 3));
             } catch (err) {
                 console.error('Failed to fetch leaderboard');
