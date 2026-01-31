@@ -180,6 +180,10 @@
         display: none;
     }
 
+    .userDropdown {
+        display: none;
+    }
+
     .navActions>.btn-primary {
         display: none;
     }

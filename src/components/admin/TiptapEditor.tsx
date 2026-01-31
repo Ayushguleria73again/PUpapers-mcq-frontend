@@ -1,22 +1,17 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { apiFetch } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
-import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
 import { Markdown } from 'tiptap-markdown';
 import { 
-    Bold, Italic, List, ListOrdered, Quote, 
-    Underline as UnderlineIcon, ImageIcon, 
-    Undo, Redo, Heading1, Heading2,
-    Info, Settings
+    Bold, Italic, List, ImageIcon, 
+    Undo, Redo, Heading1 
 } from 'lucide-react';
 
 /**
@@ -186,17 +181,6 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
             setIsCleaning(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
-    };
-
-    const handleDeepClean = () => {
-        if (!editor) return;
-        setIsCleaning(true);
-        setTimeout(() => {
-            const currentMarkdown = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
-            const cleaned = normalizePhysicsContent(currentMarkdown);
-            editor.commands.setContent(cleaned);
-            setIsCleaning(false);
-        }, 600);
     };
 
     if (!editor) return null;

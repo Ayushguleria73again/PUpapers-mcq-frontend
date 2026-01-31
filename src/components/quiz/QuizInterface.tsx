@@ -3,17 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Clock, CheckCircle2, ChevronRight, XCircle, 
-  Trophy, BookOpen, BrainCircuit, Target, Check, X, BarChart2,
-  Bookmark, Sparkles, AlertCircle, ArrowLeft
+  Clock, ChevronRight, Check, X, BarChart2,
+  Bookmark, Sparkles, AlertCircle, ArrowLeft, Trophy
 } from 'lucide-react';
 import styles from './QuizInterface.module.css';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/utils/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';

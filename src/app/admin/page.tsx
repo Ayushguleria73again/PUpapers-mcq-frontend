@@ -54,7 +54,6 @@ const AdminPage = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [editItem, setEditItem] = useState<Subject | Chapter | Question | null>(null);
-    const [loading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
 
@@ -108,7 +107,7 @@ const AdminPage = () => {
 
     const handleDelete = async (type: string, id: string) => {
         if (!confirm('Are you sure? This action cannot be undone.')) return;
-        setLoading(true);
+        
         try {
             await apiFetch(`/content/${type}/${id}`, {
                 method: 'DELETE'
@@ -119,8 +118,6 @@ const AdminPage = () => {
         } catch (err: unknown) {
             const error = err as Error;
             setMessage({ type: 'error', text: error.message || 'Server error' });
-        } finally {
-            setLoading(false);
         }
     };
 

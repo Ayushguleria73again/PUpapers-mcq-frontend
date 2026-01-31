@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import NextImage from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, LogOut, LayoutDashboard, Shield } from 'lucide-react';
 import styles from './Navbar.module.css';
@@ -105,9 +106,11 @@ const Navbar = () => {
                 <div className={styles.userDropdownTrigger}>
                     <div className={styles.userAvatar}>
                         {user.profileImage ? (
-                            <img 
+                            <NextImage 
                                 src={user.profileImage} 
                                 alt="Profile" 
+                                width={32}
+                                height={32}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} 
                             />
                         ) : (

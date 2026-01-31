@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import NextImage from 'next/image';
 import { Trash2, Edit } from 'lucide-react';
 
 interface Subject {
@@ -8,12 +9,14 @@ interface Subject {
     name: string;
     slug: string;
     image?: string;
+    description?: string;
 }
 
 interface Chapter {
     _id: string;
     name: string;
     slug: string;
+    description?: string;
     subject: string | Subject;
 }
 
@@ -24,8 +27,8 @@ interface Question {
     correctOption: number;
     explanation?: string;
     difficulty: string;
-    subject?: string | { _id: string; name: string };
-    chapter?: string | { _id: string; name: string };
+    subject: string | Subject;
+    chapter?: string | Chapter;
 }
 
 interface ContentManagerProps {
@@ -79,10 +82,12 @@ const ContentManager = ({ subjects, chapters, questions, onEdit, onDelete, onFet
                     {subjects.map(sub => (
                         <div key={sub._id} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <img 
+                                <NextImage 
                                     src={sub.image || 'https://placehold.co/100x100?text=' + sub.name[0]} 
                                     alt={sub.name}
-                                    style={{ width: 40, height: 40, borderRadius: '4px', objectFit: 'cover' }}
+                                    width={40}
+                                    height={40}
+                                    style={{ borderRadius: '4px', objectFit: 'cover' }}
                                 />
                                 <div>
                                     <div style={{ fontWeight: 600 }}>{sub.name}</div>

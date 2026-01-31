@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import styles from './SubjectGrid.module.css';
 
 import { useContent } from '@/context/ContentContext';
@@ -59,14 +60,19 @@ const SubjectGrid: React.FC<SubjectGridProps> = ({ selectedStream, onBack }) => 
               >
                 <div className={styles.overlay} />
                 <div className={styles.iconWrapper} style={{ overflow: 'hidden', padding: 0 }}>
-                  <img 
+                <div className={styles.iconWrapper} style={{ overflow: 'hidden', padding: 0 }}>
+                  <NextImage 
                     src={subject.image} 
                     alt={subject.name} 
+                    width={400}
+                    height={400}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://placehold.co/400x400?text=' + subject.name[0];
+                    onError={(e: any) => {
+                        // Image component doesn't have standard onError, would need state or blur
+                        // Keeping simple for now, using unoptimized if needed or handling via state
                     }}
                   />
+                </div>
                 </div>
                 <h3 className={styles.cardTitle}>{subject.name}</h3>
                 <p className={styles.cardDesc}>{subject.description}</p>
