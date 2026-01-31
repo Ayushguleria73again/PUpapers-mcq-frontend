@@ -511,12 +511,12 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
             <motion.div key={currentQuestion} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
               <div className={`${styles.question} tiptap-content`}>
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
-                  {cleanMarkdownForRendering(questions[currentQuestion].text)}
+                  {questions[currentQuestion] ? cleanMarkdownForRendering(questions[currentQuestion].text) : ''}
                 </ReactMarkdown>
               </div>
               
               <div className={styles.optionsGrid}>
-                {questions[currentQuestion].options.map((option, index) => (
+                {questions[currentQuestion]?.options.map((option, index) => (
                   <button key={index} className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} tiptap-content`} onClick={() => setSelectedOption(index)}>
                     <span style={{ 
                         width: '24px', height: '24px', border: `1px solid ${selectedOption === index ? 'rgba(255,255,255,0.3)' : 'var(--border)'}`, 
@@ -534,6 +534,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
           </AnimatePresence>
 
           <div className={styles.quizFooter}>
+            {questions[currentQuestion] && (
             <button 
                 className={`${styles.bookmarkBtn} ${bookmarks.includes(questions[currentQuestion]._id) ? styles.bookmarked : ''}`}
                 onClick={() => toggleBookmark(questions[currentQuestion]._id)}
@@ -541,6 +542,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                 <Bookmark size={18} fill={bookmarks.includes(questions[currentQuestion]._id) ? "white" : "transparent"} />
                 {bookmarks.includes(questions[currentQuestion]._id) ? "Bookmarked" : "Bookmark"}
             </button>
+            )}
             <button className="btn-primary" onClick={handleNext} disabled={selectedOption === null} style={{ padding: '0.6rem 2rem', borderRadius: '8px', fontWeight: 700 }}>
               {currentQuestion === questions.length - 1 ? 'Finish Test' : 'Next Question'} <ChevronRight size={16} />
             </button>

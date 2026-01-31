@@ -142,7 +142,7 @@ const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
                                     </button>
                                 </Link>
                             </div>
-                        </div>
+                            </div>
                         )}
                     </div>
                 </motion.div>
