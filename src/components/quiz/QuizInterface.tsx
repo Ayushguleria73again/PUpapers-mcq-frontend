@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Clock, CheckCircle2, ChevronRight, XCircle, 
   Trophy, BookOpen, BrainCircuit, Target, Check, X, BarChart2,
-  Bookmark, Sparkles
+  Bookmark, Sparkles, AlertCircle, ArrowLeft
 } from 'lucide-react';
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
@@ -360,6 +360,27 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
         <p style={{ fontWeight: 700, color: '#0f172a' }}>Loading Assessment...</p>
     </div>
   );
+
+  if (!loading && questions.length === 0) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', padding: '2rem' }}>
+        <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', textAlign: 'center', maxWidth: '400px' }}>
+            <div style={{ background: '#fee2e2', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                <AlertCircle size={32} color="#ef4444" />
+            </div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>No Questions Found</h2>
+            <p style={{ color: '#64748b', marginBottom: '2rem' }}>We couldn't find any questions matching your selected criteria. Please try a different filter.</p>
+            <button 
+                onClick={() => router.back()} 
+                className="btn-primary" 
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
+            >
+                <ArrowLeft size={20} /> Go Back
+            </button>
+        </div>
+      </div>
+    );
+  }
 
   const optionLetters = ['A', 'B', 'C', 'D'];
 
