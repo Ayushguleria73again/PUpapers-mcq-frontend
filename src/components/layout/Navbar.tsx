@@ -119,7 +119,15 @@ const Navbar = () => {
               <div className={styles.userDropdown}>
                 <div className={styles.userDropdownTrigger}>
                     <div className={styles.userAvatar}>
-                        {user.fullName.charAt(0).toUpperCase()}
+                        {user.profileImage ? (
+                            <img 
+                                src={user.profileImage} 
+                                alt="Profile" 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} 
+                            />
+                        ) : (
+                            user.fullName.charAt(0).toUpperCase()
+                        )}
                     </div>
                     <span className={styles.userName}>{user.fullName.split(' ')[0]}</span>
                     <ChevronDown size={14} color="#64748b" />
