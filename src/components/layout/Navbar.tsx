@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, LogOut, LayoutDashboard } from 'lucide-react';
+import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, LogOut, LayoutDashboard, Shield } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 import { useAuth } from '@/context/AuthContext';
@@ -68,6 +68,18 @@ const Navbar = () => {
               </li>
             ))}
             
+            {/* Admin Panel Link - Only for Admin Users */}
+            {user && user.role === 'admin' && (
+              <li>
+                <Link 
+                  href="/admin" 
+                  className={`${styles.navLink} ${pathname.startsWith('/admin') ? styles.activeNavLink : ''}`}
+                >
+                  Admin Panel
+                </Link>
+              </li>
+            )}
+            
             {/* Dropdown for Explore */}
             <li className={styles.dropdown}>
                 <div className={styles.dropdownTrigger}>
@@ -118,6 +130,12 @@ const Navbar = () => {
                     <Link href="/dashboard" className={styles.dropdownItem}>
                         <LayoutDashboard size={16} /> Dashboard
                     </Link>
+                    
+                    {user.role === 'admin' && (
+                      <Link href="/admin" className={styles.dropdownItem}>
+                        <Shield size={16} /> Admin Panel
+                      </Link>
+                    )}
                     
                     <div className={styles.dropdownDivider} />
                     
