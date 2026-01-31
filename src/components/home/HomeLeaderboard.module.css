@@ -1,135 +1,277 @@
 .section {
     padding: 6rem 1rem;
-    background: #fff;
+    background: radial-gradient(circle at center top, rgba(255, 107, 0, 0.03) 0%, transparent 70%);
     text-align: center;
+    overflow: hidden;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
+    position: relative;
 }
 
 .title {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800;
     margin-bottom: 1rem;
     color: var(--foreground);
+    letter-spacing: -0.02em;
 }
 
 .subtitle {
     font-size: 1.1rem;
     color: var(--text-muted);
-    margin-bottom: 4rem;
+    margin-bottom: 5rem;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+    line-height: 1.6;
 }
 
+/* Podium Grid Layout */
 .grid {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin-bottom: 4rem;
-    flex-wrap: wrap;
     align-items: flex-end;
-}
-
-@media (max-width: 768px) {
-    .grid {
-        flex-direction: column;
-        align-items: center;
-        gap: 2.5rem;
-    }
+    /* Bottom align for podium effect */
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+    padding-bottom: 2rem;
+    min-height: 480px;
+    /* Ensure space for podium heights */
 }
 
 .card {
-    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
     border-radius: 24px;
     padding: 2rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 20px 40px -4px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 300px;
     position: relative;
-    transition: transform 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
 }
 
+/* Rank Badge Floating above */
 .rankBadge {
     position: absolute;
-    top: -20px;
+    top: -24px;
     left: 50%;
     transform: translateX(-50%);
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     background: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    z-index: 2;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    z-index: 10;
+    border: 3px solid white;
 }
 
 .avatar {
-    width: 80px;
-    height: 80px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
-    margin: 1.5rem auto 1rem;
+    margin: 1.5rem 0 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    font-weight: 700;
-    color: #333;
+    font-weight: 800;
+    color: #1e293b;
+    position: relative;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .name {
     font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     color: var(--foreground);
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .score {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 800;
     color: var(--primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
 }
 
 .details {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--text-muted);
+    background: #f1f5f9;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
 }
 
-/* Rank Specific Styles */
+/* --- Podium Styles --- */
+
+/* Gold (Winner) - Center, Tallest */
 .gold {
-    border-top: 5px solid #FFD700;
+    order: 2;
+    /* Desktop: Center */
+    height: 440px;
+    /* Tallest */
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 248, 225, 0.5) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow:
+        0 20px 60px -10px rgba(255, 215, 0, 0.15),
+        0 0 0 1px rgba(255, 215, 0, 0.1) inset;
+    z-index: 5;
     transform: scale(1.05);
-    z-index: 1;
+    /* Slight emphasized scale */
 }
 
+.gold .rankBadge {
+    background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
+    border-color: #FFF8E1;
+    color: white;
+}
+
+.gold .avatar {
+    background: #FFF8E1;
+    color: #B48811;
+}
+
+.gold:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 30px 70px -10px rgba(255, 215, 0, 0.25);
+}
+
+/* Silver (2nd) - Left */
 .silver {
-    border-top: 5px solid #C0C0C0;
+    order: 1;
+    height: 380px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.5) 100%);
+    border: 1px solid rgba(192, 192, 192, 0.3);
 }
 
+.silver .rankBadge {
+    background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%);
+    border-color: #F8FAFC;
+    color: white;
+}
+
+.silver .avatar {
+    background: #F1F5F9;
+    color: #64748b;
+}
+
+/* Bronze (3rd) - Right */
 .bronze {
-    border-top: 5px solid #CD7F32;
+    order: 3;
+    height: 360px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 245, 235, 0.5) 100%);
+    border: 1px solid rgba(205, 127, 50, 0.3);
 }
 
-@media (max-width: 768px) {
+.bronze .rankBadge {
+    background: linear-gradient(135deg, #E6A57E 0%, #CD7F32 100%);
+    border-color: #FFF5EB;
+    color: white;
+}
+
+.bronze .avatar {
+    background: #FFF7ED;
+    color: #9A5B31;
+}
+
+
+/* Responsive Design */
+
+/* Tablet < 1024px: Less gap, slightly smaller */
+@media (max-width: 1024px) {
     .grid {
-        flex-direction: column;
-        align-items: center;
+        gap: 1rem;
     }
 
     .gold {
-        transform: scale(1);
+        height: 400px;
+    }
+
+    .silver {
+        height: 350px;
+    }
+
+    .bronze {
+        height: 330px;
+    }
+}
+
+/* Mobile < 768px: Vertical Stack */
+@media (max-width: 768px) {
+    .section {
+        padding: 4rem 1rem;
+    }
+
+    .grid {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+        min-height: auto;
+        gap: 3rem;
+        padding-bottom: 0;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 340px;
+        height: auto !important;
+        /* Reset podium heights */
+        padding: 1.5rem;
+    }
+
+    /* Change Order for Mobile: Winner First */
+    .gold {
         order: -1;
-        /* Show winner first on mobile */
+        transform: scale(1.05);
+        margin-bottom: 1rem;
+    }
+
+    .silver {
+        order: 2;
+    }
+
+    .bronze {
+        order: 3;
+    }
+
+    .gold:hover {
+        transform: scale(1.05);
+    }
+
+    /* Disable hover lift on touch */
+
+    .rankBadge {
+        width: 48px;
+        height: 48px;
+        top: -24px;
+    }
+
+    .avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 1.5rem;
+        margin: 1rem 0;
     }
 }

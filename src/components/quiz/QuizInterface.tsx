@@ -399,35 +399,34 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
 
             <div className={styles.metricsGrid}>
                 <div className={styles.metricCard}>
-                    <BarChart2 size={20} color="#64748b" />
-                    <span className={styles.metricValue}>{accuracy}%</span>
                     <span className={styles.metricLabel}>Accuracy</span>
+                    <span className={styles.metricValue}>{accuracy}%</span>
+                    <BarChart2 size={24} color="#64748b" style={{ opacity: 0.5 }} />
                 </div>
                 <div className={styles.metricCard}>
-                    <Check size={20} color="#10b981" />
-                    <span className={styles.metricValue} style={{ color: '#059669' }}>{correctCount}</span>
                     <span className={styles.metricLabel}>Correct</span>
+                    <span className={styles.metricValue} style={{ color: '#059669' }}>{correctCount}</span>
+                    <Check size={24} color="#10b981" style={{ opacity: 0.5 }} />
                 </div>
                 <div className={styles.metricCard}>
-                    <X size={20} color="#ef4444" />
-                    <span className={styles.metricValue} style={{ color: '#dc2626' }}>{wrongCount}</span>
                     <span className={styles.metricLabel}>Incorrect</span>
+                    <span className={styles.metricValue} style={{ color: '#ef4444' }}>{wrongCount}</span>
+                    <X size={24} color="#ef4444" style={{ opacity: 0.5 }} />
                 </div>
             </div>
             
             <div className={styles.solutionGuide}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>Answer Key & Explanations</h2>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '2rem' }}>Answer Key & Explanations</h2>
                 
                 {questions.map((q, index) => {
                     const isCorrect = Number(userAnswers[index]) === Number(q.correctOption);
                     return (
                         <div key={`${q._id}-${index}`} className={styles.solutionStep}>
                             <div className={styles.stepHeader}>
-                                Question {index + 1} • {isCorrect ? <span style={{ color: '#059669' }}>Correct</span> : <span style={{ color: '#dc2626' }}>Incorrect</span>}
+                                Question {index + 1} • {isCorrect ? <span style={{ color: '#059669' }}>Correct</span> : <span style={{ color: '#ef4444' }}>Incorrect</span>}
                                 {questionStats[index] && (
-                                    <span style={{ fontSize: '0.8rem', marginLeft: '1rem', color: '#64748b', fontWeight: 500 }}>
-                                        ⏱ You: <strong>{Math.round(questionStats[index].timeTaken)}s</strong> 
-                                        {q.averageTime ? <span> • Avg: <strong>{Math.round(q.averageTime)}s</strong></span> : ''}
+                                    <span style={{ marginLeft: 'auto', color: '#64748b' }}>
+                                        ⏱ {Math.round(questionStats[index].timeTaken)}s
                                     </span>
                                 )}
                             </div>
@@ -438,18 +437,18 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                                 </ReactMarkdown>
                             </div>
 
-                            <div style={{ display: 'grid', gap: '8px', marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'grid', gap: '12px', marginBottom: '1.5rem' }}>
                                 {q.options.map((opt, oIdx) => {
                                     const isCorrectOpt = oIdx === q.correctOption;
                                     const isUserPick = oIdx === userAnswers[index];
                                     return (
                                         <div key={oIdx} style={{ 
-                                            padding: '0.75rem 1rem', borderRadius: '8px', 
+                                            padding: '1rem', borderRadius: '12px', 
                                             background: isCorrectOpt ? '#f0fdf4' : isUserPick ? '#fef2f2' : '#ffffff',
                                             border: `1px solid ${isCorrectOpt ? '#10b981' : isUserPick ? '#ef4444' : '#e2e8f0'}`,
-                                            display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px'
+                                            display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px'
                                         }}>
-                                            <span style={{ fontWeight: 700, opacity: 0.5 }}>{optionLetters[oIdx]}.</span>
+                                            <span style={{ fontWeight: 800, opacity: 0.5 }}>{optionLetters[oIdx]}</span>
                                             <div style={{ flex: 1 }}>
                                                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                                                     {cleanMarkdownForRendering(opt)}
@@ -495,8 +494,8 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '4rem' }}>
-              <button className="btn-primary" onClick={resetQuiz} style={{ padding: '0.75rem 2rem', borderRadius: '8px' }}>Start New Practice</button>
-              <button onClick={resetAndRedirect} className="btn-secondary" style={{ padding: '0.75rem 2rem', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#020617' }}>View Dashboard</button>
+              <button className="btn-primary" onClick={resetQuiz} style={{ padding: '0.9rem 2rem', borderRadius: '12px', fontSize: '1rem', fontWeight: 600 }}>Start New Practice</button>
+              <button onClick={resetAndRedirect} className="btn-secondary" style={{ padding: '0.9rem 2rem', border: '1px solid #cbd5e1', borderRadius: '12px', color: '#64748b', fontSize: '1rem', fontWeight: 600 }}>Dashboard</button>
             </div>
           </div>
         </div>
@@ -507,12 +506,17 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
   return (
     <div className={styles.quizContainer}>
       <EditorStyles />
-      <div className="container">
+      <div className="container" style={{ width: '100%', maxWidth: '900px' }}>
         <div className={styles.quizCard}>
           <div className={styles.quizHeader}>
-            <span className={styles.questionCount}>Question {currentQuestion + 1}/{questions.length}</span>
+            <span className={styles.questionCount}>
+                <span>Question</span> 
+                <span style={{ color: '#0f172a' }}>{currentQuestion + 1}</span>
+                <span style={{ color: '#cbd5e1' }}>/</span>
+                <span>{questions.length}</span>
+            </span>
             <div className={`${styles.timer} ${timeLeft < 60 ? styles.timerWarning : ''}`}>
-              <Clock size={14} />
+              <Clock size={16} strokeWidth={2.5} />
               <span>{formatTime(timeLeft)}</span>
             </div>
           </div>
@@ -522,7 +526,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.div key={currentQuestion} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
+            <motion.div key={currentQuestion} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3, ease: "easeOut" }}>
               <div className={`${styles.question} tiptap-content`}>
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                   {questions[currentQuestion] ? cleanMarkdownForRendering(questions[currentQuestion].text) : ''}
@@ -532,13 +536,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
               <div className={styles.optionsGrid}>
                 {questions[currentQuestion]?.options.map((option, index) => (
                   <button key={index} className={`${styles.option} ${selectedOption === index ? styles.selectedOption : ''} tiptap-content`} onClick={() => setSelectedOption(index)}>
-                    <span style={{ 
-                        width: '28px', height: '28px', 
-                        background: selectedOption === index ? 'var(--primary)' : '#f1f5f9',
-                        color: selectedOption === index ? 'white' : '#64748b',
-                        borderRadius: '8px', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                    }}>{optionLetters[index]}</span>
+                    <span>{optionLetters[index]}</span>
                     <div style={{ flex: 1 }}>
                         <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
                             {cleanMarkdownForRendering(option)}
@@ -556,12 +554,12 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                 className={`${styles.bookmarkBtn} ${bookmarks.includes(questions[currentQuestion]._id) ? styles.bookmarked : ''}`}
                 onClick={() => toggleBookmark(questions[currentQuestion]._id)}
             >
-                <Bookmark size={18} fill={bookmarks.includes(questions[currentQuestion]._id) ? "white" : "transparent"} />
-                {bookmarks.includes(questions[currentQuestion]._id) ? "Bookmarked" : "Bookmark"}
+                <Bookmark size={20} fill={bookmarks.includes(questions[currentQuestion]._id) ? "currentColor" : "none"} strokeWidth={2} />
+                <span>{bookmarks.includes(questions[currentQuestion]._id) ? "Saved" : "Save"}</span>
             </button>
             )}
-            <button className="btn-primary" onClick={handleNext} disabled={selectedOption === null} style={{ padding: '0.6rem 2rem', borderRadius: '8px', fontWeight: 700 }}>
-              {currentQuestion === questions.length - 1 ? 'Finish Test' : 'Next Question'} <ChevronRight size={16} />
+            <button className="btn-primary" onClick={handleNext} disabled={selectedOption === null} style={{ padding: '0.8rem 2.5rem', borderRadius: '12px', fontWeight: 700, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {currentQuestion === questions.length - 1 ? 'Finish Test' : 'Next'} <ChevronRight size={20} strokeWidth={3} />
             </button>
           </div>
         </div>
@@ -574,31 +572,32 @@ export default QuizInterface;
 
 const EditorStyles = () => (
   <style dangerouslySetInnerHTML={{ __html: `
-    .tiptap-content { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; }
+    .tiptap-content { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; line-height: 1.6; }
     .tiptap-content p { margin: 0; }
     .tiptap-content .katex-display { 
         margin: 1.5rem 0; 
-        padding: 1.5rem; 
-        background: #ffffff; 
-        border-radius: 16px; 
-        border: 1px solid var(--border);
+        padding: 1rem; 
+        background: #f8fafc; 
+        border-radius: 12px; 
+        border: 1px solid #e2e8f0;
         overflow-x: auto;
     }
-    .tiptap-content .katex { font-size: 1.15em; color: var(--foreground); }
+    .tiptap-content .katex { font-size: 1.1em; color: inherit; }
     
     .btn-primary { 
         background: var(--primary); 
         color: white; 
         border: none; 
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(255, 107, 0, 0.2);
     }
     .btn-primary:hover:not(:disabled) { 
         background: var(--primary-hover); 
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+        box-shadow: 0 10px 15px -3px rgba(255, 107, 0, 0.3);
     }
-    .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
     .btn-secondary {
         display: inline-flex;
@@ -618,9 +617,8 @@ const EditorStyles = () => (
 
     @media (max-width: 640px) {
         .tiptap-content .katex-display {
-            padding: 1rem;
+            padding: 0.75rem;
             margin: 1rem 0;
-            border-radius: 12px;
         }
         .tiptap-content .katex { font-size: 1.05em; }
     }

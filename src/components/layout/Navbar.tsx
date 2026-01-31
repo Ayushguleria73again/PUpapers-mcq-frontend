@@ -69,17 +69,7 @@ const Navbar = () => {
               </li>
             ))}
             
-            {/* Admin Panel Link - Only for Admin Users */}
-            {user && user.role === 'admin' && (
-              <li>
-                <Link 
-                  href="/admin" 
-                  className={`${styles.navLink} ${pathname.startsWith('/admin') ? styles.activeNavLink : ''}`}
-                >
-                  Admin Panel
-                </Link>
-              </li>
-            )}
+            {/* Admin Panel Link removed from main nav, now resides in User Dropdown */}
             
             {/* Dropdown for Explore */}
             <li className={styles.dropdown}>
