@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Lock, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -24,17 +25,11 @@ const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
 
     const fetchUserStatus = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-                credentials: 'include'
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setUser(data);
-            } else {
-                setUser(null); // Not logged in
-            }
+            const data = await apiFetch<any>('/auth/me');
+            setUser(data);
         } catch (err) {
             console.error('Failed to fetch user status');
+            setUser(null);
         } finally {
             setLoading(false);
         }

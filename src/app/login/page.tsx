@@ -8,6 +8,7 @@ import { Mail, Lock, LogIn, Github, GraduationCap, X } from 'lucide-react';
 import styles from '@/components/auth/Auth.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/utils/api';
 const LoginPage = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -27,33 +28,23 @@ const LoginPage = () => {
 
     console.log('Login form submitted:', { email });
     try {
-      console.log('Fetching from:', `${process.env.NEXT_PUBLIC_API_URL}/auth/login`);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const data = await apiFetch<any>('/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Login res status:', res.status);
-      const data = await res.json();
-      console.log('Login res data:', data);
-
-      if (!res.ok) {
-        if (data.unverified) {
-          console.log('User unverified, moving to OTP step');
-          setStep(2);
-          return;
-        }
-        throw new Error(data.message || 'Login failed');
+      if (data.requiresOTP) {
+        setStep(2); // OTP step
+      } else {
+        login(data.user);
+        router.push('/dashboard');
       }
-
-      console.log('Login successful, updating context and redirecting...');
-      login(data.user);
-      router.push('/');
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message);
+      if (err.data?.unverified) {
+        setStep(2);
+      } else {
+        setError(err.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,20 +57,15 @@ const LoginPage = () => {
 
     const otpString = otp.join('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
+      const data = await apiFetch<any>('/auth/verify-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ email, otp: otpString }),
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Verification failed');
 
       login(data.user);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Verification failed');
     } finally {
       setLoading(false);
     }
@@ -103,9 +89,8 @@ const LoginPage = () => {
   const handleResendOTP = async () => {
     setResending(true);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resend-otp`, {
+      await apiFetch('/auth/resend-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
       alert('OTP Resent!');

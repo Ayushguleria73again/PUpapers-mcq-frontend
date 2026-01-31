@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Shield, BookOpen, Book, FileQuestion, Check, AlertCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/utils/api';
 
 // Modular Components
 import SubjectForm from '@/components/admin/SubjectForm';
@@ -29,17 +30,12 @@ const AdminPage = () => {
 
     const checkAdmin = async () => {
         try {
-            const res = await fetch('/api/auth/me', { credentials: 'include' });
-            if (res.ok) {
-                const userData = await res.json();
-                if (userData?.role === 'admin') {
-                    setIsAdmin(true);
-                    fetchSubjects();
-                } else {
-                    router.push('/dashboard');
-                }
+            const userData = await apiFetch<any>('/auth/me');
+            if (userData?.role === 'admin') {
+                setIsAdmin(true);
+                fetchSubjects();
             } else {
-                router.push('/login');
+                router.push('/dashboard');
             }
         } catch (err) {
             router.push('/login');
@@ -48,11 +44,8 @@ const AdminPage = () => {
 
     const fetchSubjects = async () => {
         try {
-            const res = await fetch('/api/content/subjects');
-            if (res.ok) {
-                const data = await res.json();
-                setSubjects(data);
-            }
+            const data = await apiFetch<any[]>('/content/subjects');
+            setSubjects(data);
         } catch (err) {
             console.error('Subject Load Error');
         }
@@ -61,11 +54,8 @@ const AdminPage = () => {
     const fetchChapters = async (subjectId: string) => {
         if (!subjectId) return;
         try {
-            const res = await fetch(`/api/content/chapters?subjectId=${subjectId}`, { credentials: 'include' });
-            if (res.ok) {
-                const data = await res.json();
-                setChapters(data);
-            }
+            const data = await apiFetch<any[]>(`/content/chapters?subjectId=${subjectId}`);
+            setChapters(data);
         } catch (err) {
             console.error('Chapter Load Error');
         }
@@ -73,13 +63,10 @@ const AdminPage = () => {
 
     const fetchQuestions = async (subjectId: string, chapterId: string) => {
         try {
-            let url = `${process.env.NEXT_PUBLIC_API_URL}/content/questions?subjectId=${subjectId}`;
-            if (chapterId) url += `&chapterId=${chapterId}`;
-            const res = await fetch(url, { credentials: 'include' });
-            if (res.ok) {
-                const data = await res.json();
-                setQuestions(data);
-            }
+            let endpoint = `/content/questions?subjectId=${subjectId}`;
+            if (chapterId) endpoint += `&chapterId=${chapterId}`;
+            const data = await apiFetch<any[]>(endpoint);
+            setQuestions(data);
         } catch (err) {
             console.error('Question Load Error');
         }
@@ -89,21 +76,14 @@ const AdminPage = () => {
         if (!confirm('Are you sure? This action cannot be undone.')) return;
         setLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/${type}/${id}`, {
-                method: 'DELETE',
-                credentials: 'include'
+            await apiFetch(`/content/${type}/${id}`, {
+                method: 'DELETE'
             });
 
-            if (res.ok) {
-                setMessage({ type: 'success', text: 'Deleted successfully' });
-                if (type === 'subjects') fetchSubjects();
-                // Chapters and questions are refreshed by the manager via its own state if needed, 
-                // but we can clear lists if the parent type was deleted
-            } else {
-                setMessage({ type: 'error', text: 'Failed to delete' });
-            }
-        } catch (err) {
-            setMessage({ type: 'error', text: 'Server error' });
+            setMessage({ type: 'success', text: 'Deleted successfully' });
+            if (type === 'subjects') fetchSubjects();
+        } catch (err: any) {
+            setMessage({ type: 'error', text: err.message || 'Server error' });
         } finally {
             setLoading(false);
         }

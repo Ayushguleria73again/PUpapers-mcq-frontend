@@ -11,6 +11,7 @@ import {
     Loader2,
     Sparkles
 } from 'lucide-react';
+import { apiFetch } from '@/utils/api';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -54,25 +55,18 @@ const RevisionVaultPage = () => {
     
         try {
             // We pass -1 or neutral choice since this is revision
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/explain`, {
+            const data = await apiFetch<any>('/content/explain', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ questionId: id, userChoice: -1 }), 
-                credentials: 'include'
             });
     
-            if (res.ok) {
-                const data = await res.json();
-                const cleanContent = data.explanation
-                    .replace(/[“”]/g, '"')
-                    .replace(/[‘’]/g, "'");
-                setAiExplanations(prev => ({
-                    ...prev,
-                    [id]: { content: cleanContent, loading: false }
-                }));
-            } else {
-                throw new Error('Failed to generate');
-            }
+            const cleanContent = data.explanation
+                .replace(/[“”]/g, '"')
+                .replace(/[‘’]/g, "'");
+            setAiExplanations(prev => ({
+                ...prev,
+                [id]: { content: cleanContent, loading: false }
+            }));
         } catch (err: any) {
             setAiExplanations(prev => ({
                 ...prev,
@@ -83,13 +77,8 @@ const RevisionVaultPage = () => {
 
     const fetchBookmarks = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/bookmarks`, {
-                credentials: 'include'
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setBookmarks(data);
-            }
+            const data = await apiFetch<Question[]>('/auth/bookmarks');
+            setBookmarks(data);
         } catch (err) {
             console.error("Failed to fetch bookmarks:", err);
         } finally {
@@ -101,15 +90,11 @@ const RevisionVaultPage = () => {
         if (toggling) return;
         setToggling(id);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/bookmarks`, {
+            await apiFetch('/auth/bookmarks', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ questionId: id }),
-                credentials: 'include'
             });
-            if (res.ok) {
-                setBookmarks(prev => prev.filter(b => b._id !== id));
-            }
+            setBookmarks(prev => prev.filter(b => b._id !== id));
         } catch (err) {
             console.error("Failed to remove bookmark:", err);
         } finally {

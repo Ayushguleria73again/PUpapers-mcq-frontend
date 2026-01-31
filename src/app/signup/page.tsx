@@ -8,6 +8,7 @@ import { Mail, Lock, User, UserPlus, GraduationCap, Github, LogIn } from 'lucide
 import styles from '@/components/auth/Auth.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/utils/api';
 const SignupPage = () => {
   const [fullName, setFullName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -29,20 +30,10 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
+      await apiFetch('/auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ fullName, email, password }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Signup failed');
-      }
-
-      // Success - Move to OTP step
       setStep(2);
     } catch (err: any) {
       setError(err.message);
@@ -65,18 +56,10 @@ const SignupPage = () => {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
+      const data = await apiFetch<any>('/auth/verify-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ email, otp: otpString }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Verification failed');
-      }
 
       setSuccess(true);
       login(data.user);
@@ -94,13 +77,10 @@ const SignupPage = () => {
     setResending(true);
     setError('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resend-otp`, {
+      await apiFetch('/auth/resend-otp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ email }),
       });
-      if (!res.ok) throw new Error('Failed to resend OTP');
       alert('A new code has been sent to your email.');
     } catch (err: any) {
       setError(err.message);

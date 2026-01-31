@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 
 interface Subject {
   _id: string;
@@ -45,11 +46,8 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/subjects`);
-        if (res.ok) {
-          const data = await res.json();
-          setSubjects(data);
-        }
+        const data = await apiFetch<Subject[]>('/content/subjects');
+        setSubjects(data);
       } catch (err) {
         console.error('Failed to fetch subjects', err);
       } finally {
@@ -66,14 +64,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/chapters?subjectId=${subjectId}`, {
-        credentials: 'include'
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setChapterCache(prev => ({ ...prev, [subjectId]: data }));
-        return data;
-      }
+      const data = await apiFetch<Chapter[]>(`/content/chapters?subjectId=${subjectId}`);
+      setChapterCache(prev => ({ ...prev, [subjectId]: data }));
+      return data;
     } catch (err) {
       console.error(`Failed to fetch chapters for subject ${subjectId}`, err);
     }

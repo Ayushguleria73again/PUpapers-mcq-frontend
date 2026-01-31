@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import { motion } from 'framer-motion';
 import { 
     User as UserIcon, 
@@ -78,24 +79,17 @@ export default function ProfilePage() {
         uploadData.append('image', file);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile-image`, {
+            const data = await apiFetch<any>('/auth/profile-image', {
                 method: 'POST',
                 body: uploadData,
-                credentials: 'include' // Fixed: use uploadData not formData
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                setFormData({ ...formData, profileImage: data.url });
-                updateUser({ profileImage: data.url });
-                // Note: We keep previewUrl until next mount/change to avoid flicker
-            } else {
-                alert('Failed to upload image. Please try again.');
-                setPreviewUrl(null);
-            }
-        } catch (err) {
+            setFormData({ ...formData, profileImage: data.url });
+            updateUser({ profileImage: data.url });
+            // Note: We keep previewUrl until next mount/change to avoid flicker
+        } catch (err: any) {
             console.error('Image upload failed', err);
-            alert('An error occurred during upload.');
+            alert(err.message || 'An error occurred during upload.');
             setPreviewUrl(null);
         } finally {
             setUploading(false);
@@ -108,30 +102,26 @@ export default function ProfilePage() {
 
         setSaving(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
+            await apiFetch('/auth/profile', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     fullName: formData.fullName,
                     bio: formData.bio,
                     phone: formData.phone,
                     institution: formData.institution
                 }),
-                credentials: 'include'
             });
 
-            if (res.ok) {
-                // Update global state immediately
-                updateUser({ 
-                    fullName: formData.fullName, 
-                    // @ts-ignore
-                    bio: formData.bio, 
-                    phone: formData.phone, 
-                    institution: formData.institution 
-                });
-                setSuccess(true);
-                setTimeout(() => setSuccess(false), 3000);
-            }
+            // Update global state immediately
+            updateUser({ 
+                fullName: formData.fullName, 
+                // @ts-ignore
+                bio: formData.bio, 
+                phone: formData.phone, 
+                institution: formData.institution 
+            });
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 3000);
         } catch (err) {
             console.error('Profile update failed', err);
         } finally {

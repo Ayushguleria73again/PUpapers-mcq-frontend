@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Award, Crown } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
@@ -25,15 +26,12 @@ const LeaderboardPage = () => {
     const fetchLeaderboard = async (subjectId: string) => {
         setLoading(true);
         try {
-            let url = `${process.env.NEXT_PUBLIC_API_URL}/content/leaderboard`;
+            let endpoint = '/content/leaderboard';
             if (subjectId !== 'all') {
-                url += `?subjectId=${subjectId}`;
+                endpoint += `?subjectId=${subjectId}`;
             }
-            const res = await fetch(url);
-            if (res.ok) {
-                const data = await res.json();
-                setLeaderboard(data);
-            }
+            const data = await apiFetch<any[]>(endpoint);
+            setLeaderboard(data);
         } catch (err) {
             console.error('Failed to fetch leaderboard');
         } finally {
@@ -123,10 +121,10 @@ const LeaderboardPage = () => {
                                             className={styles.avatar}
                                             style={{ background: `hsl(${(index * 137) % 360}, 70%, 80%)` }}
                                         >
-                                            {user.name.charAt(0).toUpperCase()}
+                                            {(user.fullName || user.name || '?').charAt(0).toUpperCase()}
                                         </div>
                                         <div className={styles.studentName}>
-                                            {user.name}
+                                            {user.fullName || user.name}
                                             {index === 0 && <span className={styles.championBadge}>CHAMPION</span>}
                                         </div>
                                     </div>

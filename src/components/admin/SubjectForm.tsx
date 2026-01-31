@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import ReactMarkdown from 'react-markdown';
 
 interface Subject {
@@ -69,30 +70,24 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                 formData.append('image', icon);
             }
 
-            const url = editItem 
-                ? `${process.env.NEXT_PUBLIC_API_URL}/content/subjects/${editItem._id}`
-                : `${process.env.NEXT_PUBLIC_API_URL}/content/subjects`;
+            const endpoint = editItem 
+                ? `/content/subjects/${editItem._id}`
+                : `/content/subjects`;
             
             const method = editItem ? 'PUT' : 'POST';
 
-            const res = await fetch(url, {
+            await apiFetch(endpoint, {
                 method,
-                credentials: 'include',
-                body: formData
+                body: formData // apiFetch will handle FormData (don't set application/json)
             });
 
-            if (res.ok) {
-                onSuccess(`Subject ${editItem ? 'updated' : 'created'} successfully!`);
-                if (!editItem) {
-                    setName(''); setSlug(''); setDescription(''); setIcon('Book'); setImageFile(null);
-                }
-                refreshSubjects();
-            } else {
-                const data = await res.json();
-                onError(data.message || 'Failed to save subject');
+            onSuccess(`Subject ${editItem ? 'updated' : 'created'} successfully!`);
+            if (!editItem) {
+                setName(''); setSlug(''); setDescription(''); setIcon('Book'); setImageFile(null);
             }
-        } catch (err) {
-            onError('Server error');
+            refreshSubjects();
+        } catch (err: any) {
+            onError(err.message || 'Failed to save subject');
         } finally {
             setLoading(false);
         }
@@ -124,24 +119,17 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
         setChatLoading(true);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/chat`, {
+            const data = await apiFetch<any>('/content/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ 
                     message: userMsg,
                     context: `Managing Subject: ${name || 'New Subject'}. Description: ${description}`
                 })
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                setChatMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-            } else {
-                setChatMessages(prev => [...prev, { role: 'ai', text: 'Sorry, I encountered an error. Please try again.' }]);
-            }
-        } catch (err) {
-            setChatMessages(prev => [...prev, { role: 'ai', text: 'Network error. Please check your connection.' }]);
+            setChatMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
+        } catch (err: any) {
+            setChatMessages(prev => [...prev, { role: 'ai', text: err.message || 'Network error. Please try again.' }]);
         } finally {
             setChatLoading(false);
         }

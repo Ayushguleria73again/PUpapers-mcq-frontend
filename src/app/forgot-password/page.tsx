@@ -6,6 +6,7 @@ import { Mail, ArrowRight, ArrowLeft, CheckCircle, GraduationCap } from 'lucide-
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/utils/api';
 import styles from '@/components/auth/Auth.module.css';
 
 export default function ForgotPasswordPage() {
@@ -20,27 +21,19 @@ export default function ForgotPasswordPage() {
         setErrorMsg('');
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
+            await apiFetch('/auth/forgot-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             });
 
-            const data = await res.json();
-
-            if (res.ok) {
-                setStatus('success');
-                // Redirect can be handled by user manually or via link, but auto-redirect is nice
-                setTimeout(() => {
-                   router.push(`/reset-password?email=${encodeURIComponent(email)}`);
-                }, 3000);
-            } else {
-                setStatus('error');
-                setErrorMsg(data.message || 'Something went wrong');
-            }
-        } catch (err) {
+            setStatus('success');
+            // Redirect can be handled by user manually or via link, but auto-redirect is nice
+            setTimeout(() => {
+                router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+            }, 3000);
+        } catch (err: any) {
             setStatus('error');
-            setErrorMsg('Failed to connect to server');
+            setErrorMsg(err.message || 'Failed to connect to server');
         }
     };
 

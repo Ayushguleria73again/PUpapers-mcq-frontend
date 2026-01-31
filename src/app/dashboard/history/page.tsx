@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import { motion } from 'framer-motion';
 import { ChevronLeft, History, FileText, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';

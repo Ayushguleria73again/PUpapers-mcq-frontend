@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import TiptapEditor from './TiptapEditor';
 import ReactMarkdown from 'react-markdown';
 
@@ -73,16 +74,14 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
         e.preventDefault();
         setLoading(true);
         try {
-            const url = editItem 
-                ? `${process.env.NEXT_PUBLIC_API_URL}/content/questions/${editItem._id}`
-                : `${process.env.NEXT_PUBLIC_API_URL}/content/questions`;
+            const endpoint = editItem 
+                ? `/content/questions/${editItem._id}`
+                : `/content/questions`;
                 
             const method = editItem ? 'PUT' : 'POST';
 
-            const res = await fetch(url, {
+            await apiFetch(endpoint, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({
                     subjectId,
                     chapterId: chapterId || null, 
@@ -94,19 +93,14 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                 })
             });
 
-            if (res.ok) {
-                onSuccess(`Question ${editItem ? 'updated' : 'added'} successfully!`);
-                if (!editItem) {
-                    setText('');
-                    setOptions(['', '', '', '']);
-                    setExplanation('');
-                }
-            } else {
-                const data = await res.json();
-                onError(data.message || 'Failed to save question');
+            onSuccess(`Question ${editItem ? 'updated' : 'added'} successfully!`);
+            if (!editItem) {
+                setText('');
+                setOptions(['', '', '', '']);
+                setExplanation('');
             }
-        } catch (err) {
-            onError('Server error');
+        } catch (err: any) {
+            onError(err.message || 'Server error');
         } finally {
             setLoading(false);
         }
@@ -142,24 +136,17 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
         setChatLoading(true);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/chat`, {
+            const data = await apiFetch<any>('/content/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ 
                     message: userMsg,
                     context: `Drafting Question for Subject ID: ${subjectId}. Current Text: ${text}`
                 })
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                setChatMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-            } else {
-                setChatMessages(prev => [...prev, { role: 'ai', text: 'Error interacting with AI.' }]);
-            }
-        } catch (err) {
-            setChatMessages(prev => [...prev, { role: 'ai', text: 'Network error.' }]);
+            setChatMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
+        } catch (err: any) {
+            setChatMessages(prev => [...prev, { role: 'ai', text: err.message || 'Network error.' }]);
         } finally {
             setChatLoading(false);
         }

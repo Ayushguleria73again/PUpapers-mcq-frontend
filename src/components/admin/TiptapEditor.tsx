@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { apiFetch } from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -164,27 +165,19 @@ const TiptapEditor = ({ value, onChange, placeholder, label }: TiptapEditorProps
                 const formData = new FormData();
                 formData.append('image', file);
 
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/upload`, {
+                const data = await apiFetch<any>('/content/upload', {
                     method: 'POST',
                     body: formData,
-                    credentials: 'include',
                 });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    console.log(`[Tiptap] Uploaded ${i + 1}/${files.length}: ${data.url}`);
+                console.log(`[Tiptap] Uploaded ${i + 1}/${files.length}: ${data.url}`);
                     
                     // Use more robust insertion: append image + newline
                     editor.chain()
                         .focus()
                         .insertContent([
                             { type: 'image', attrs: { src: data.url } },
-                            { type: 'paragraph' }
                         ])
-                        .run();
-                } else {
-                    console.error(`[Tiptap] Failed to upload: ${file.name}`);
-                }
+                    .run();
             }
         } catch (err) {
             console.error('[Tiptap] Upload error:', err);

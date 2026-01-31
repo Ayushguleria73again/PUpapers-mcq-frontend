@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 
 interface Subject {
     _id: string;
@@ -67,16 +68,14 @@ const ChapterForm = ({ editItem, subjects, onSuccess, onError, onCancel, refresh
         e.preventDefault();
         setLoading(true);
         try {
-            const url = editItem 
-                ? `${process.env.NEXT_PUBLIC_API_URL}/content/chapters/${editItem._id}`
-                : `${process.env.NEXT_PUBLIC_API_URL}/content/chapters`;
+            const endpoint = editItem 
+                ? `/content/chapters/${editItem._id}`
+                : `/content/chapters`;
             
             const method = editItem ? 'PUT' : 'POST';
 
-            const res = await fetch(url, {
+            await apiFetch(endpoint, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({
                     name,
                     slug,
@@ -85,18 +84,13 @@ const ChapterForm = ({ editItem, subjects, onSuccess, onError, onCancel, refresh
                 })
             });
 
-            if (res.ok) {
-                onSuccess(`Chapter ${editItem ? 'updated' : 'created'} successfully!`);
-                if (!editItem) {
-                    setName(''); setSlug(''); setDescription('');
-                }
-                refreshChapters(subjectId);
-            } else {
-                const data = await res.json();
-                onError(data.message || 'Failed to save chapter');
+            onSuccess(`Chapter ${editItem ? 'updated' : 'created'} successfully!`);
+            if (!editItem) {
+                setName(''); setSlug(''); setDescription('');
             }
-        } catch (err) {
-            onError('Server error');
+            refreshChapters(subjectId);
+        } catch (err: any) {
+            onError(err.message || 'Failed to save chapter');
         } finally {
             setLoading(false);
         }

@@ -10,6 +10,7 @@ import {
 import styles from './QuizInterface.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/utils/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -93,13 +94,8 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
       
       // 1. Fetch User Bookmarks (Move inside async)
       try {
-        const bookRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-            credentials: 'include'
-        });
-        if (bookRes.ok) {
-            const userData = await bookRes.json();
-            setBookmarks(userData.bookmarks || []);
-        }
+        const userData = await apiFetch<any>('/auth/me');
+        setBookmarks(userData.bookmarks || []);
       } catch (err) { console.error("Failed to fetch bookmarks:", err); }
 
       // 2. Check Storage First (ONLY if not restarting explicitly)
@@ -128,24 +124,20 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
 
       // 3. API Fetch (Fresh Start)
       try {
-        let url;
+        let endpoint;
         if (stream) {
-          url = `${process.env.NEXT_PUBLIC_API_URL}/content/pucet-exam?stream=${stream}`;
+          endpoint = `/content/pucet-exam?stream=${stream}`;
         } else {
-          url = `${process.env.NEXT_PUBLIC_API_URL}/content/questions?slug=${subjectSlug}`;
+          endpoint = `/content/questions?slug=${subjectSlug}`;
           if (chapterId) {
-              url += `&chapterId=${chapterId}`;
+              endpoint += `&chapterId=${chapterId}`;
           }
           if (difficulty && difficulty !== 'all') {
-              url += `&difficulty=${difficulty}`;
+              endpoint += `&difficulty=${difficulty}`;
           }
         }
 
-        const res = await fetch(url, {
-            credentials: 'include'
-        });
-        if (res.ok) {
-          const data = await res.json();
+        const data = await apiFetch<any[]>(endpoint);
           // SHUFFLE ONLY ONCE
           const shuffled = [...data];
           for (let i = shuffled.length - 1; i > 0; i--) {
@@ -162,7 +154,6 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
           setQuestionStats([]);
           setTimeLeft(stream ? 3600 : 180); 
           setStartTime(Date.now());
-        }
       } catch (err) { console.error(err); } 
       finally { setLoading(false); }
     };
@@ -253,10 +244,8 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     if (questions.length === 0) return;
     setSavingResult(true);
     try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/results`, {
+        await apiFetch('/content/results', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({
                 subjectId: questions[0]?.subject._id,
                 score: finalScore,
@@ -318,16 +307,11 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     if (togglingBookmark) return;
     setTogglingBookmark(true);
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/bookmarks`, {
+        const data = await apiFetch<any>('/auth/bookmarks', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ questionId: id }),
-            credentials: 'include'
         });
-        if (res.ok) {
-            const data = await res.json();
-            setBookmarks(data.bookmarks);
-        }
+        setBookmarks(data.bookmarks);
     } catch (err) {
         console.error("Bookmark toggle failed:", err);
     } finally {
@@ -344,27 +328,19 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
     }));
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/explain`, {
+        const data = await apiFetch<any>('/content/explain', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ questionId: id, userChoice: userChoice }),
-            credentials: 'include'
         });
 
-        if (res.ok) {
-            const data = await res.json();
-            // Sanitize smart quotes that break KaTeX
-            const cleanContent = data.explanation
-                .replace(/[“”]/g, '"')
-                .replace(/[‘’]/g, "'");
-            setAiExplanations(prev => ({
-                ...prev,
-                [id]: { content: cleanContent, loading: false }
-            }));
-        } else {
-            const errorText = await res.text();
-            throw new Error(`Server responded with ${res.status}: ${errorText}`);
-        }
+        // Sanitize smart quotes that break KaTeX
+        const cleanContent = data.explanation
+            .replace(/[“”]/g, '"')
+            .replace(/[‘’]/g, "'");
+        setAiExplanations(prev => ({
+            ...prev,
+            [id]: { content: cleanContent, loading: false }
+        }));
     } catch (err: any) {
         console.error("AI Explanation failed:", err);
         setAiExplanations(prev => ({

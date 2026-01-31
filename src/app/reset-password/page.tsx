@@ -6,6 +6,7 @@ import { KeyRound, Lock, ArrowRight, CheckCircle, GraduationCap } from 'lucide-r
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { apiFetch } from '@/utils/api';
 import styles from '@/components/auth/Auth.module.css';
 
 const ResetPasswordContent = () => {
@@ -31,27 +32,19 @@ const ResetPasswordContent = () => {
         setErrorMsg('');
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, {
+            await apiFetch('/auth/reset-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
-            const data = await res.json();
-
-            if (res.ok) {
-                setStatus('success');
-                // Redirect to login
-                setTimeout(() => {
-                    router.push('/login');
-                }, 3000);
-            } else {
-                setStatus('error');
-                setErrorMsg(data.message || 'Reset failed');
-            }
-        } catch (err) {
+            setStatus('success');
+            // Redirect to login
+            setTimeout(() => {
+                router.push('/login');
+            }, 3000);
+        } catch (err: any) {
             setStatus('error');
-            setErrorMsg('Failed to connect to server');
+            setErrorMsg(err.message || 'Reset failed');
         }
     };
 

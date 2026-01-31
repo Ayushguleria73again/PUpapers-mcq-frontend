@@ -58,19 +58,12 @@ const DashboardPage = () => {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/account`, {
+      await apiFetch('/auth/account', {
         method: 'DELETE',
-        credentials: 'include'
       });
 
-      if (res.ok) {
-        await logout();
-        router.push('/');
-      } else {
-        alert('Failed to delete account. Please try again.');
-        setIsDeleting(false);
-        setDeleteStep(0);
-      }
+      await logout();
+      router.push('/');
     } catch (err) {
       console.error('Delete account failed', err);
       alert('An error occurred. Please try again.');

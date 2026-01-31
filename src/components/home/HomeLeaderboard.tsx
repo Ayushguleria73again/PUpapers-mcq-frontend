@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/utils/api';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Crown, ArrowRight } from 'lucide-react';
@@ -12,11 +13,8 @@ const HomeLeaderboard = () => {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/leaderboard`);
-                if (res.ok) {
-                    const data = await res.json(); // returns array of users
-                    setTopStudents(data.slice(0, 3));
-                }
+                const data = await apiFetch<any[]>('/content/leaderboard');
+                setTopStudents(data.slice(0, 3));
             } catch (err) {
                 console.error('Failed to fetch leaderboard');
             }
@@ -84,9 +82,9 @@ const HomeLeaderboard = () => {
                                     className={styles.avatar}
                                     style={{ background: `hsl(${(rank * 137) % 360}, 70%, 80%)` }}
                                 >
-                                    {student.name.charAt(0).toUpperCase()}
+                                    {(student.fullName || student.name || '?').charAt(0).toUpperCase()}
                                 </div>
-                                <h3 className={styles.name}>{student.name}</h3>
+                                <h3 className={styles.name}>{student.fullName || student.name}</h3>
                                 <div className={styles.score}>{student.totalScore}</div>
                                 <div className={styles.details}>
                                     {student.testsTaken} Tests Taken • {student.avgPercentage}% Avg
