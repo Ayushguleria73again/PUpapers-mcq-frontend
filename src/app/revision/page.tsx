@@ -8,7 +8,8 @@ import {
     BrainCircuit, 
     ArrowLeft, 
     BookOpen,
-    Loader2
+    Loader2,
+    Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -37,10 +38,48 @@ const RevisionVaultPage = () => {
     const [bookmarks, setBookmarks] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [toggling, setToggling] = useState<string | null>(null);
+    const [aiExplanations, setAiExplanations] = useState<Record<string, { content: string; loading: boolean }>>({});
 
     useEffect(() => {
         fetchBookmarks();
     }, []);
+
+    const getAIExplanation = async (id: string) => {
+        if (aiExplanations[id]?.loading) return;
+    
+        setAiExplanations(prev => ({
+            ...prev,
+            [id]: { content: '', loading: true }
+        }));
+    
+        try {
+            // We pass -1 or neutral choice since this is revision
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/explain`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ questionId: id, userChoice: -1 }), 
+                credentials: 'include'
+            });
+    
+            if (res.ok) {
+                const data = await res.json();
+                const cleanContent = data.explanation
+                    .replace(/[“”]/g, '"')
+                    .replace(/[‘’]/g, "'");
+                setAiExplanations(prev => ({
+                    ...prev,
+                    [id]: { content: cleanContent, loading: false }
+                }));
+            } else {
+                throw new Error('Failed to generate');
+            }
+        } catch (err: any) {
+            setAiExplanations(prev => ({
+                ...prev,
+                [id]: { content: "Could not connect to AI Tutor. Please try again.", loading: false }
+            }));
+        }
+    };
 
     const fetchBookmarks = async () => {
         try {
@@ -161,6 +200,34 @@ const RevisionVaultPage = () => {
                                         </div>
                                     </div>
                                 )}
+
+                                <div className="ai-section">
+                                    {!aiExplanations[q._id] ? (
+                                        <button 
+                                            className="ai-btn"
+                                            onClick={() => getAIExplanation(q._id)}
+                                        >
+                                            <Sparkles size={16} /> Explain with AI
+                                        </button>
+                                    ) : (
+                                        <div className="ai-box">
+                                            <div className="ai-badge">
+                                                <Sparkles size={12} /> AI TUTOR
+                                            </div>
+                                            {aiExplanations[q._id].loading ? (
+                                                <div className="ai-loading">
+                                                    <Loader2 className="animate-spin" size={16} /> Thinking...
+                                                </div>
+                                            ) : (
+                                                <div className="tiptap-content" style={{ fontSize: '0.95rem', color: '#334155' }}>
+                                                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeKatex]}>
+                                                        {aiExplanations[q._id].content}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </motion.div>
                         ))}
                     </div>
@@ -180,6 +247,44 @@ const RevisionVaultPage = () => {
                     transform: translateY(-2px);
                     box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
                 }
+                .ai-section { margin-top: 1.5rem; border-top: 1px dashed #e2e8f0; padding-top: 1rem; }
+                .ai-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                    border: 1px solid #bae6fd;
+                    color: #0284c7;
+                    padding: 0.6rem 1.2rem;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .ai-btn:hover { background: #e0f2fe; transform: translateY(-1px); }
+                .ai-box {
+                    margin-top: 1rem;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 1.25rem;
+                }
+                .ai-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: #0f172a;
+                    color: #f8fafc;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 0.8rem;
+                }
+                .ai-loading { font-size: 0.9rem; color: #64748b; font-style: italic; display: flex; align-items: center; gap: 8px; }
             `}</style>
         </div>
     );
