@@ -12,9 +12,15 @@ interface Subject {
   slug: string;
   description: string;
   image: string;
+  streams?: string[];
 }
 
-const SubjectGrid = () => {
+interface SubjectGridProps {
+  selectedStream?: 'medical' | 'non-medical' | null;
+  onBack?: () => void;
+}
+
+const SubjectGrid: React.FC<SubjectGridProps> = ({ selectedStream, onBack }) => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +42,10 @@ const SubjectGrid = () => {
     fetchSubjects();
   }, []);
 
+  const filteredSubjects = selectedStream 
+    ? subjects.filter(s => s.streams?.includes(selectedStream))
+    : subjects;
+
   if (loading) {
     return (
       <section className={styles.section}>
@@ -50,12 +60,27 @@ const SubjectGrid = () => {
     <section className={styles.section}>
       <div className="container">
         <div className={styles.header}>
-          <h2>Explore <span>Subjects</span></h2>
+             {onBack && (
+            <button 
+              onClick={onBack}
+              style={{ 
+                position: 'absolute', left: '2rem', top: '1rem', 
+                background: 'none', border: 'none', cursor: 'pointer', 
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                color: '#64748b', fontWeight: 600
+              }}
+            >
+              ← Change Stream
+            </button>
+          )}
+          <h2>
+            {selectedStream === 'medical' ? 'Medical' : selectedStream === 'non-medical' ? 'Non-Medical' : 'Explore'} <span>Subjects</span>
+          </h2>
           <p>Choose your focus area and start practicing with our curated MCQ sets designed specifically for PU CET.</p>
         </div>
 
         <div className={styles.grid}>
-          {subjects.map((subject, index) => (
+          {filteredSubjects.map((subject, index) => (
             <Link href={`/mock-tests/${subject.slug}`} key={subject._id} style={{ textDecoration: 'none' }}>
               <motion.div 
                 className={styles.card}
