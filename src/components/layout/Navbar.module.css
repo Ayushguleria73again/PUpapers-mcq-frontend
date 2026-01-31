@@ -171,31 +171,7 @@
     }
 }
 
-@media (max-width: 768px) {
-    .navLinks {
-        display: none;
-    }
 
-    .userInfo {
-        display: none;
-    }
-
-    .userDropdown {
-        display: none;
-    }
-
-    .navActions>.btn-primary {
-        display: none;
-    }
-
-    .mobileMenuBtn {
-        display: block;
-    }
-
-    .logo {
-        font-size: 1.25rem;
-    }
-}
 
 /* Dropdown Styles */
 .dropdown {
@@ -372,5 +348,32 @@
 
     .mobileMenu {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .navLinks {
+        display: none;
+    }
+
+    .userInfo {
+        display: none;
+    }
+
+    .userDropdown {
+        display: none;
+    }
+
+    /* Target the global btn-primary inside navActions */
+    .navActions> :global(.btn-primary) {
+        display: none;
+    }
+
+    .mobileMenuBtn {
+        display: block;
+    }
+
+    .logo {
+        font-size: 1.25rem;
     }
 }

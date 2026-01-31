@@ -52,14 +52,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = React.useCallback(async () => {
     try {
-      const data = await apiFetch<{ user: User }>('/auth/me');
+      const data = await apiFetch<any>('/auth/me');
       
-      if (data.user) {
-        setUser(data.user);
+      // Handle response structure (direct object vs wrapped)
+      const userData = data.user || data;
+      
+      if (userData && userData._id) {
+        setUser(userData);
       } else {
         setUser(null);
       }
-    } catch {
+    } catch (error) {
+      console.error('Auth check failed:', error);
       setUser(null);
       
       // Redirect if on a protected route

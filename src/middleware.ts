@@ -5,6 +5,8 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
     const { pathname } = request.nextUrl;
 
+
+
     // Paths that require authentication
     const protectedPaths = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
 
