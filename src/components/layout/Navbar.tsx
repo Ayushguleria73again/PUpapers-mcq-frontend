@@ -189,13 +189,31 @@ const Navbar = () => {
                   </motion.li>
                 ))}
                 
+                {/* Admin Panel Link - Mobile */}
+                {user && user.role === 'admin' && (
+                  <motion.li
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <Link 
+                      href="/admin" 
+                      className={`${styles.mobileNavLink} ${pathname.startsWith('/admin') ? styles.activeMobileNavLink : ''}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      style={{ color: '#ef4444' }} 
+                    >
+                      <Shield size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: '-3px' }} /> Admin Panel
+                    </Link>
+                  </motion.li>
+                )}
+
                 <div style={{ padding: '0.5rem 0', fontWeight: 'bold', color: '#888', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px' }}>Explore</div>
                 {exploreLinks.map((link, index) => (
                     <motion.li
                         key={link.path}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: (index + 2) * 0.1 }}
+                        transition={{ delay: (index + 3) * 0.1 }}
                     >
                         <Link 
                             href={link.path}
