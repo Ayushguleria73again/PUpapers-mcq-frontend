@@ -34,15 +34,10 @@ const SubjectGrid: React.FC<SubjectGridProps> = ({ selectedStream, onBack }) => 
     <section className={styles.section}>
       <div className="container">
         <div className={styles.header}>
-             {onBack && (
+              {onBack && (
             <button 
               onClick={onBack}
-              style={{ 
-                position: 'absolute', left: '2rem', top: '1rem', 
-                background: 'none', border: 'none', cursor: 'pointer', 
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                color: '#64748b', fontWeight: 600
-              }}
+              className={styles.backBtn}
             >
               ← Change Stream
             </button>

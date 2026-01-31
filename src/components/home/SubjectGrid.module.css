@@ -20,6 +20,24 @@
     margin: 0 auto;
 }
 
+.backBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    margin-bottom: 2rem;
+}
+
+.backBtn:hover {
+    color: var(--primary);
+    transform: translateX(-4px);
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
