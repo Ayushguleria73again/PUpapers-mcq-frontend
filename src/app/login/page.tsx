@@ -35,8 +35,6 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
-    console.log('Login form submitted:', { email });
     try {
       const data = await apiFetch<LoginResponse>('/auth/login', {
         method: 'POST',
@@ -47,7 +45,7 @@ const LoginPage = () => {
         setStep(2); // OTP step
       } else {
         login(data.user);
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
       }
     } catch (err: unknown) {
       const errorObj = err as Error & { data?: { unverified?: boolean } };
@@ -74,7 +72,7 @@ const LoginPage = () => {
       });
 
       login(data.user);
-      router.push('/dashboard');
+      window.location.href = '/dashboard';
     } catch (err: unknown) {
       setError((err as Error).message || 'Verification failed');
     } finally {
