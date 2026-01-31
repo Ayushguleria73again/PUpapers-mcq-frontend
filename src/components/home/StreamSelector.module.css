@@ -108,3 +108,57 @@
     background: var(--primary);
     color: white;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .section {
+        padding: 3rem 1rem;
+    }
+
+    .header h2 {
+        font-size: 2rem;
+    }
+
+    .header p {
+        font-size: 1rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+        flex-direction: row;
+        text-align: left;
+        gap: 1.25rem;
+        align-items: center;
+    }
+
+    .iconWrapper {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+        margin-bottom: 0;
+    }
+
+    .content h3 {
+        font-size: 1.25rem;
+    }
+
+    .content p {
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h2 {
+        font-size: 1.75rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+}
