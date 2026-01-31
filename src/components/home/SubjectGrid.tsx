@@ -6,14 +6,7 @@ import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
 import styles from './SubjectGrid.module.css';
 
-interface Subject {
-  _id: string;
-  name: string;
-  slug: string;
-  description: string;
-  image: string;
-  streams?: string[];
-}
+import { useContent } from '@/context/ContentContext';
 
 interface SubjectGridProps {
   selectedStream?: 'medical' | 'non-medical' | null;
@@ -21,32 +14,13 @@ interface SubjectGridProps {
 }
 
 const SubjectGrid: React.FC<SubjectGridProps> = ({ selectedStream, onBack }) => {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/subjects`);
-        if (res.ok) {
-          const data = await res.json();
-          setSubjects(data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch subjects', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSubjects();
-  }, []);
+  const { subjects, loadingSubjects } = useContent();
 
   const filteredSubjects = selectedStream 
     ? subjects.filter(s => s.streams?.includes(selectedStream))
     : subjects;
 
-  if (loading) {
+  if (loadingSubjects) {
     return (
       <section className={styles.section}>
         <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>

@@ -7,28 +7,20 @@ import Navbar from '@/components/layout/Navbar';
 
 import styles from './Leaderboard.module.css';
 
+import { useContent } from '@/context/ContentContext';
+
 const LeaderboardPage = () => {
+    const { subjects } = useContent();
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
-    const [subjects, setSubjects] = useState<any[]>([]);
+    // Removed local subjects fetch logic
     const [selectedSubject, setSelectedSubject] = useState('all');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchSubjects();
         fetchLeaderboard('all');
     }, []);
 
-    const fetchSubjects = async () => {
-        try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/subjects`);
-            if (res.ok) {
-                const data = await res.json();
-                setSubjects(data);
-            }
-        } catch (err) {
-            console.error('Failed to fetch subjects');
-        }
-    };
+    // Removed fetchSubjects function
 
     const fetchLeaderboard = async (subjectId: string) => {
         setLoading(true);

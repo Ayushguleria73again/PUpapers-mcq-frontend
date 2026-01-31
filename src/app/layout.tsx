@@ -57,6 +57,9 @@ export const metadata: Metadata = {
   },
 };
 
+import { AuthProvider } from "@/context/AuthContext";
+import { ContentProvider } from "@/context/ContentContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -65,9 +68,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <ContentProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </ContentProvider>
+        </AuthProvider>
       </body>
     </html>
   );

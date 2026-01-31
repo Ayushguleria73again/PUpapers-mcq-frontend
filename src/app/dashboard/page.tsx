@@ -18,52 +18,42 @@ import {
   Bookmark
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import styles from './Dashboard.module.css';
 import { AnimatePresence } from 'framer-motion';
+import { apiFetch } from '@/utils/api';
 
 const DashboardPage = () => {
-  const [user, setUser] = React.useState<any>(null);
+  const router = useRouter();
+  const { user, logout, loading: authLoading } = useAuth();
   const [progress, setProgress] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loadingProgress, setLoadingProgress] = React.useState(true);
   const [showSettings, setShowSettings] = React.useState(false);
   const [deleteStep, setDeleteStep] = React.useState(0); // 0: None, 1: Confirm, 2: Final Verify
   const [isDeleting, setIsDeleting] = React.useState(false);
 
+  const [error, setError] = React.useState<string | null>(null);
+
   React.useEffect(() => {
-    const fetchData = async () => {
+    const fetchProgress = async () => {
       try {
-        // Fetch User
-        const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          credentials: 'include'
-        });
-        
-        if (!userRes.ok) {
-          window.location.href = '/login';
-          return;
-        }
-        
-        const userData = await userRes.json();
-        setUser(userData);
-
-        // Fetch Progress
-        const progressRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/progress`, {
-          credentials: 'include'
-        });
-
-        if (progressRes.ok) {
-          const progressData = await progressRes.json();
-          setProgress(progressData);
-        }
-
-      } catch (err) {
+        console.log('Fetching progress...');
+        const progressData = await apiFetch<any>('/content/progress');
+        console.log('Progress data received:', progressData);
+        setProgress(progressData);
+      } catch (err: any) {
         console.error('Failed to load dashboard data', err);
+        setError(err.message || 'Failed to load progress data');
       } finally {
-        setLoading(false);
+        setLoadingProgress(false);
       }
     };
 
-    fetchData();
-  }, []);
+    if (user) {
+        fetchProgress();
+    }
+  }, [user]);
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -74,7 +64,8 @@ const DashboardPage = () => {
       });
 
       if (res.ok) {
-        window.location.href = '/';
+        await logout();
+        router.push('/');
       } else {
         alert('Failed to delete account. Please try again.');
         setIsDeleting(false);
@@ -88,7 +79,7 @@ const DashboardPage = () => {
     }
   };
 
-  if (loading) {
+  if (authLoading || loadingProgress) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <motion.div 
@@ -100,7 +91,10 @@ const DashboardPage = () => {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+      window.location.href = '/login'; 
+      return null;
+  }
 
   const stats = [
     { label: 'Tests Taken', value: progress?.totalTests || '0', icon: BookOpen, color: '#FF6B00' },
@@ -121,6 +115,11 @@ const DashboardPage = () => {
                 <div>
                     <h1>Welcome back, <span>{user.fullName.split(' ')[0]}</span></h1>
                     <p>Keep practicing to stay ahead in your PU CET Chandigarh preparation.</p>
+                    {error && (
+                      <div style={{ color: '#ef4444', background: '#fee2e2', padding: '0.5rem', borderRadius: '4px', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                        Error: {error}. Check console for details.
+                      </div>
+                    )}
                 </div>
                 <button className={styles.settingsBtn} onClick={() => setShowSettings(!showSettings)}>
                     {user.profileImage ? (

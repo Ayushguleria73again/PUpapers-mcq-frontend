@@ -6,12 +6,15 @@ export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Paths that require authentication
-    const protectedPaths = ['/', '/mock-tests', '/previous-papers', '/about', '/dashboard', '/admin'];
+    const protectedPaths = ['/dashboard', '/admin', '/profile'];
 
     // Paths that should NOT be accessible if logged in
     const authPaths = ['/login', '/signup'];
 
-    if (!token && protectedPaths.includes(pathname)) {
+    // If trying to access a protected path without a token
+    const isProtected = protectedPaths.some(path => pathname.startsWith(path));
+
+    if (!token && isProtected) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 

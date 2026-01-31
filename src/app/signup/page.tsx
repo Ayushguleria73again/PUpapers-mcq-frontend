@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, UserPlus, GraduationCap, Github, LogIn } from 'lucide-react';
 import styles from '@/components/auth/Auth.module.css';
-
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 const SignupPage = () => {
   const [fullName, setFullName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -18,6 +19,9 @@ const SignupPage = () => {
   const [success, setSuccess] = React.useState(false);
   const [resending, setResending] = React.useState(false);
 
+  const { login } = useAuth();
+  const router = useRouter();
+  
   // Handle Signup Form Submission (Step 1)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +79,9 @@ const SignupPage = () => {
       }
 
       setSuccess(true);
+      login(data.user);
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
       }, 1500);
     } catch (err: any) {
       setError(err.message);

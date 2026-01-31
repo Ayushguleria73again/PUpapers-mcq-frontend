@@ -447,7 +447,7 @@ const QuizInterface = ({ subjectSlug, chapterId, difficulty = 'all', stream }: Q
                 {questions.map((q, index) => {
                     const isCorrect = Number(userAnswers[index]) === Number(q.correctOption);
                     return (
-                        <div key={q._id} className={styles.solutionStep}>
+                        <div key={`${q._id}-${index}`} className={styles.solutionStep}>
                             <div className={styles.stepHeader}>
                                 Question {index + 1} • {isCorrect ? <span style={{ color: '#059669' }}>Correct</span> : <span style={{ color: '#dc2626' }}>Incorrect</span>}
                                 {questionStats[index] && (

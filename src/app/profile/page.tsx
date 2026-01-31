@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import styles from './Profile.module.css';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 interface UserData {
     fullName: string;
@@ -25,7 +26,8 @@ interface UserData {
 }
 
 export default function ProfilePage() {
-    const [user, setUser] = useState<UserData | null>(null);
+    const { user, updateUser, loading: authLoading } = useAuth();
+    const [formData, setFormData] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -40,34 +42,31 @@ export default function ProfilePage() {
     }, [previewUrl]);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-                    credentials: 'include'
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setUser(data);
-                }
-            } catch (err) {
-                console.error('Failed to fetch user', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, []);
+        if (!authLoading && user) {
+            setFormData({
+                fullName: user.fullName || '',
+                email: user.email || '',
+                profileImage: user.profileImage || '',
+                bio: (user as any).bio || '',
+                phone: (user as any).phone || '',
+                institution: (user as any).institution || ''
+            });
+            setLoading(false);
+        } else if (!authLoading && !user) {
+             window.location.href = '/login';
+        }
+    }, [user, authLoading]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        if (user) {
-            setUser({ ...user, [name]: value });
+        if (formData) {
+            setFormData({ ...formData, [name]: value });
         }
     };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !user) return;
+        if (!file || !formData) return;
 
         setUploading(true);
         
@@ -75,19 +74,20 @@ export default function ProfilePage() {
         const localUrl = URL.createObjectURL(file);
         setPreviewUrl(localUrl);
 
-        const formData = new FormData();
-        formData.append('image', file);
+        const uploadData = new FormData();
+        uploadData.append('image', file);
 
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile-image`, {
                 method: 'POST',
-                body: formData,
-                credentials: 'include'
+                body: uploadData,
+                credentials: 'include' // Fixed: use uploadData not formData
             });
 
             if (res.ok) {
                 const data = await res.json();
-                setUser({ ...user, profileImage: data.url });
+                setFormData({ ...formData, profileImage: data.url });
+                updateUser({ profileImage: data.url });
                 // Note: We keep previewUrl until next mount/change to avoid flicker
             } else {
                 alert('Failed to upload image. Please try again.');
@@ -104,7 +104,7 @@ export default function ProfilePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        if (!formData) return;
 
         setSaving(true);
         try {
@@ -112,15 +112,23 @@ export default function ProfilePage() {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    fullName: user.fullName,
-                    bio: user.bio,
-                    phone: user.phone,
-                    institution: user.institution
+                    fullName: formData.fullName,
+                    bio: formData.bio,
+                    phone: formData.phone,
+                    institution: formData.institution
                 }),
                 credentials: 'include'
             });
 
             if (res.ok) {
+                // Update global state immediately
+                updateUser({ 
+                    fullName: formData.fullName, 
+                    // @ts-ignore
+                    bio: formData.bio, 
+                    phone: formData.phone, 
+                    institution: formData.institution 
+                });
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 3000);
             }
@@ -131,7 +139,7 @@ export default function ProfilePage() {
         }
     };
 
-    if (loading) {
+    if (loading || authLoading) {
         return (
             <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <motion.div 
@@ -143,7 +151,7 @@ export default function ProfilePage() {
         );
     }
 
-    if (!user) return null;
+    if (!formData) return null;
 
     return (
         <div className={styles.profilePage}>
@@ -165,15 +173,15 @@ export default function ProfilePage() {
                     <form onSubmit={handleSubmit} className={styles.profileSection}>
                         <div className={styles.imageUploadSection}>
                             <div className={styles.imagePreviewWrapper}>
-                                {previewUrl || user.profileImage ? (
+                                {previewUrl || formData.profileImage ? (
                                     <img 
-                                        src={previewUrl || user.profileImage} 
+                                        src={previewUrl || formData.profileImage} 
                                         alt="Profile" 
                                         className={styles.previewImage} 
                                     />
                                 ) : (
                                     <div className={styles.avatarFallback}>
-                                        {user.fullName.charAt(0)}
+                                        {formData.fullName.charAt(0)}
                                     </div>
                                 )}
                                 {uploading && (
@@ -204,7 +212,7 @@ export default function ProfilePage() {
                                 <input 
                                     type="text" 
                                     name="fullName"
-                                    value={user.fullName}
+                                    value={formData.fullName}
                                     onChange={handleInputChange}
                                     required
                                 />
@@ -215,7 +223,7 @@ export default function ProfilePage() {
                                 <div style={{ position: 'relative' }}>
                                     <input 
                                         type="email" 
-                                        value={user.email} 
+                                        value={formData.email} 
                                         disabled 
                                     />
                                     <Mail size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
@@ -226,7 +234,7 @@ export default function ProfilePage() {
                                 <label>Bio</label>
                                 <textarea 
                                     name="bio"
-                                    value={user.bio}
+                                    value={formData.bio}
                                     onChange={handleInputChange}
                                     placeholder="Tell us a bit about yourself..."
                                     rows={3}
@@ -239,7 +247,7 @@ export default function ProfilePage() {
                                     <input 
                                         type="tel" 
                                         name="phone"
-                                        value={user.phone}
+                                        value={formData.phone}
                                         onChange={handleInputChange}
                                         placeholder="+91 00000 00000"
                                     />
@@ -253,7 +261,7 @@ export default function ProfilePage() {
                                     <input 
                                         type="text" 
                                         name="institution"
-                                        value={user.institution}
+                                        value={formData.institution}
                                         onChange={handleInputChange}
                                         placeholder="Panjab University"
                                     />

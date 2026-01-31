@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import SubjectGrid from "@/components/home/SubjectGrid";
 import StreamSelector from "@/components/home/StreamSelector";

@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Mail, Lock, LogIn, Github, GraduationCap, X } from 'lucide-react';
 import styles from '@/components/auth/Auth.module.css';
-
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 const LoginPage = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -16,12 +17,17 @@ const LoginPage = () => {
   const [loading, setLoading] = React.useState(false);
   const [resending, setResending] = React.useState(false);
 
+  const { login } = useAuth();
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    console.log('Login form submitted:', { email });
     try {
+      console.log('Fetching from:', `${process.env.NEXT_PUBLIC_API_URL}/auth/login`);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,18 +35,24 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login res status:', res.status);
       const data = await res.json();
+      console.log('Login res data:', data);
 
       if (!res.ok) {
         if (data.unverified) {
+          console.log('User unverified, moving to OTP step');
           setStep(2);
           return;
         }
         throw new Error(data.message || 'Login failed');
       }
 
-      window.location.href = '/';
+      console.log('Login successful, updating context and redirecting...');
+      login(data.user);
+      router.push('/');
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -64,7 +76,8 @@ const LoginPage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Verification failed');
 
-      window.location.href = '/dashboard';
+      login(data.user);
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {

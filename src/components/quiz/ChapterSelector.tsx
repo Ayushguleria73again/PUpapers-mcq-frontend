@@ -17,6 +17,8 @@ interface Subject {
     image?: string;
 }
 
+import { useContent } from '@/context/ContentContext';
+
 interface ChapterSelectorProps {
     subjectSlug: string;
     onSelect: (chapterId: string | null, difficulty: string) => void;
@@ -24,10 +26,12 @@ interface ChapterSelectorProps {
 }
 
 const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps) => {
+    const { subjects, getChapters } = useContent();
     const [chapters, setChapters] = useState<Chapter[]>([]);
-    const [subject, setSubject] = useState<Subject | null>(null);
     const [loading, setLoading] = useState(true);
     const [difficulty, setDifficulty] = useState('all');
+
+    const subject = subjects.find(s => s.slug === subjectSlug) || null;
 
     const difficulties = [
         { id: 'all', label: 'All Levels', icon: <BrainCircuit size={14} /> },
@@ -37,37 +41,18 @@ const ChapterSelector = ({ subjectSlug, onSelect, onBack }: ChapterSelectorProps
     ];
 
     useEffect(() => {
-        const fetchContent = async () => {
-            try {
-                // 1. Fetch Subject to get ID
-                const subRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/subjects`, {
-                    credentials: 'include'
-                });
-                if (subRes.ok) {
-                    const subjects = await subRes.json();
-                    const currentSub = subjects.find((s: Subject) => s.slug === subjectSlug);
-                    if (currentSub) {
-                        setSubject(currentSub);
-                        
-                        // 2. Fetch Chapters for this subject
-                        const chapRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/chapters?subjectId=${currentSub._id}`, {
-                            credentials: 'include'
-                        });
-                        if (chapRes.ok) {
-                            const chapData = await chapRes.json();
-                            setChapters(chapData);
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error("Failed to fetch chapters:", err);
-            } finally {
+        const loadChapters = async () => {
+             if (subject?._id) {
+                const data = await getChapters(subject._id);
+                setChapters(data);
                 setLoading(false);
-            }
+             }
         };
-
-        fetchContent();
-    }, [subjectSlug]);
+        
+        if (subject) {
+            loadChapters();
+        }
+    }, [subject, getChapters]);
 
     if (loading) {
         return (

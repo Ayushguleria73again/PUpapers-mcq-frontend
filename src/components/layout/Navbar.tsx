@@ -7,31 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import styles from './Navbar.module.css';
 
+import { useAuth } from '@/context/AuthContext';
+
 const Navbar = () => {
   const pathname = usePathname();
-  const [user, setUser] = React.useState<any>(null);
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    // Don't fetch on auth pages
-    if (pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/reset-password') return;
-
-    const checkUser = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          credentials: 'include'
-        });
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-        }
-      } catch (err) {
-        console.error('Failed to check auth status');
-      }
-    };
-
-    checkUser();
-  }, [pathname]);
 
   // Close mobile menu when route changes
   React.useEffect(() => {
@@ -39,15 +20,7 @@ const Navbar = () => {
   }, [pathname]);
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      window.location.href = '/login';
-    } catch (err) {
-      console.error('Logout failed');
-    }
+    await logout();
   };
 
   // Hide navbar on login, signup, active quiz pages, and admin panel
