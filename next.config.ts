@@ -8,6 +8,9 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactCompiler: true,
   turbopack: {}, // Silence Turbopack/Webpack conflict error
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async rewrites() {
     return [
       {

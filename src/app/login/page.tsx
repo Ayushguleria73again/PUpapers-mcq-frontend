@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Mail, Lock, LogIn, Github, GraduationCap, X } from 'lucide-react';
+import { Mail, Lock, LogIn, GraduationCap } from 'lucide-react';
 import styles from '@/components/auth/Auth.module.css';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -39,11 +39,12 @@ const LoginPage = () => {
         login(data.user);
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      if (err.data?.unverified) {
+    } catch (err: unknown) {
+      const error = err as Error & { data?: any };
+      if (error.data?.unverified) {
         setStep(2);
       } else {
-        setError(err.message || 'Login failed');
+        setError(error.message || 'Login failed');
       }
     } finally {
       setLoading(false);
@@ -64,8 +65,8 @@ const LoginPage = () => {
 
       login(data.user);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Verification failed');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Verification failed');
     } finally {
       setLoading(false);
     }
