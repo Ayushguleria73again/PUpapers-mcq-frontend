@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraduationCap, Menu, X, ChevronDown } from 'lucide-react';
+import { GraduationCap, Menu, X, ChevronDown, User as UserIcon, Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 const Navbar = () => {
@@ -116,11 +116,34 @@ const Navbar = () => {
 
           <div className={styles.navActions}>
             {user ? (
-              <div className={styles.userInfo}>
-                <span className={styles.userName}>Hi, {user.fullName.split(' ')[0]}</span>
-                <button onClick={handleLogout} className="btn-primary" style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
-                  Logout
-                </button>
+              <div className={styles.userDropdown}>
+                <div className={styles.userDropdownTrigger}>
+                    <div className={styles.userAvatar}>
+                        {user.fullName.charAt(0).toUpperCase()}
+                    </div>
+                    <span className={styles.userName}>{user.fullName.split(' ')[0]}</span>
+                    <ChevronDown size={14} color="#64748b" />
+                </div>
+                
+                <div className={styles.userDropdownContent}>
+                    <div className={styles.dropdownHeader}>
+                        <div className={styles.dropdownUserName}>{user.fullName}</div>
+                        <div className={styles.dropdownUserEmail}>{user.email}</div>
+                    </div>
+                    
+                    <Link href="/profile" className={styles.dropdownItem}>
+                        <UserIcon size={16} /> Profile
+                    </Link>
+                    <Link href="/dashboard" className={styles.dropdownItem}>
+                        <LayoutDashboard size={16} /> Dashboard
+                    </Link>
+                    
+                    <div className={styles.dropdownDivider} />
+                    
+                    <button onClick={handleLogout} className={styles.dropdownItem} style={{ width: '100%', textAlign: 'left', color: '#ef4444' }}>
+                        <LogOut size={16} /> Logout
+                    </button>
+                </div>
               </div>
             ) : (
               <Link href="/login" className="btn-primary">
