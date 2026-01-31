@@ -25,16 +25,29 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         url += `?${query}`;
     }
 
-    // Set default credentials
+    // Set default keys
     if (init.credentials === undefined) {
         init.credentials = 'include';
     }
 
     // Set default headers
     const headers = new Headers(init.headers);
-    if (init.body && !(init.body instanceof FormData) && !headers.has('Content-Type')) {
+
+    // reliably check for FormData to avoid setting Content-Type
+    const isFormData = init.body instanceof FormData;
+
+    if (init.body && !isFormData && !headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
     }
+
+    // For debugging upload issues
+    if (endpoint.includes('profile-image')) {
+        console.log(`[API] Uploading to ${url}`, {
+            isFormData,
+            hasContentType: headers.has('Content-Type')
+        });
+    }
+
     init.headers = headers;
 
     try {
