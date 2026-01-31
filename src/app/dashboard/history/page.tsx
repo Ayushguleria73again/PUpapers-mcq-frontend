@@ -23,13 +23,8 @@ const HistoryPage = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/history`, {
-            credentials: 'include'
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setHistory(data);
-        }
+        const data = await apiFetch<HistoryItem[]>('/content/history');
+        setHistory(data);
       } catch (err) {
         console.error('Failed to fetch history', err);
       } finally {
