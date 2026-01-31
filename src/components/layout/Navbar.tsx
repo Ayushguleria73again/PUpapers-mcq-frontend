@@ -46,6 +46,7 @@ const Navbar = () => {
     { name: 'Previous Papers', path: '/previous-papers' },
     { name: 'Leaderboard', path: '/leaderboard' },
     { name: 'About', path: '/about' },
+    { name: 'FAQ', path: '/faq' },
   ];
 
   return (

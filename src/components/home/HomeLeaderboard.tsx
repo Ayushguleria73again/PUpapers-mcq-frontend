@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/utils/api';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Crown, ArrowRight } from 'lucide-react';
 import styles from './HomeLeaderboard.module.css';
@@ -14,6 +15,7 @@ interface LeaderboardStudent {
     totalScore: number;
     testsTaken: number;
     avgPercentage: number;
+    profileImage?: string;
 }
 
 const HomeLeaderboard = () => {
@@ -107,7 +109,17 @@ const HomeLeaderboard = () => {
                                     {icon}
                                 </div>
                                 <div className={styles.avatar}>
-                                    {(student.fullName || student.name || '?').charAt(0).toUpperCase()}
+                                    {student.profileImage ? (
+                                        <NextImage 
+                                            src={student.profileImage} 
+                                            alt="User" 
+                                            width={88} 
+                                            height={88} 
+                                            style={{ borderRadius: '50%', objectFit: 'cover', width: '100%', height: '100%' }}
+                                        />
+                                    ) : (
+                                        (student.fullName || student.name || '?').charAt(0).toUpperCase()
+                                    )}
                                 </div>
                                 <h3 className={styles.name}>{student.fullName || student.name}</h3>
                                 <div className={styles.score}>{student.totalScore} pts</div>

@@ -41,6 +41,7 @@ const Footer = () => {
                         <li><Link href="/previous-papers" className={styles.link}>Previous Papers</Link></li>
                         <li><Link href="/leaderboard" className={styles.link}>Leaderboard</Link></li>
                         <li><Link href="/about" className={styles.link}>About Us</Link></li>
+                        <li><Link href="/faq" className={styles.link}>FAQ</Link></li>
                     </ul>
                 </div>
 

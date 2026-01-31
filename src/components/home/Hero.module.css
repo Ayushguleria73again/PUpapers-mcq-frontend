@@ -2,8 +2,8 @@
     min-height: auto;
     display: flex;
     align-items: center;
-    padding-top: 60px;
-    padding-bottom: 40px;
+    padding-top: 120px;
+    padding-bottom: 60px;
     background: linear-gradient(135deg,
             rgba(255, 255, 255, 0.95) 0%,
             rgba(255, 247, 242, 0.9) 100%),
