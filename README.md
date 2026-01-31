@@ -41,7 +41,8 @@ The frontend application for **pupapers.com**, a comprehensive mock test and stu
 
 ## 🌟 Key Features
 
-*   **Responsive Design**: Fully optimized for mobile and desktop.
+*   **AI Tutor**: "Explain with AI" integration in Quizzes and Revision Vault.
+*   **Responsive Design**: Fully optimized for mobile and desktop with dedicated mobile navigation.
 *   **SEO Optimized**: Dynamic metadata, sitemap, and JSON-LD structured data.
 *   **Interactive Quizzes**: Real-time feedback, timers, and result analysis.
 *   **Leaderboard**: Global rankings for top performers.
