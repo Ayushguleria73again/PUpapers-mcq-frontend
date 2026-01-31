@@ -133,7 +133,7 @@ const LoginPage = () => {
                   <label className={styles.label}>Email</label>
                   <div className={styles.inputWrapper}>
                     <Mail className={styles.inputIcon} size={18} />
-                    <input type="email" className={styles.input} placeholder="ayush@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <input type="email" className={styles.input} placeholder="ayush@example.com" value={email} onChange={(e) => setEmail(e.target.value.toLowerCase())} required />
                   </div>
                 </div>
                   <div className={styles.inputGroup}>
