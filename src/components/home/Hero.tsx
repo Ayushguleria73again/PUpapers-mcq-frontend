@@ -1,13 +1,57 @@
 'use client';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { ArrowRight, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import styles from './Hero.module.css';
 import FreeMockTestModal from './FreeMockTestModal';
 
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Google-level animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.25, 0.46, 0.45, 0.94] as const // Google's easing curve
+      }
+    }
+  };
+
+  const imageVariants = {
+    hidden: { 
+      opacity: 0, 
+      scale: 0.8,
+      rotate: -5
+    },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      rotate: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.25, 0.46, 0.45, 0.94] as const,
+        delay: 0.3
+      }
+    }
+  };
 
   return (
     <>
@@ -16,18 +60,24 @@ const Hero = () => {
       <div className={styles.heroWrapper}>
           <motion.div 
             className={styles.heroContent}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
-              <span className={styles.badge}>PUPAPERS: Official Prep Partner</span>
-              <h1 className={styles.title}>
+              <motion.span className={styles.badge} variants={itemVariants}>
+                PUPAPERS: Official Prep Partner
+              </motion.span>
+              <motion.h1 className={styles.title} variants={itemVariants}>
                 Panjab University <span>Chandigarh</span> Previous Year Papers & Mocks
-              </h1>
-              <p className={styles.description}>
+              </motion.h1>
+              <motion.p className={styles.description} variants={itemVariants}>
                 The most secure and optimized platform for PU CET. Access thousands of MCQs, previous year PDF papers, and real-time mock tests for MSc, BSc, and more.
-              </p>
-              <div className={styles.ctaGroup} style={{ position: 'relative', zIndex: 100 }}>
+              </motion.p>
+              <motion.div 
+                className={styles.ctaGroup} 
+                style={{ position: 'relative', zIndex: 100 }}
+                variants={itemVariants}
+              >
                 <motion.button 
                   className="btn-primary"
                   whileHover={{ scale: 1.05 }}
@@ -37,17 +87,25 @@ const Hero = () => {
                 >
                   Take Free Mock Test <ArrowRight size={20} />
                 </motion.button>
-                <button className={styles.secondaryBtn} onClick={() => console.log("Hero CTA Rendering Check")}>
+                <button 
+                  className={styles.secondaryBtn}
+                  onClick={() => {
+                    const subjectsSection = document.querySelector('#subjects-section');
+                    if (subjectsSection) {
+                      subjectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                >
                   View Previous Papers
                 </button>
-              </div>
+              </motion.div>
             </motion.div>
 
             <motion.div 
               className={styles.heroImage}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              variants={imageVariants}
+              initial="hidden"
+              animate="visible"
             >
               <div className={styles.imageContainer}>
                 <BookOpen size={120} color="white" />
@@ -55,26 +113,50 @@ const Hero = () => {
               
               <motion.div 
                 className={`${styles.floatingCard} ${styles.card1}`}
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <CheckCircle color="#FF6B00" size={24} />
-                  <span style={{ fontWeight: 700 }}>5000+ MCQs</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    borderRadius: '12px', 
+                    background: 'rgba(255, 107, 0, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <CheckCircle color="#FF6B00" size={22} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '1.125rem', color: '#1a1a1a', letterSpacing: '-0.01em' }}>5000+ MCQs</div>
+                    <div style={{ fontSize: '0.8125rem', color: '#666', marginTop: '2px' }}>Updated for 2026</div>
+                  </div>
                 </div>
-                <p style={{ fontSize: '0.8rem', color: '#666' }}>Updated for 2026</p>
               </motion.div>
 
               <motion.div 
                 className={`${styles.floatingCard} ${styles.card2}`}
-                animate={{ y: [0, 20, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                animate={{ y: [0, 15, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Clock color="white" size={24} />
-                  <span style={{ fontWeight: 700 }}>Real-time Results</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    borderRadius: '12px', 
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <Clock color="white" size={22} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '1.125rem', letterSpacing: '-0.01em' }}>Real-time Results</div>
+                    <div style={{ fontSize: '0.8125rem', opacity: 0.8, marginTop: '2px' }}>Instant analysis</div>
+                  </div>
                 </div>
-                <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Instant performance analysis</p>
               </motion.div>
           </motion.div>
         </div>
