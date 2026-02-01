@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, BookOpen, Book, FileQuestion, Check, AlertCircle, Trash2 } from 'lucide-react';
+import { Shield, BookOpen, Book, FileQuestion, Check, AlertCircle, Trash2, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/utils/api';
@@ -11,6 +11,7 @@ import { apiFetch } from '@/utils/api';
 import SubjectForm from '@/components/admin/SubjectForm';
 import ChapterForm from '@/components/admin/ChapterForm';
 import QuestionForm from '@/components/admin/QuestionForm';
+import PaperForm from '@/components/admin/PaperForm';
 import ContentManager from '@/components/admin/ContentManager';
 
 interface Subject {
@@ -19,6 +20,7 @@ interface Subject {
     slug: string;
     image?: string;
     description?: string;
+    streams?: string[];
 }
 
 interface Chapter {
@@ -46,9 +48,8 @@ interface User {
     role: string;
 }
 
-
 const AdminPage = () => {
-    const [activeTab, setActiveTab] = useState('subject'); // 'subject', 'chapter', 'question', 'manage'
+    const [activeTab, setActiveTab] = useState('subject'); // 'subject', 'chapter', 'question', 'paper', 'manage'
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [questions, setQuestions] = useState<Question[]>([]);
@@ -127,7 +128,7 @@ const AdminPage = () => {
         if (type === 'chapter' || type === 'question') {
             const itemWithSubject = item as Chapter | Question;
             const subId = typeof itemWithSubject.subject === 'object' ? itemWithSubject.subject._id : itemWithSubject.subject;
-            if (subId) fetchChapters(subId);
+            if (typeof subId === 'string') fetchChapters(subId);
         }
     };
 
@@ -162,7 +163,7 @@ const AdminPage = () => {
                     </div>
                     <div>
                         <h1 style={{ fontSize: '1.8rem' }}>Admin Panel</h1>
-                        <p style={{ color: '#666' }}>Manage subjects and questions.</p>
+                        <p style={{ color: '#666' }}>Manage subjects, questions, and papers.</p>
                     </div>
                 </div>
                 <Link href="/" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.6rem 1.2rem' }}>
@@ -192,6 +193,7 @@ const AdminPage = () => {
                         { id: 'subject', label: 'Add Subject', icon: <BookOpen size={18} /> },
                         { id: 'chapter', label: 'Add Chapter', icon: <Book size={18} /> },
                         { id: 'question', label: 'Add Question', icon: <FileQuestion size={18} /> },
+                        { id: 'paper', label: 'Previous Papers', icon: <FileText size={18} /> },
                         { id: 'manage', label: 'Manage Content', icon: <Trash2 size={18} /> }
                     ].map(tab => (
                         <button key={tab.id} onClick={() => { setActiveTab(tab.id); setEditItem(null); }}
@@ -217,12 +219,15 @@ const AdminPage = () => {
                             const item = editItem as Chapter | null;
                             if (item) {
                                 const subId = typeof item.subject === 'object' ? item.subject._id : item.subject;
-                                fetchChapters(subId);
+                                if (typeof subId === 'string') fetchChapters(subId);
                             }
                         }} />
                     )}
                     {activeTab === 'question' && (
                         <QuestionForm editItem={editItem as Question | null} subjects={subjects} chapters={chapters} onSubjectChange={fetchChapters} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
+                    )}
+                    {activeTab === 'paper' && (
+                        <PaperForm editItem={editItem ? (editItem as any) : null} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
                     )}
                     {activeTab === 'manage' && (
                         <ContentManager subjects={subjects} chapters={chapters} questions={questions} onEdit={handleEdit} onDelete={handleDelete} onFetchChapters={fetchChapters} onFetchQuestions={fetchQuestions} />

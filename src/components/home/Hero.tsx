@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle, Clock } from 'lucide-react';
+import Link from 'next/link';
 import styles from './Hero.module.css';
 import FreeMockTestModal from './FreeMockTestModal';
 
@@ -87,17 +88,12 @@ const Hero = () => {
                 >
                   Take Free Mock Test <ArrowRight size={20} />
                 </motion.button>
-                <button 
+                <Link 
+                  href="/previous-papers"
                   className={styles.secondaryBtn}
-                  onClick={() => {
-                    const subjectsSection = document.querySelector('#subjects-section');
-                    if (subjectsSection) {
-                      subjectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }}
                 >
                   View Previous Papers
-                </button>
+                </Link>
               </motion.div>
             </motion.div>
 
