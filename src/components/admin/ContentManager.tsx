@@ -31,18 +31,28 @@ interface Question {
     chapter?: string | Chapter;
 }
 
+interface Paper {
+    _id: string;
+    title: string;
+    year: number;
+    stream: string;
+    subject: string | Subject | null;
+}
+
 interface ContentManagerProps {
     subjects: Subject[];
     chapters: Chapter[];
     questions: Question[];
-    onEdit: (type: 'subject' | 'chapter' | 'question', item: Subject | Chapter | Question) => void;
-    onDelete: (type: 'subjects' | 'chapters' | 'questions', id: string) => void;
+    papers?: Paper[];
+    onEdit: (type: 'subject' | 'chapter' | 'question' | 'paper', item: Subject | Chapter | Question | Paper) => void;
+    onDelete: (type: 'subjects' | 'chapters' | 'questions' | 'papers', id: string) => void;
     onFetchQuestions: (subjectId: string, chapterId: string) => void;
     onFetchChapters: (subjectId: string) => void;
+    onFetchPapers?: () => void;
 }
 
-const ContentManager = ({ subjects, chapters, questions, onEdit, onDelete, onFetchQuestions, onFetchChapters }: ContentManagerProps) => {
-    const [manageType, setManageType] = useState<'subject' | 'chapter' | 'question'>('subject');
+const ContentManager = ({ subjects, chapters, questions, papers = [], onEdit, onDelete, onFetchQuestions, onFetchChapters, onFetchPapers }: ContentManagerProps) => {
+    const [manageType, setManageType] = useState<'subject' | 'chapter' | 'question' | 'paper'>('subject');
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
     const [selectedChapterId, setSelectedChapterId] = useState('');
     const [loading, setLoading] = useState(false);
@@ -57,8 +67,9 @@ const ContentManager = ({ subjects, chapters, questions, onEdit, onDelete, onFet
         <div style={{ display: 'grid', gap: '1.5rem' }}>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Manage Content</h2>
             
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                {(['subject', 'chapter', 'question'] as const).map((type) => (
+            
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                {(['subject', 'chapter', 'question', 'paper'] as const).map((type) => (
                     <button 
                         key={type}
                         onClick={() => setManageType(type)}
@@ -220,6 +231,44 @@ const ContentManager = ({ subjects, chapters, questions, onEdit, onDelete, onFet
                         </div>
                     ))}
                     {questions.length === 0 && <p style={{ color: '#888' }}>No questions found or fetch to see results.</p>}
+                </div>
+            )}
+
+            {manageType === 'paper' && (
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                    <button 
+                        type="button"
+                        onClick={onFetchPapers}
+                        style={{ padding: '0.6rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', marginBottom: '1rem' }}
+                    >
+                        Refresh Papers
+                    </button>
+
+                    {papers.map(paper => (
+                        <div key={paper._id} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <div style={{ fontWeight: 600 }}>{paper.title}</div>
+                                <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                                    {paper.year} • {paper.stream} • {typeof paper.subject === 'object' && paper.subject ? paper.subject.name : 'General/All'}
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button 
+                                    onClick={() => onEdit('paper', paper)}
+                                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                    <Edit size={14} /> Edit
+                                </button>
+                                <button 
+                                    onClick={() => onDelete('papers', paper._id)}
+                                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#e74c3c', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {papers.length === 0 && <p style={{ color: '#888' }}>No papers found.</p>}
                 </div>
             )}
         </div>

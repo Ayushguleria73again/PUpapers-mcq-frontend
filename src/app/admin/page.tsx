@@ -42,6 +42,14 @@ interface Question {
     chapter?: string | Chapter;
 }
 
+interface Paper {
+    _id: string;
+    title: string;
+    year: number;
+    stream: string;
+    subject: string | Subject | null;
+}
+
 interface User {
     _id: string;
     email: string;
@@ -53,8 +61,9 @@ const AdminPage = () => {
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [papers, setPapers] = useState<Paper[]>([]);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [editItem, setEditItem] = useState<Subject | Chapter | Question | null>(null);
+    const [editItem, setEditItem] = useState<Subject | Chapter | Question | Paper | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
 
@@ -106,6 +115,15 @@ const AdminPage = () => {
         }
     };
 
+    const fetchPapers = async () => {
+        try {
+            const data = await apiFetch<Paper[]>('/content/papers');
+            setPapers(data);
+        } catch (err) {
+            console.error('Papers Load Error');
+        }
+    };
+
     const handleDelete = async (type: string, id: string) => {
         if (!confirm('Are you sure? This action cannot be undone.')) return;
         
@@ -116,15 +134,16 @@ const AdminPage = () => {
 
             setMessage({ type: 'success', text: 'Deleted successfully' });
             if (type === 'subjects') fetchSubjects();
+            if (type === 'papers') fetchPapers();
         } catch (err: unknown) {
             const error = err as Error;
             setMessage({ type: 'error', text: error.message || 'Server error' });
         }
     };
 
-    const handleEdit = (type: string, item: Subject | Chapter | Question) => {
+    const handleEdit = (type: string, item: Subject | Chapter | Question | Paper) => {
         setEditItem(item);
-        setActiveTab(type); // 'subject', 'chapter', 'question'
+        setActiveTab(type); // 'subject', 'chapter', 'question', 'paper'
         if (type === 'chapter' || type === 'question') {
             const itemWithSubject = item as Chapter | Question;
             const subId = typeof itemWithSubject.subject === 'object' ? itemWithSubject.subject._id : itemWithSubject.subject;
@@ -230,7 +249,7 @@ const AdminPage = () => {
                         <PaperForm editItem={editItem ? (editItem as any) : null} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
                     )}
                     {activeTab === 'manage' && (
-                        <ContentManager subjects={subjects} chapters={chapters} questions={questions} onEdit={handleEdit} onDelete={handleDelete} onFetchChapters={fetchChapters} onFetchQuestions={fetchQuestions} />
+                        <ContentManager subjects={subjects} chapters={chapters} questions={questions} papers={papers} onEdit={handleEdit} onDelete={handleDelete} onFetchChapters={fetchChapters} onFetchQuestions={fetchQuestions} onFetchPapers={fetchPapers} />
                     )}
                 </div>
             </div>
