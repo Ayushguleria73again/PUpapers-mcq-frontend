@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
 
 
     // Paths that require authentication
-    const protectedPaths = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
+    const protectedPaths = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/mock-tests'];
 
     // If trying to access a protected path without a token
     const isProtected = protectedPaths.some(path => pathname.startsWith(path));

@@ -31,7 +31,7 @@ const SubjectGrid: React.FC<SubjectGridProps> = ({ selectedStream, onBack }) => 
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.section} id="subjects-section">
       <div className="container">
         <div className={styles.header}>
               {onBack && (

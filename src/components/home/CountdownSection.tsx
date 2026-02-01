@@ -85,7 +85,7 @@ const CountdownSection = () => {
                         <TimeBlock value={timeLeft.seconds} label="Seconds" />
                     </div>
 
-                    <Link href="/pucet-mock" style={{ display: 'inline-block' }}>
+                    <Link href="/mock-tests" style={{ display: 'inline-block' }}>
                          <motion.button 
                             className={styles.ctaButton}
                             whileHover={{ scale: 1.05 }}

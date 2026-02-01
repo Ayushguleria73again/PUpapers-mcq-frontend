@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       
       // Redirect if on a protected route
-      const protectedRoutes = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
+      const protectedRoutes = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/mock-tests'];
       if (typeof window !== 'undefined' && protectedRoutes.some(route => window.location.pathname.startsWith(route))) {
          router.push('/login');
       }

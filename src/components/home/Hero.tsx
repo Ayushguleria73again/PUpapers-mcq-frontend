@@ -4,10 +4,8 @@ import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import styles from './Hero.module.css';
-import FreeMockTestModal from './FreeMockTestModal';
 
 const Hero = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Google-level animation variants
   const containerVariants = {
@@ -84,7 +82,7 @@ const Hero = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => document.getElementById('subjects-section')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   Take Free Mock Test <ArrowRight size={20} />
                 </motion.button>
@@ -158,8 +156,6 @@ const Hero = () => {
         </div>
       </div>
       </section>
-
-      <FreeMockTestModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 };

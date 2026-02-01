@@ -134,7 +134,7 @@ const FreeMockTestModal = ({ isOpen, onClose }: FreeMockTestModalProps) => {
                                 </div>
 
                                 <Link 
-                                    href={selectedSubject ? `/pucet-mock?subject=${selectedSubject}` : '#'}
+                                    href={selectedSubject ? `/mock-tests/${selectedSubject}` : '#'}
                                     style={{ display: 'block', pointerEvents: !selectedSubject ? 'none' : 'auto' }}
                                 >
                                     <button 

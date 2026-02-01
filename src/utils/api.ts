@@ -56,7 +56,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         // Handle Unauthorized/Not Found for session-dependent routes
         if (response.status === 401 || response.status === 404) {
             if (typeof window !== 'undefined') {
-                const protectedRoutes = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/pucet-mock', '/mock-tests'];
+                const protectedRoutes = ['/dashboard', '/admin', '/profile', '/leaderboard', '/revision', '/mock-tests'];
                 if (protectedRoutes.some(route => window.location.pathname.startsWith(route))) {
                     console.warn('Authentication failure detected in API fetch');
                 }
