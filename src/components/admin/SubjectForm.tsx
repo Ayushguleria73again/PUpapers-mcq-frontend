@@ -25,6 +25,7 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
     const [slug, setSlug] = useState('');
     const [icon, setIcon] = useState('Book');
     const [description, setDescription] = useState('');
+    const [streams, setStreams] = useState<string[]>([]);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -34,11 +35,14 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
             setSlug(editItem.slug || '');
             setDescription(editItem.description || '');
             setIcon(typeof editItem.image === 'string' ? editItem.image : '');
+            // @ts-ignore
+            setStreams(editItem.streams || []);
         } else {
             setName('');
             setSlug('');
             setDescription('');
             setIcon('Book');
+            setStreams([]);
             setImageFile(null);
         }
     }, [editItem]);
@@ -55,6 +59,14 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
             .replace(/-+$/, '');
     };
 
+    const handleStreamChange = (stream: string) => {
+        setStreams(prev => 
+            prev.includes(stream) 
+                ? prev.filter(s => s !== stream)
+                : [...prev, stream]
+        );
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -63,6 +75,8 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
             formData.append('name', name);
             formData.append('slug', slug);
             formData.append('description', description);
+            // Send streams as JSON string to handle array nicely with Multer/FormData
+            formData.append('streams', JSON.stringify(streams));
             
             if (imageFile) {
                 formData.append('image', imageFile);
@@ -83,7 +97,7 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
 
             onSuccess(`Subject ${editItem ? 'updated' : 'created'} successfully!`);
             if (!editItem) {
-                setName(''); setSlug(''); setDescription(''); setIcon('Book'); setImageFile(null);
+                setName(''); setSlug(''); setDescription(''); setIcon('Book'); setImageFile(null); setStreams([]);
             }
             refreshSubjects();
         } catch (err: unknown) {
@@ -94,7 +108,8 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
         }
     };
 
-    // AI Chat State
+    // ... (AI Chat State) 
+    // AI Chat logic remains same ...
     const [showChat, setShowChat] = useState(false);
     const [chatInput, setChatInput] = useState('');
     const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([
@@ -192,6 +207,25 @@ const SubjectForm = ({ editItem, onSuccess, onError, onCancel, refreshSubjects }
                         ↺
                     </button>
                 </div>
+            </div>
+            
+            {/* Streams Selection */}
+            <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Streams</label>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    {['medical', 'non-medical', 'commerce', 'arts'].map(s => (
+                        <label key={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: '#f8f9fa', padding: '0.5rem 1rem', borderRadius: '8px', border: streams.includes(s) ? '1px solid #FF6B00' : '1px solid #ddd' }}>
+                            <input 
+                                type="checkbox" 
+                                checked={streams.includes(s)}
+                                onChange={() => handleStreamChange(s)}
+                                style={{ accentColor: '#FF6B00' }}
+                            />
+                            <span style={{ textTransform: 'capitalize' }}>{s.replace('-', ' ')}</span>
+                        </label>
+                    ))}
+                </div>
+                <small style={{ color: '#888' }}>Select streams this subject belongs to.</small>
             </div>
 
             <div>
