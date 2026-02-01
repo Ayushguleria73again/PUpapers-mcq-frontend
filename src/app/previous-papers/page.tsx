@@ -19,7 +19,6 @@ interface Paper {
 export default function PreviousPapersPage() {
     const [papers, setPapers] = useState<Paper[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filterStream, setFilterStream] = useState('all');
     const [filterYear, setFilterYear] = useState('all');
 
     useEffect(() => {
@@ -38,9 +37,8 @@ export default function PreviousPapersPage() {
     };
 
     const filteredPapers = papers.filter(p => {
-        const matchStream = filterStream === 'all' || p.stream === filterStream;
         const matchYear = filterYear === 'all' || p.year.toString() === filterYear;
-        return matchStream && matchYear;
+        return matchYear;
     });
 
     const years = Array.from(new Set(papers.map(p => p.year))).sort((a,b) => b-a);
@@ -71,17 +69,6 @@ export default function PreviousPapersPage() {
                         <Search size={18} />
                         Filter Papers:
                     </div>
-                    <select 
-                        value={filterStream} 
-                        onChange={e => setFilterStream(e.target.value)}
-                        className={styles.selectInput}
-                    >
-                        <option value="all">All Streams</option>
-                        <option value="medical">Medical</option>
-                        <option value="non-medical">Non-Medical</option>
-                        <option value="commerce">Commerce</option>
-                        <option value="arts">Arts</option>
-                    </select>
 
                     <select 
                         value={filterYear} 
