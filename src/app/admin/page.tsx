@@ -106,10 +106,14 @@ const AdminPage = () => {
         }
     };
 
-    const fetchQuestions = async (subjectId: string, chapterId: string) => {
+    const fetchQuestions = async (subjectId: string, chapterId: string, paperId?: string) => {
         try {
-            let endpoint = `/content/questions?subjectId=${subjectId}`;
-            if (chapterId) endpoint += `&chapterId=${chapterId}`;
+            const params = new URLSearchParams();
+            if (subjectId) params.append('subjectId', subjectId);
+            if (chapterId) params.append('chapterId', chapterId);
+            if (paperId) params.append('paperId', paperId);
+
+            const endpoint = `/content/questions?${params.toString()}`;
             const data = await apiFetch<Question[]>(endpoint);
             setQuestions(data);
         } catch (err) {
@@ -157,8 +161,8 @@ const AdminPage = () => {
         
         setActiveTab(type); // 'subject', 'chapter', 'question', 'paper'
         if (type === 'chapter' || type === 'question') {
-            const itemWithSubject = item as Chapter | Question;
-            const subId = typeof itemWithSubject.subject === 'object' ? itemWithSubject.subject._id : itemWithSubject.subject;
+            const sub = (item as any).subject;
+            const subId = (sub && typeof sub === 'object') ? (sub as any)._id : sub;
             if (typeof subId === 'string') fetchChapters(subId);
         }
     };

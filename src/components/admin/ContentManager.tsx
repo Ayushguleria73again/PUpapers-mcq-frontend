@@ -46,7 +46,7 @@ interface ContentManagerProps {
     papers?: Paper[];
     onEdit: (type: 'subject' | 'chapter' | 'question' | 'paper', item: Subject | Chapter | Question | Paper) => void;
     onDelete: (type: 'subjects' | 'chapters' | 'questions' | 'papers', id: string) => void;
-    onFetchQuestions: (subjectId: string, chapterId: string) => void;
+    onFetchQuestions: (subjectId: string, chapterId: string, paperId?: string) => void;
     onFetchChapters: (subjectId: string) => void;
     onFetchPapers?: () => void;
 }
@@ -55,11 +55,21 @@ const ContentManager = ({ subjects, chapters, questions, papers = [], onEdit, on
     const [manageType, setManageType] = useState<'subject' | 'chapter' | 'question' | 'paper'>('subject');
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
     const [selectedChapterId, setSelectedChapterId] = useState('');
+    const [viewingPaperQs, setViewingPaperQs] = useState<Paper | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleFetchQuestions = async () => {
         setLoading(true);
         await onFetchQuestions(selectedSubjectId, selectedChapterId);
+        setLoading(false);
+    };
+
+    const handleFetchPaperQuestions = async (paper: Paper) => {
+        setLoading(true);
+        setViewingPaperQs(paper);
+        // We reuse the same fetchQuestions but pass paperId as a special param
+        // This requires onFetchQuestions to support a 3rd optional param or handle params object
+        await onFetchQuestions(typeof paper.subject === 'object' && paper.subject ? paper.subject._id : '', '', paper._id);
         setLoading(false);
     };
 
@@ -236,45 +246,98 @@ const ContentManager = ({ subjects, chapters, questions, papers = [], onEdit, on
 
             {manageType === 'paper' && (
                 <div style={{ display: 'grid', gap: '1rem' }}>
-                    <button 
-                        type="button"
-                        onClick={onFetchPapers}
-                        style={{ padding: '0.6rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', marginBottom: '1rem' }}
-                    >
-                        Refresh Papers
-                    </button>
-
-                    {papers.map(paper => (
-                        <div key={paper._id} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <div style={{ fontWeight: 600 }}>{paper.title}</div>
-                                <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                                    {paper.year} • {paper.stream} • {typeof paper.subject === 'object' && paper.subject ? paper.subject.name : 'General/All'}
+                    {viewingPaperQs ? (
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff7ed', padding: '1rem', borderRadius: '12px', border: '1px solid #FF6B00', marginBottom: '1rem' }}>
+                                <div>
+                                    <h3 style={{ margin: 0, color: '#9a3412' }}>Managing Questions for: {viewingPaperQs.title}</h3>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#c2410c' }}>{viewingPaperQs.year} • {viewingPaperQs.stream}</p>
                                 </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button 
-                                    onClick={() => onEdit('question', { ...paper, _id: 'new_from_paper', paperId: paper._id } as any)} 
-                                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#FF6B00', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                    onClick={() => setViewingPaperQs(null)}
+                                    style={{ padding: '0.5rem 1rem', background: '#FF6B00', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
                                 >
-                                    <Edit size={14} /> Add Q
-                                </button>
-                                <button 
-                                    onClick={() => onEdit('paper', paper)}
-                                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                                >
-                                    <Edit size={14} /> Edit
-                                </button>
-                                <button 
-                                    onClick={() => onDelete('papers', paper._id)}
-                                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#e74c3c', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
-                                >
-                                    Delete
+                                    Back to Papers
                                 </button>
                             </div>
-                        </div>
-                    ))}
-                    {papers.length === 0 && <p style={{ color: '#888' }}>No papers found.</p>}
+
+                            {questions.map((q) => (
+                                <div key={q._id} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div style={{ maxWidth: '80%' }}>
+                                        <div style={{ fontWeight: 500, marginBottom: '0.2rem' }}>
+                                            <div dangerouslySetInnerHTML={{ __html: q.text.substring(0, 100) + (q.text.length > 100 ? '...' : '') }} />
+                                        </div>
+                                        <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                                            {q.difficulty.toUpperCase()} • {q.explanation ? 'Has Explanation' : 'No Explanation'}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button 
+                                            onClick={() => onEdit('question', q)}
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Edit size={14} /> Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => onDelete('questions', q._id)}
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#e74c3c', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            {questions.length === 0 && <p style={{ color: '#888', textAlign: 'center', padding: '2rem' }}>No questions found in this paper.</p>}
+                        </>
+                    ) : (
+                        <>
+                            <button 
+                                type="button"
+                                onClick={onFetchPapers}
+                                style={{ padding: '0.6rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', marginBottom: '1rem' }}
+                            >
+                                Refresh Papers
+                            </button>
+
+                            {papers.map(paper => (
+                                <div key={paper._id} style={{ padding: '1rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <div>
+                                        <div style={{ fontWeight: 600 }}>{paper.title}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                                            {paper.year} • {paper.stream} • {typeof paper.subject === 'object' && paper.subject ? paper.subject.name : 'General/All'}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button 
+                                            onClick={() => handleFetchPaperQuestions(paper)}
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#FF6B00', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Edit size={14} /> Manage Qs
+                                        </button>
+                                        <button 
+                                            onClick={() => onEdit('question', { ...paper, _id: 'new_from_paper', paperId: paper._id } as any)} 
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#2ecc71', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Edit size={14} /> Add Q
+                                        </button>
+                                        <button 
+                                            onClick={() => onEdit('paper', paper)}
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        >
+                                            <Edit size={14} /> Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => onDelete('papers', paper._id)}
+                                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#e74c3c', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                            {papers.length === 0 && <p style={{ color: '#888' }}>No papers found.</p>}
+                        </>
+                    )}
                 </div>
             )}
         </div>
