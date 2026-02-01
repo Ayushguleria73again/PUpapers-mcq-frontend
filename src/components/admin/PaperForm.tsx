@@ -7,8 +7,8 @@ interface Paper {
     _id?: string;
     title: string;
     year: number;
-    stream: string;
-    subject?: string;
+
+    stream: string[] | string; 
 }
 
 interface Subject {
@@ -18,28 +18,26 @@ interface Subject {
 
 interface PaperFormProps {
     editItem: Paper | null;
-    subjects: Subject[];
     onSuccess: (msg: string) => void;
     onError: (msg: string) => void;
     onCancel: () => void;
 }
 
-const PaperForm = ({ editItem, subjects, onSuccess, onError, onCancel }: PaperFormProps) => {
+const PaperForm = ({ editItem, onSuccess, onError, onCancel }: PaperFormProps) => {
     const [title, setTitle] = useState('');
     const [year, setYear] = useState<number>(new Date().getFullYear());
-    const [stream, setStream] = useState('medical');
-    const [subjectId, setSubjectId] = useState('');
+    const [selectedStreams, setSelectedStreams] = useState<string[]>(['medical']);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (editItem) {
             setTitle(editItem.title);
             setYear(editItem.year);
-            setStream(editItem.stream);
-            // Handle subject population logic if strictly needed, usually it's an ID or object
-            if (editItem.subject) {
-                 // If it's fully populated (object), use _id, else use string
-                 setSubjectId(typeof editItem.subject === 'object' ? (editItem.subject as any)._id : editItem.subject);
+            // Handle migration: convert string to array if needed
+            if (Array.isArray(editItem.stream)) {
+                setSelectedStreams(editItem.stream);
+            } else if (typeof editItem.stream === 'string') {
+                setSelectedStreams([editItem.stream]);
             }
         } else {
             resetForm();
@@ -49,8 +47,7 @@ const PaperForm = ({ editItem, subjects, onSuccess, onError, onCancel }: PaperFo
     const resetForm = () => {
         setTitle('');
         setYear(new Date().getFullYear());
-        setStream('medical');
-        setSubjectId('');
+        setSelectedStreams(['medical']);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -61,8 +58,7 @@ const PaperForm = ({ editItem, subjects, onSuccess, onError, onCancel }: PaperFo
             const payload = {
                 title,
                 year,
-                stream,
-                subject: subjectId || null
+                stream: selectedStreams
             };
 
             const endpoint = editItem 
@@ -122,32 +118,40 @@ const PaperForm = ({ editItem, subjects, onSuccess, onError, onCancel }: PaperFo
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#475569' }}>Stream</label>
-                        <select 
-                            value={stream} 
-                            onChange={e => setStream(e.target.value)}
-                            style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                        >
-                            {['medical', 'non-medical', 'commerce', 'arts'].map(s => (
-                                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                            ))}
-                        </select>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#475569' }}>Streams</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {['medical', 'non-medical', 'commerce', 'arts'].map(s => {
+                                const isSelected = selectedStreams.includes(s);
+                                return (
+                                    <button
+                                        key={s}
+                                        type="button"
+                                        onClick={() => {
+                                            if (isSelected) {
+                                                if (selectedStreams.length > 1) { // Prevent unselecting all
+                                                    setSelectedStreams(prev => prev.filter(item => item !== s));
+                                                }
+                                            } else {
+                                                setSelectedStreams(prev => [...prev, s]);
+                                            }
+                                        }}
+                                        style={{
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '20px',
+                                            border: isSelected ? '1px solid #FF6B00' : '1px solid #cbd5e1',
+                                            background: isSelected ? '#fff7ed' : 'white',
+                                            color: isSelected ? '#FF6B00' : '#64748b',
+                                            fontSize: '0.9rem',
+                                            fontWeight: isSelected ? 600 : 400,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#475569' }}>Subject (Optional)</label>
-                    <select 
-                        value={subjectId} 
-                        onChange={e => setSubjectId(e.target.value)}
-                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                    >
-                        <option value="">-- Select Subject --</option>
-                        {subjects.map(s => (
-                            <option key={s._id} value={s._id}>{s.name} ({s._id.slice(-4)})</option>
-                        ))}
-                    </select>
-                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '4px' }}>Linking a subject helps in filtering and organization.</p>
                 </div>
             </div>
 

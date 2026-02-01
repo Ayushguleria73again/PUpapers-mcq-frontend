@@ -270,7 +270,6 @@ const AdminPage = () => {
                     {activeTab === 'paper' && (
                         <PaperForm 
                             editItem={editItem ? (editItem as any) : null} 
-                            subjects={subjects} // Pass subjects
                             onSuccess={handleSuccess} 
                             onError={handleError} 
                             onCancel={() => {setEditItem(null); setActiveTab('manage');}} 
