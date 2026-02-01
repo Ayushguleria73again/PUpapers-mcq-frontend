@@ -8,14 +8,7 @@ import styles from './SubjectGrid.module.css';
 
 const PUCETSection = () => {
   const items = [
-    {
-      id: 'full-mock',
-      title: 'Full Mock Test',
-      description: 'Complete 60-question exam simulation for PCB & PCM streams.',
-      icon: <Award size={32} />,
-      link: '/pucet-mock',
-      color: '#FF6B00'
-    },
+
     {
       id: 'previous-papers',
       title: 'Previous Papers',
