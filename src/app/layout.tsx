@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import RootWrapper from "@/components/layout/RootWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -57,9 +58,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { AuthProvider } from "@/context/AuthContext";
-import { ContentProvider } from "@/context/ContentContext";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -68,13 +66,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>
-          <ContentProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </ContentProvider>
-        </AuthProvider>
+        <RootWrapper>
+          <Navbar />
+          <main style={{ minHeight: '80vh' }}>
+              {children}
+          </main>
+          <Footer />
+        </RootWrapper>
       </body>
     </html>
   );
