@@ -5,8 +5,9 @@ import { apiFetch } from '@/utils/api';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Crown, ArrowRight } from 'lucide-react';
+import { Crown, ArrowRight, Target, Shield, Star } from 'lucide-react';
 import styles from './HomeLeaderboard.module.css';
+import UserProfileModal from '@/components/shared/UserProfileModal';
 
 interface LeaderboardStudent {
     _id: string;
@@ -16,10 +17,16 @@ interface LeaderboardStudent {
     testsTaken: number;
     avgPercentage: number;
     profileImage?: string;
+    bio?: string;
+    institution?: string;
 }
 
 const HomeLeaderboard = () => {
     const [topStudents, setTopStudents] = useState<LeaderboardStudent[]>([]);
+    
+    // Profile Modal State
+    const [selectedUser, setSelectedUser] = useState<LeaderboardStudent | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
@@ -32,6 +39,20 @@ const HomeLeaderboard = () => {
         };
         fetchLeaderboard();
     }, []);
+
+    // Badge Logic Helper (Duplicated for now, could be util)
+    const getBadges = (user: LeaderboardStudent) => {
+        const badges = [];
+        if (user.avgPercentage >= 90) badges.push({ icon: Target, color: '#ef4444', title: 'Sharpshooter (>90% Acc)' });
+        if (user.testsTaken >= 10) badges.push({ icon: Shield, color: '#3b82f6', title: 'Veteran (>10 Tests)' });
+        if (user.totalScore >= 1000) badges.push({ icon: Star, color: '#eab308', title: 'Legend (>1000 pts)' });
+        return badges;
+    };
+
+    const handleUserClick = (user: LeaderboardStudent) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
 
     if (topStudents.length === 0) return null;
 
@@ -104,6 +125,8 @@ const HomeLeaderboard = () => {
                                     type: "spring",
                                     stiffness: 100 
                                 }}
+                                onClick={() => handleUserClick(student)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <div className={styles.rankBadge}>
                                     {icon}
@@ -121,8 +144,17 @@ const HomeLeaderboard = () => {
                                         (student.fullName || student.name || '?').charAt(0).toUpperCase()
                                     )}
                                 </div>
-                                <h3 className={styles.name}>{student.fullName || student.name}</h3>
-                                <div className={styles.score}>{student.totalScore} pts</div>
+                                <h3 className={styles.name}>
+                                    {student.fullName || student.name}
+                                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginTop: '4px' }}>
+                                        {getBadges(student).map((badge, i) => (
+                                            <span key={i} title={badge.title}>
+                                                <badge.icon size={14} fill={badge.color} color={badge.color} />
+                                            </span>
+                                        ))}
+                                    </div>
+                                </h3>
+                                <div className={styles.score}>{student.totalScore} Points</div>
                                 <div className={styles.details}>
                                     {student.testsTaken} Tests • {student.avgPercentage}% Avg
                                 </div>
@@ -131,9 +163,21 @@ const HomeLeaderboard = () => {
                     })}
                 </div>
 
-                <Link href="/leaderboard" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                    View Full Leaderboard <ArrowRight size={18} />
-                </Link>
+                <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+                    <Link href="/leaderboard" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                        View Full Leaderboard <ArrowRight size={18} />
+                    </Link>
+                </div>
+
+                {/* Profile Modal */}
+                <UserProfileModal 
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    user={selectedUser ? {
+                        ...selectedUser,
+                        name: selectedUser.name || selectedUser.fullName || 'Anonymous'
+                    } : null}
+                />
             </div>
         </section>
     );

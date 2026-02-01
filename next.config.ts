@@ -7,7 +7,7 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactCompiler: true,
-  turbopack: {}, // Silence Turbopack/Webpack conflict error
+  turbopack: {},
   typescript: {
     ignoreBuildErrors: true,
   },

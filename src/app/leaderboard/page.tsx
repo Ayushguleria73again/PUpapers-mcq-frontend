@@ -3,13 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/utils/api';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Crown, Star } from 'lucide-react';
+import { Crown, Star, Target, Shield } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import NextImage from 'next/image';
-
 import styles from './Leaderboard.module.css';
-
 import { useContent } from '@/context/ContentContext';
+import UserProfileModal from '@/components/shared/UserProfileModal';
 
 interface LeaderboardEntry {
     _id: string;
@@ -19,6 +18,8 @@ interface LeaderboardEntry {
     testsTaken: number;
     avgPercentage: number;
     profileImage?: string;
+    bio?: string;
+    institution?: string;
 }
 
 const LeaderboardPage = () => {
@@ -26,6 +27,10 @@ const LeaderboardPage = () => {
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [selectedSubject, setSelectedSubject] = useState('all');
     const [loading, setLoading] = useState(true);
+    
+    // Profile Modal State
+    const [selectedUser, setSelectedUser] = useState<LeaderboardEntry | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         fetchLeaderboard('all');
@@ -53,16 +58,28 @@ const LeaderboardPage = () => {
         fetchLeaderboard(subjectId);
     };
 
+    const handleUserClick = (user: LeaderboardEntry) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
+
     // Separate Top 3 from the rest
     const topThree = leaderboard.slice(0, 3);
     const restOfList = leaderboard.slice(3);
 
     // Helper to get Podium Data safely
     const getPodiumData = (index: number) => {
-        // Map visual position (Left=2nd, Center=1st, Right=3rd) to Array Index
-        // Visual Order: [2nd (idx 1), 1st (idx 0), 3rd (idx 2)]
         if (index >= topThree.length) return null;
         return topThree[index];
+    };
+
+    // Badge Logic Helper
+    const getBadges = (user: LeaderboardEntry) => {
+        const badges = [];
+        if (user.avgPercentage >= 90) badges.push({ icon: Target, color: '#ef4444', title: 'Sharpshooter (>90% Acc)' });
+        if (user.testsTaken >= 10) badges.push({ icon: Shield, color: '#3b82f6', title: 'Veteran (>10 Tests)' });
+        if (user.totalScore >= 1000) badges.push({ icon: Star, color: '#eab308', title: 'Legend (>1000 pts)' });
+        return badges;
     };
 
     const renderPodiumPlace = (place: number, data: LeaderboardEntry | null) => {
@@ -70,20 +87,16 @@ const LeaderboardPage = () => {
         
         let placeClass = '';
         let delay = 0;
-        let rankColor = '';
 
         if (place === 1) { 
             placeClass = styles.firstPlace; 
-            delay = 0.4; // 1st appears last for drama
-            rankColor = '#FFD700';
+            delay = 0.4; 
         } else if (place === 2) { 
             placeClass = styles.secondPlace; 
             delay = 0.2;
-            rankColor = '#C0C0C0';
         } else if (place === 3) { 
             placeClass = styles.thirdPlace; 
             delay = 0.3;
-            rankColor = '#CD7F32';
         }
 
         return (
@@ -92,6 +105,8 @@ const LeaderboardPage = () => {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay, type: 'spring', stiffness: 100 }}
+                onClick={() => handleUserClick(data)}
+                style={{ cursor: 'pointer' }}
             >
                 {place === 1 && (
                     <motion.div 
@@ -122,7 +137,7 @@ const LeaderboardPage = () => {
 
                 <div className={styles.podiumBase}>
                     <div className={styles.podiumName}>{data.fullName || data.name}</div>
-                    <div className={styles.podiumScore}>{data.totalScore} pts</div>
+                    <div className={styles.podiumScore}>{data.totalScore} Points</div>
                     <div className={styles.rankNumber}>{place}</div>
                 </div>
             </motion.div>
@@ -168,7 +183,6 @@ const LeaderboardPage = () => {
                     <>
                         {/* PODIUM SECTION */}
                         <div className={styles.podiumContainer}>
-                            {/* Render order: 2nd, 1st, 3rd */}
                             {renderPodiumPlace(2, getPodiumData(1))}
                             {renderPodiumPlace(1, getPodiumData(0))}
                             {renderPodiumPlace(3, getPodiumData(2))}
@@ -183,6 +197,8 @@ const LeaderboardPage = () => {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.5 + (index * 0.05) }}
                                     className={styles.rankCard}
+                                    onClick={() => handleUserClick(user)}
+                                    style={{ cursor: 'pointer' }}
                                 >
                                     <div className={styles.rankPosition}>#{index + 4}</div>
                                     
@@ -199,12 +215,26 @@ const LeaderboardPage = () => {
                                                 (user.fullName || user.name || '?').charAt(0).toUpperCase()
                                             )}
                                         </div>
-                                        <div className={styles.studentName}>{user.fullName || user.name}</div>
+                                        <div className={styles.studentName}>
+                                            {user.fullName || user.name}
+                                            <div style={{ display: 'inline-flex', gap: '4px', marginLeft: '8px', verticalAlign: 'middle' }}>
+                                                {getBadges(user).map((badge, i) => (
+                                                    <span key={i} title={badge.title}>
+                                                       <badge.icon size={14} fill={badge.color} color={badge.color} />
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className={`${styles.statsCell} ${styles.testsHiddenMobile}`}>
                                         <div className={styles.scoreValue}>{user.testsTaken}</div>
                                         <div className={styles.scoreLabel}>Tests</div>
+                                    </div>
+
+                                    <div className={`${styles.statsCell} ${styles.testsHiddenMobile}`}>
+                                        <div className={styles.scoreValue}>{user.avgPercentage}%</div>
+                                        <div className={styles.scoreLabel}>Avg. Acc.</div>
                                     </div>
 
                                     <div className={styles.statsCell} style={{ textAlign: 'right' }}>
@@ -217,6 +247,16 @@ const LeaderboardPage = () => {
                     </>
                 )}
             </div>
+
+            {/* Profile Modal */}
+            <UserProfileModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                user={selectedUser ? {
+                    ...selectedUser,
+                    name: selectedUser.name || selectedUser.fullName || 'Anonymous'
+                } : null}
+            />
         </div>
     );
 };
