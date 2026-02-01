@@ -15,6 +15,11 @@ interface Chapter {
     name: string;
 }
 
+interface Paper {
+    _id: string;
+    title: string;
+}
+
 interface Question {
     _id: string;
     text: string;
@@ -30,15 +35,18 @@ interface QuestionFormProps {
     editItem: Question | null;
     subjects: Subject[];
     chapters: Chapter[];
+    papers: Paper[]; 
+    initialPaperId?: string; // New Prop
     onSuccess: (message: string) => void;
     onError: (message: string) => void;
     onCancel: () => void;
     onSubjectChange: (subjectId: string) => void;
 }
 
-const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCancel, onSubjectChange }: QuestionFormProps) => {
+const QuestionForm = ({ editItem, subjects, chapters, papers, initialPaperId, onSuccess, onError, onCancel, onSubjectChange }: QuestionFormProps) => {
     const [subjectId, setSubjectId] = useState('');
     const [chapterId, setChapterId] = useState('');
+    const [paperId, setPaperId] = useState(''); 
     const [text, setText] = useState('');
     const [options, setOptions] = useState(['', '', '', '']);
     const [correctOption, setCorrectOption] = useState(0);
@@ -50,19 +58,24 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
         if (editItem) {
             setSubjectId(typeof editItem.subject === 'string' ? editItem.subject : editItem.subject?._id || '');
             setChapterId(typeof editItem.chapter === 'string' ? editItem.chapter : editItem.chapter?._id || '');
+            // @ts-ignore
+            setPaperId(editItem.paper || '');
             setText(editItem.text || '');
             setOptions(editItem.options || ['', '', '', '']);
             setCorrectOption(editItem.correctOption ?? 0);
             setExplanation(editItem.explanation || '');
             setDifficulty(editItem.difficulty || 'medium');
         } else {
+            // New entry logic
+            if (initialPaperId) setPaperId(initialPaperId);
+
             if (subjects.length > 0 && !subjectId) {
                 const firstSubId = subjects[0]._id;
                 setSubjectId(firstSubId);
                 onSubjectChange(firstSubId);
             }
         }
-    }, [editItem, subjects, onSubjectChange, subjectId]);
+    }, [editItem, subjects, onSubjectChange, subjectId, initialPaperId]);
 
     const handleOptionChange = (index: number, value: string) => {
         const newOptions = [...options];
@@ -85,6 +98,7 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                 body: JSON.stringify({
                     subjectId,
                     chapterId: chapterId || null, 
+                    paperId: paperId || null,
                     text,
                     options,
                     correctOption,
@@ -172,7 +186,7 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Subject</label>
                     <select 
@@ -181,9 +195,9 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                             setSubjectId(e.target.value);
                             onSubjectChange(e.target.value);
                         }}
-                        required
                         style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
                     >
+                        <option value="">-- No Subject (General) --</option>
                         {subjects.map(sub => (
                             <option key={sub._id} value={sub._id}>{sub.name}</option>
                         ))}
@@ -200,6 +214,20 @@ const QuestionForm = ({ editItem, subjects, chapters, onSuccess, onError, onCanc
                         <option value="">-- No Chapter --</option>
                         {chapters.map(chap => (
                             <option key={chap._id} value={chap._id}>{chap.name}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Paper (Optional)</label>
+                    <select 
+                        value={paperId}
+                        onChange={(e) => setPaperId(e.target.value)}
+                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd', background: paperId ? '#fff7ed' : 'white', borderColor: paperId ? '#FF6B00' : '#ddd' }}
+                    >
+                        <option value="">-- No Paper --</option>
+                        {papers?.map(p => (
+                            <option key={p._id} value={p._id}>{p.title}</option>
                         ))}
                     </select>
                 </div>

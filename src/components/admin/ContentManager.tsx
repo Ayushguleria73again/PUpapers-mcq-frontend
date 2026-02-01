@@ -254,6 +254,12 @@ const ContentManager = ({ subjects, chapters, questions, papers = [], onEdit, on
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button 
+                                    onClick={() => onEdit('question', { ...paper, _id: 'new_from_paper', paperId: paper._id } as any)} 
+                                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#FF6B00', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                >
+                                    <Edit size={14} /> Add Q
+                                </button>
+                                <button 
                                     onClick={() => onEdit('paper', paper)}
                                     style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem', background: '#3498db', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                                 >

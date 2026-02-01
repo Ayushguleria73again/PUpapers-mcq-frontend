@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import "./globals.css";
 import RootWrapper from "@/components/layout/RootWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -67,11 +66,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <RootWrapper>
-          <Navbar />
-          <main style={{ minHeight: '80vh' }}>
-              {children}
-          </main>
-          <Footer />
+            {children}
         </RootWrapper>
       </body>
     </html>

@@ -62,6 +62,7 @@ const AdminPage = () => {
     const [chapters, setChapters] = useState<Chapter[]>([]);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [papers, setPapers] = useState<Paper[]>([]);
+    const [initialPaperId, setInitialPaperId] = useState(''); // New State
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [editItem, setEditItem] = useState<Subject | Chapter | Question | Paper | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -77,6 +78,7 @@ const AdminPage = () => {
             if (userData?.role === 'admin') {
                 setIsAdmin(true);
                 fetchSubjects();
+                fetchPapers(); // Fetch papers for the forms
             } else {
                 router.push('/dashboard');
             }
@@ -142,7 +144,17 @@ const AdminPage = () => {
     };
 
     const handleEdit = (type: string, item: Subject | Chapter | Question | Paper) => {
+        // Special case: Add Question from Paper list
+        if (type === 'question' && (item as any)._id === 'new_from_paper') {
+             setEditItem(null);
+             setInitialPaperId((item as any).paperId);
+             setActiveTab('question');
+             return;
+        }
+
         setEditItem(item);
+        if(type !== 'question') setInitialPaperId(''); // Reset if not adding question
+        
         setActiveTab(type); // 'subject', 'chapter', 'question', 'paper'
         if (type === 'chapter' || type === 'question') {
             const itemWithSubject = item as Chapter | Question;
@@ -243,10 +255,26 @@ const AdminPage = () => {
                         }} />
                     )}
                     {activeTab === 'question' && (
-                        <QuestionForm editItem={editItem as Question | null} subjects={subjects} chapters={chapters} onSubjectChange={fetchChapters} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
+                        <QuestionForm 
+                            editItem={editItem as Question | null} 
+                            subjects={subjects} 
+                            chapters={chapters} 
+                            papers={papers} 
+                            initialPaperId={initialPaperId} // Pass prop
+                            onSubjectChange={fetchChapters} 
+                            onSuccess={handleSuccess} 
+                            onError={handleError} 
+                            onCancel={() => {setEditItem(null); setActiveTab('manage'); setInitialPaperId('');}} 
+                        />
                     )}
                     {activeTab === 'paper' && (
-                        <PaperForm editItem={editItem ? (editItem as any) : null} onSuccess={handleSuccess} onError={handleError} onCancel={() => {setEditItem(null); setActiveTab('manage');}} />
+                        <PaperForm 
+                            editItem={editItem ? (editItem as any) : null} 
+                            subjects={subjects} // Pass subjects
+                            onSuccess={handleSuccess} 
+                            onError={handleError} 
+                            onCancel={() => {setEditItem(null); setActiveTab('manage');}} 
+                        />
                     )}
                     {activeTab === 'manage' && (
                         <ContentManager subjects={subjects} chapters={chapters} questions={questions} papers={papers} onEdit={handleEdit} onDelete={handleDelete} onFetchChapters={fetchChapters} onFetchQuestions={fetchQuestions} onFetchPapers={fetchPapers} />

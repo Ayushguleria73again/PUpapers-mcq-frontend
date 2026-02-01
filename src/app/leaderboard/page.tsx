@@ -9,6 +9,7 @@ import NextImage from 'next/image';
 import styles from './Leaderboard.module.css';
 import { useContent } from '@/context/ContentContext';
 import UserProfileModal from '@/components/shared/UserProfileModal';
+import { useAuth } from '@/context/AuthContext';
 
 interface LeaderboardEntry {
     _id: string;
@@ -23,6 +24,7 @@ interface LeaderboardEntry {
 }
 
 const LeaderboardPage = () => {
+    const { user: currentUser } = useAuth();
     const { subjects } = useContent();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [selectedSubject, setSelectedSubject] = useState('all');
@@ -144,6 +146,10 @@ const LeaderboardPage = () => {
         );
     };
 
+    // Find current user's rank
+    const currentUserRankIndex = leaderboard.findIndex(u => u._id === currentUser?._id);
+    const currentUserEntry = currentUserRankIndex !== -1 ? leaderboard[currentUserRankIndex] : null;
+
     return (
         <div className={styles.pageWrapper}>
             <Navbar />
@@ -247,6 +253,27 @@ const LeaderboardPage = () => {
                     </>
                 )}
             </div>
+
+            {/* Sticky Current User Footer */}
+            {currentUserEntry && (
+                <motion.div 
+                    initial={{ y: 100 }}
+                    animate={{ y: 0 }}
+                    className={styles.stickyFooter}
+                    onClick={() => handleUserClick(currentUserEntry)}
+                >
+                    <div className={styles.stickyContent}>
+                        <div className={styles.stickyRank}>#{currentUserRankIndex + 1}</div>
+                        <div className={styles.stickyInfo}>
+                            <div className={styles.stickyName}>You</div>
+                            <div className={styles.stickyScore}>{currentUserEntry.totalScore} pts</div>
+                        </div>
+                        <div className={styles.stickyStats}>
+                            <span>{currentUserEntry.avgPercentage}% Acc</span>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
 
             {/* Profile Modal */}
             <UserProfileModal 
