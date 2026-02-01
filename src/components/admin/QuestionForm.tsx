@@ -69,7 +69,7 @@ const QuestionForm = ({ editItem, subjects, chapters, papers, initialPaperId, on
             // New entry logic
             if (initialPaperId) setPaperId(initialPaperId);
 
-            if (subjects.length > 0 && !subjectId) {
+            if (subjects.length > 0 && !subjectId && !initialPaperId) {
                 const firstSubId = subjects[0]._id;
                 setSubjectId(firstSubId);
                 onSubjectChange(firstSubId);
@@ -96,7 +96,7 @@ const QuestionForm = ({ editItem, subjects, chapters, papers, initialPaperId, on
             await apiFetch(endpoint, {
                 method,
                 body: JSON.stringify({
-                    subjectId,
+                    subjectId: subjectId || null,
                     chapterId: chapterId || null, 
                     paperId: paperId || null,
                     text,
@@ -186,37 +186,41 @@ const QuestionForm = ({ editItem, subjects, chapters, papers, initialPaperId, on
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Subject</label>
-                    <select 
-                        value={subjectId}
-                        onChange={(e) => {
-                            setSubjectId(e.target.value);
-                            onSubjectChange(e.target.value);
-                        }}
-                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
-                    >
-                        <option value="">-- No Subject (General) --</option>
-                        {subjects.map(sub => (
-                            <option key={sub._id} value={sub._id}>{sub.name}</option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Chapter</label>
-                    <select 
-                        value={chapterId}
-                        onChange={(e) => setChapterId(e.target.value)}
-                        style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
-                    >
-                        <option value="">-- No Chapter --</option>
-                        {chapters.map(chap => (
-                            <option key={chap._id} value={chap._id}>{chap.name}</option>
-                        ))}
-                    </select>
-                </div>
+            <div style={{ display: 'grid', gridTemplateColumns: paperId ? '1fr' : '1fr 1fr 1fr', gap: '1rem' }}>
+                {!paperId && (
+                    <>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Subject</label>
+                            <select 
+                                value={subjectId}
+                                onChange={(e) => {
+                                    setSubjectId(e.target.value);
+                                    onSubjectChange(e.target.value);
+                                }}
+                                style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                            >
+                                <option value="">-- No Subject (General) --</option>
+                                {subjects.map(sub => (
+                                    <option key={sub._id} value={sub._id}>{sub.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Chapter</label>
+                            <select 
+                                value={chapterId}
+                                onChange={(e) => setChapterId(e.target.value)}
+                                style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                            >
+                                <option value="">-- No Chapter --</option>
+                                {chapters.map(chap => (
+                                    <option key={chap._id} value={chap._id}>{chap.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </>
+                )}
 
                 <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Paper (Optional)</label>
