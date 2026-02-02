@@ -146,6 +146,32 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.removePhotoBtn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    padding: 0.85rem 1.5rem;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.removePhotoBtn:hover {
+    background: #fef2f2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.removePhotoBtn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
 /* Form Styles */
 .formGrid {
     display: flex;

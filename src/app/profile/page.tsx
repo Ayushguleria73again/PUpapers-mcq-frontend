@@ -11,7 +11,8 @@ import {
     School, 
     Save, 
     ArrowLeft,
-    CheckCircle
+    CheckCircle,
+    Trash2
 } from 'lucide-react';
 import styles from './Profile.module.css';
 import Link from 'next/link';
@@ -93,6 +94,28 @@ export default function ProfilePage() {
             console.error('Image upload failed', error);
             alert(error.message || 'An error occurred during upload.');
             setPreviewUrl(null);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleDeleteImage = async () => {
+        if (!formData || !formData.profileImage) return;
+        if (!confirm('Are you sure you want to remove your profile picture?')) return;
+
+        setUploading(true);
+        try {
+            await apiFetch('/auth/profile-image', {
+                method: 'DELETE',
+            });
+
+            setFormData({ ...formData, profileImage: '' });
+            updateUser({ profileImage: '' });
+            setPreviewUrl(null);
+        } catch (err: unknown) {
+            const error = err as Error;
+            console.error('Image deletion failed', error);
+            alert(error.message || 'An error occurred while removing the image.');
         } finally {
             setUploading(false);
         }
@@ -197,6 +220,18 @@ export default function ProfilePage() {
                                     disabled={uploading}
                                 />
                             </label>
+                            
+                            {(previewUrl || formData.profileImage) && (
+                                <button 
+                                    type="button"
+                                    className={styles.removePhotoBtn}
+                                    onClick={handleDeleteImage}
+                                    disabled={uploading}
+                                >
+                                    <Trash2 size={16} /> 
+                                    {uploading ? 'Removing...' : 'Remove Photo'}
+                                </button>
+                            )}
                         </div>
 
                         <div className={styles.formGrid}>
